@@ -6,6 +6,9 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  */
 
+#ifdef HAVE_PYTHON
+# include "bjam.h"
+#endif
 #include "jam.h"
 #include "function.h"
 

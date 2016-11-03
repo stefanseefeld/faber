@@ -96,7 +96,7 @@
  *  variable.c - handle jam multi-element variables
  */
 
-
+#include "bjam.h"
 #include "jam.h"
 #include "patchlevel.h"
 
@@ -205,15 +205,7 @@ static void run_unit_tests()
 
 int anyhow = 0;
 
-#ifdef HAVE_PYTHON
-    extern PyObject * bjam_call         ( PyObject * self, PyObject * args );
-    extern PyObject * bjam_import_rule  ( PyObject * self, PyObject * args );
-    extern PyObject * bjam_define_action( PyObject * self, PyObject * args );
-    extern PyObject * bjam_variable     ( PyObject * self, PyObject * args );
-    extern PyObject * bjam_backtrace    ( PyObject * self, PyObject * args );
-    extern PyObject * bjam_caller       ( PyObject * self, PyObject * args );
-    int python_optimize = 1;  /* Set Python optimzation on by default */
-#endif
+int python_optimize = 1;  /* Set Python optimzation on by default */
 
 void regex_done();
 
@@ -381,33 +373,8 @@ int main( int argc, char * * argv, char * * arg_environ )
 
     {
         PROFILE_ENTER( MAIN );
-
 #ifdef HAVE_PYTHON
-        {
-            PROFILE_ENTER( MAIN_PYTHON );
-            Py_OptimizeFlag = python_optimize;
-            Py_Initialize();
-            {
-                static PyMethodDef BjamMethods[] = {
-                    {"call", bjam_call, METH_VARARGS,
-                     "Call the specified bjam rule."},
-                    {"import_rule", bjam_import_rule, METH_VARARGS,
-                     "Imports Python callable to bjam."},
-                    {"define_action", bjam_define_action, METH_VARARGS,
-                     "Defines a command line action."},
-                    {"variable", bjam_variable, METH_VARARGS,
-                     "Obtains a variable from bjam's global module."},
-                    {"backtrace", bjam_backtrace, METH_VARARGS,
-                     "Returns bjam backtrace from the last call into Python."},
-                    {"caller", bjam_caller, METH_VARARGS,
-                     "Returns the module from which the last call into Python is made."},
-                    {NULL, NULL, 0, NULL}
-                };
-
-                Py_InitModule( "bjam", BjamMethods );
-            }
-            PROFILE_EXIT( MAIN_PYTHON );
-        }
+	bjam_init(python_optimize);
 #endif
 
 #ifndef NDEBUG
