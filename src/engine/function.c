@@ -6,6 +6,7 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  */
 
+#include "bjam.h"
 #include "jam.h"
 #include "function.h"
 

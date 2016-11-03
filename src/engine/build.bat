@@ -550,6 +550,7 @@ set BJAM_SOURCES=%BJAM_SOURCES% cwd.c w32_getreg.c native.c modules/set.c
 set BJAM_SOURCES=%BJAM_SOURCES% modules/path.c modules/regex.c
 set BJAM_SOURCES=%BJAM_SOURCES% modules/property-set.c modules/sequence.c
 set BJAM_SOURCES=%BJAM_SOURCES% modules/order.c
+set BJAM_SOURCES=%BJAM_SOURCES% bjam.c
 
 set BJAM_UPDATE=
 :Check_Update
