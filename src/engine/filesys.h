@@ -88,6 +88,7 @@ FILELIST * filelist_push_front( FILELIST * list, OBJECT * path );
 FILELIST * filelist_pop_front( FILELIST * list );
 int filelist_length( FILELIST * list );
 void filelist_free( FILELIST * list );
+int filelist_empty( FILELIST * list );
 
 FILELISTITER filelist_begin( FILELIST * list );
 FILELISTITER filelist_end( FILELIST * list );

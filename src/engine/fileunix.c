@@ -102,6 +102,7 @@ struct ar_hdr  /* archive file member header - printable ascii */
 # include <ar.h>
 #endif
 
+int file_collect_archive_content_( file_archive_info_t * const archive );
 
 /*
  * file_collect_dir_content_() - collects directory content information

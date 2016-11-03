@@ -8,6 +8,8 @@
 #ifndef BJAM_MEM_H
 #define BJAM_MEM_H
 
+#include "config.h"
+
 #ifdef OPT_BOEHM_GC
 
     /* Use Boehm GC memory allocator. */

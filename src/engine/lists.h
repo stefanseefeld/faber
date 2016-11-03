@@ -43,10 +43,6 @@
 
 #include "object.h"
 
-#ifdef HAVE_PYTHON
-# include <Python.h>
-#endif
-
 /*
  * LIST - list of strings
  */

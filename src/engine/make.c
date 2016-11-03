@@ -44,7 +44,7 @@
 #include "search.h"
 #include "timestamp.h"
 #include "variable.h"
-
+#include "output.h"
 #include <assert.h>
 
 #ifndef max
