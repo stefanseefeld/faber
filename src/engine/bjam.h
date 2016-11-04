@@ -13,6 +13,4 @@
 
 PyObject *list_to_python(LIST * l);
 
-void bjam_init(int optimize);
-
 #endif
