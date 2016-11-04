@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2016 Stefan Seefeld
+# All rights reserved.
+#
+# This file is part of Faber. It is made available under the
+# Boost Software License, Version 1.0.
+# (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
+
+from faber import engine
+from faber import project
+import os.path
+import argparse
+
+class PosArgsParser(argparse.Action):
+    def __init__(self, option_strings, dest, **kwds):
+        argparse.Action.__init__(self, option_strings, dest, **kwds)
+    # Separates positional arguments into targets and parameters
+    def __call__(self, parser, namespace, values, option_string=None):
+        if namespace.parameters is None:
+            namespace.parameters={}
+        if not namespace.goals:
+            namespace.goals=[]
+        for v in values:
+            if '=' in v:
+                name, value = v.split('=', 1)
+                if name in namespace.parameters:
+                    if type(namespace.parameters[name]) is not list:
+                        namespace.parameters[name] = [namespace.parameters[name]]
+                    namespace.parameters[name].append(value)
+                else:
+                    namespace.parameters[name] = value
+            else:
+                namespace.goals.append(v)
+
+def main(argv):
+
+    parser = argparse.ArgumentParser(prog=argv[0],
+                                     description='Faber is a construction tool.')
+    log_topics = dict(actions=2, commands=4, dependencies=1<<12)
+
+    parser.add_argument('goals', metavar='GOAL', nargs='*',
+                        action=PosArgsParser,
+                        help='a goal to update')
+    parser.add_argument('parameters', metavar='PARAMETER=VALUE', nargs='*',
+                        action=PosArgsParser,
+                        help='a parameter value')
+    parser.add_argument('--srcdir', default='.',
+                        help='the location of the source directory')
+    parser.add_argument('--builddir', default='.',
+                        help='the location of the build directory')
+    parser.add_argument('--rc', default=None,
+                        help='the location of the rc file')
+    logging = parser.add_mutually_exclusive_group()
+    logging.add_argument('--log', action='append',
+                           choices=log_topics.keys(),
+                           help='set logging topic')
+    logging.add_argument('-s', '--silent', action='store_true',
+                           help='suppress all output')
+    parser.add_argument('-j', '--parallel', type=int, default=1,
+                        help='set concurrency level')
+    parser.add_argument('--debug', action='store_true',
+                        help='do not suppress traceback on error')
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='update goals even if they are current')
+    parser.add_argument('-n', '--noexec', action='store_true',
+                        help='do not actually execute actions')
+    parser.add_argument('-t', '--timeout', type=int, default=0,
+                        help='set timeout for individual actions')
+    parser.add_argument('-i', '--info', action='store_true',
+                        help='print information about the build logic')
+    try:
+        args, unknown = parser.parse_known_args(argv[1:])
+        def with_gen(w):
+            k,v = w.split('=',1) if '=' in w else (w,None)
+            yield k[7:]
+            yield v
+        with_ = dict(map(with_gen, [w for w in unknown if w.startswith('--with-')]))
+        without = [w[10:] for w in unknown if w.startswith('--without-')]
+        args.config = dict(with_=with_, without=without)
+        unknown = [a for a in unknown if not a.startswith('--with-') and not a.startswith('--without-')]
+        if unknown:
+            raise ValueError('unknown option {}'.format(unknown[0]))
+
+        cfg = {}
+        if args.debug:
+            import logging
+            logging.basicConfig(level=logging.DEBUG)
+        if args.silent:
+            log = 0
+        elif args.log:
+            from operator import add
+            from functools import reduce
+            log = reduce(add, [log_topics[l] for l in args.log])
+        else:
+            log = 2
+        engine.setopts(log=log,
+                       jobs=args.parallel,
+                       force=args.force,
+                       timeout=args.timeout,
+                       noexec=args.noexec)
+        if args.rc:
+            cfg = project.config(os.path.expanduser(args.rc))
+        elif os.path.exists(os.path.expanduser('~/.faber')):
+            cfg = project.config(os.path.expanduser('~/.faber'))
+        if args.info:
+            return project.info(args.goals, args.parameters,
+                                args.srcdir, args.builddir)
+        else:
+            return project.build(args.goals, args.parameters,
+                                 args.srcdir, args.builddir)
+    except Exception as e:
+        if args.debug:
+            raise
+        else:
+            print('Error: {}'.format(e))
+        return False
+    return True
+
+
+if __name__ == '__main__':
+
+    import sys
+    sys.exit(0 if main(sys.argv) else 1)
