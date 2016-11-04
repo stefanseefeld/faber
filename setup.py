@@ -42,7 +42,7 @@ bjam = Extension(name='faber.bjam',
                                 ('OPT_SEMAPHORE', None),
                                 ('OPT_GRAPH_DEBUG_EXT', None)],
                  libraries=libraries)
-scripts = []
+scripts = ['scripts/faber']
 data = [('share/doc/faber-{}'.format(version), ('LICENSE', 'README.md'))]
 
 def find_packages(root_dir, root_name):

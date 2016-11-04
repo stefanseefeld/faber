@@ -1,0 +1,94 @@
+#
+# Copyright (c) 2016 Stefan Seefeld
+# All rights reserved.
+#
+# This file is part of Faber. It is made available under the
+# Boost Software License, Version 1.0.
+# (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
+
+from __future__ import absolute_import
+from . import scheduler
+from .action import action
+from .artefact import artefact, source, notfile
+from .utils import aslist
+from types import FunctionType, MethodType
+import logging
+
+logger = logging.getLogger('rules')
+
+
+def depend(target, dependencies):
+    """Declare `target` to depend on `dependencies`."""
+
+    dependencies = aslist(dependencies)
+    scheduler.add_dependency(target, dependencies)
+
+
+def _rule(recipe, targets, sources, deps, attrs, features, module):
+
+    path_spec = ''
+    if recipe:
+        # instantiate recipe
+        if type(recipe) in (FunctionType, MethodType):
+            recipe = action(recipe.__name__, recipe)
+        elif recipe and recipe.abstract:
+            recipe = recipe.instantiate(features)
+        path_spec = recipe.path_spec
+
+    targets = aslist(targets)
+    sources = aslist(sources)
+    logger.info('rule: {} <- {} with {}'.format(targets, sources, recipe))
+    deps = aslist(deps)
+    # instantiate artefacts for sources and dependencies
+    sources = [source.instantiate(s, module) for s in sources]
+    deps = [artefact.instantiate(d, module) for d in deps]
+
+    # instantiate artefacts for targets
+    def instantiate(a):
+        if isinstance(a, artefact):
+            a.attrs |= attrs
+            a.path_spec = path_spec
+        else:
+            a = artefact(a, attrs, features=features, path_spec=path_spec,
+                         module=module)
+        return a
+    targets = [instantiate(t) for t in targets]
+    deps = deps + sources
+    if deps:
+        for t in targets:
+            depend(t, deps)
+    if recipe:
+        recipe.submit(targets, sources)
+
+    return targets
+
+
+def rule(recipe, targets, sources=[], dependencies=[],
+         attrs=0, features=(), module=None):
+    """Express how to generate `artefacts`. In the simplest case this involves a
+    source and a recipe...
+
+    Arguments:
+      * recipe: an action taking `sources` as input and producing `targets`.
+      * targets: what to make. This can be a string (typically a filename),
+                 an existing `artefact` object, or a list of either strings or
+                 artefacts (or a mix thereof).
+
+      * sources: the source to make the artefact from. As with `artefacts`, this
+                 may be a string, a artefact, or a list of those.
+
+      * depends: additional dependencies not to be used as source.
+      * attrs:  flags
+      * features: a set of features
+      * module: the module to instantiate the artefact in"""
+
+    from .module import module as M
+    module = module or M.current
+    targets = _rule(recipe, targets, sources, dependencies, attrs, features, module)
+    return targets[0] if len(targets) == 1 else targets
+
+
+def alias(target, source, attrs=notfile, module=None):
+    """Declare `target` to be an alias for `source`, i.e., update `source` whenever
+    updating `target` is requested."""
+    return rule(None, target, dependencies=source, attrs=attrs|notfile, module=module)

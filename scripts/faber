@@ -1,0 +1,167 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2016 Stefan Seefeld
+# All rights reserved.
+#
+# This file is part of Faber. It is made available under the
+# Boost Software License, Version 1.0.
+# (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
+
+import faber
+from faber import scheduler
+from faber import project
+import os.path
+import argparse
+import logging
+
+
+class PosArgsParser(argparse.Action):
+    def __init__(self, option_strings, dest, **kwds):
+        argparse.Action.__init__(self, option_strings, dest, **kwds)
+    # Separates positional arguments into targets and parameters
+    def __call__(self, parser, namespace, values, option_string=None):
+        if namespace.parameters is None:
+            namespace.parameters={}
+        if not namespace.goals:
+            namespace.goals=[]
+        for v in values:
+            if '=' in v:
+                name, value = v.split('=', 1)
+                if name in namespace.parameters:
+                    if type(namespace.parameters[name]) is not list:
+                        namespace.parameters[name] = [namespace.parameters[name]]
+                    namespace.parameters[name].append(value)
+                else:
+                    namespace.parameters[name] = value
+            else:
+                namespace.goals.append(v)
+
+
+log_topics = dict(summary=1, actions=2, commands=4,
+                  process=0,    # scheduler backend
+                  scheduler=0,  # interaction with scheduler
+                  tools=0,      # instantiation of tools
+                  features=0,   # creation and manipulation of features
+                  rules=0,      # declaration of rules (including implicit ones)
+                  config=0,     # any config-related activity
+                  test=0)       # any testing-related activity
+
+
+def make_parser(prog='faber'):
+
+    parser = argparse.ArgumentParser(prog=prog,
+                                     description='Faber is a construction tool.')
+    parser.add_argument('goals', metavar='GOAL', nargs='*',
+                        action=PosArgsParser,
+                        help='a goal to update')
+    parser.add_argument('parameters', metavar='PARAMETER=VALUE', nargs='*',
+                        action=PosArgsParser,
+                        help='a parameter value')
+    parser.add_argument('--srcdir', default='.',
+                        help='the location of the source directory')
+    parser.add_argument('--builddir', default='.',
+                        help='the location of the build directory')
+    parser.add_argument('--rc', default=None,
+                        help='the location of the rc file')
+    logging = parser.add_mutually_exclusive_group()
+    logging.add_argument('--log', action='append',
+                         choices=log_topics.keys(),
+                         help='add log topic')
+    logging.add_argument('-l', dest='loglevel', type=int,
+                         help='set log level (summary=1, actions=2, commands=4)')
+    logging.add_argument('-s', '--silent', action='store_true',
+                         help='suppress all output')
+    parser.add_argument('-j', '--parallel', type=int, default=1,
+                        help='set concurrency level')
+    parser.add_argument('--debug', action='store_true',
+                        help='do not suppress traceback on error')
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='update goals even if they are current')
+    parser.add_argument('-n', '--noexec', action='store_true',
+                        help='do not actually execute actions')
+    parser.add_argument('-i', '--intermediates', action='store_true',
+                        help='do not remove intermediate files after build')
+    parser.add_argument('-c', '--clean', action='count',
+                        help='cleanup')
+    parser.add_argument('-t', '--timeout', type=int, default=0,
+                        help='set timeout for individual actions')
+    parser.add_argument('--info', action='store_true',
+                        help='print information about the build logic')
+    return parser
+
+
+def setup_logging(args):
+    # if debugging is enabled, print everything...
+    if args.debug:
+        logging.basicConfig(format='%(name)s: %(message)s', level=logging.DEBUG)
+    else:
+        logging.basicConfig(format='%(message)s')
+        if args.log:  # if loggers are set by name...
+            for l in args.log:
+                logging.getLogger(l).setLevel(level=logging.INFO)
+        elif args.loglevel is not None:  # if loggers are enabled by level...
+            for n, l in log_topics.items():
+                if args.loglevel & l:
+                    logging.getLogger(n).setLevel(level=logging.INFO)
+        elif not args.silent:  # by default, enable actions logger only
+            logging.getLogger('actions').setLevel(level=logging.INFO)
+
+
+def main(argv):
+
+    parser = make_parser(argv[0])
+    try:
+        args, unknown = parser.parse_known_args(argv[1:])
+
+        def with_gen(w):
+            k, v = w.split('=', 1) if '=' in w else (w, None)
+            yield k[7:]
+            yield v
+        with_ = dict(map(with_gen, [w for w in unknown if w.startswith('--with-')]))
+        without = [w[10:] for w in unknown if w.startswith('--without-')]
+        args.options = dict(with_=with_, without=without)
+        unknown = [a for a in unknown
+                   if not a.startswith('--with-') and not a.startswith('--without-')]
+        if unknown:
+            raise ValueError('unknown option {}'.format(unknown[0]))
+
+        setup_logging(args)
+        if args.debug:
+            faber.debug = True
+        scheduler.init(args.parameters, args.builddir,
+                       log=args.log and 'process' in args.log,
+                       jobs=args.parallel,
+                       force=args.force,
+                       intermediates=args.intermediates,
+                       timeout=args.timeout,
+                       noexec=args.noexec)
+        if args.rc:
+            project.config(os.path.expanduser(args.rc))
+        elif os.path.exists(os.path.expanduser('~/.faber')):
+            project.config(os.path.expanduser('~/.faber'))
+        if args.info:
+            result = project.info(args.goals, args.options, args.parameters,
+                                  args.srcdir, args.builddir)
+        elif args.clean:
+            result = project.clean(args.clean, args.options, args.parameters,
+                                   args.srcdir, args.builddir)
+        else:
+            result = project.build(args.goals, args.options, args.parameters,
+                                   args.srcdir, args.builddir)
+        scheduler.finish()
+        return result
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        if args.debug:
+            raise
+        else:
+            print('Error: {}'.format(e))
+        return False
+    return True
+
+
+if __name__ == '__main__':
+
+    import sys
+    sys.exit(0 if main(sys.argv) else 1)

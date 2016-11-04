@@ -142,25 +142,6 @@ int make(LIST *targets)
     }
 #endif
 
-    if ( DEBUG_MAKE )
-    {
-        if ( counts->targets )
-            out_printf( "...found %d target%s...\n", counts->targets,
-                counts->targets > 1 ? "s" : "" );
-        if ( counts->temp )
-            out_printf( "...using %d temp target%s...\n", counts->temp,
-                counts->temp > 1 ? "s" : "" );
-        if ( counts->updating )
-            out_printf( "...updating %d target%s...\n", counts->updating,
-                counts->updating > 1 ? "s" : "" );
-        if ( counts->cantfind )
-            out_printf( "...can't find %d target%s...\n", counts->cantfind,
-                counts->cantfind > 1 ? "s" : "" );
-        if ( counts->cantmake )
-            out_printf( "...can't make %d target%s...\n", counts->cantmake,
-                counts->cantmake > 1 ? "s" : "" );
-    }
-
     status = counts->cantfind || counts->cantmake;
 
     {

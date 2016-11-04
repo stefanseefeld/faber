@@ -8,17 +8,19 @@
  */
 #include "bjam.h"
 #include "graph.h"
+#include "make.h"
 #include "variable.h"
 #include "strings.h"
 #include "rules.h"
+#include "command.h"
 #include "constants.h"
 #include "compile.h"
 #include "debug.h"
 #include "output.h"
 #include "execcmd.h"
-#include "builtins.h"
 #include "mem.h"
 #include "jam.h"
+#include "cwd.h"
 
 static PyObject *DependencyError;
 
@@ -123,28 +125,13 @@ static PyObject *bjam_update(PyObject *self, PyObject *args)
   else return PyLong_FromLong(status);
 }
 
-static PyObject *bjam_set_target_variables(PyObject *self, PyObject *args)
+static PyObject *bjam_print_dependency_graph(PyObject *self, PyObject *args)
 {
-  char const *name;
-  int flag;
-  PyObject *vars;
-  TARGET *target;
-  PyObject *key, *value;
-  Py_ssize_t pos = 0;
-  if (!PyArg_ParseTuple(args, "siO:set_target_variables", &name, &flag, &vars) ||
-      !PyDict_Check(vars))
+  PyObject *targets;
+  if (!PyArg_ParseTuple(args, "O:print_dependency_graph", &targets) ||
+      !PySequence_Check(targets))
     return NULL;
-  target = bindtarget(object_new(name));
-  while (PyDict_Next(vars, &pos, &key, &value))
-  {
-    char const *k = PyString_AsString(key);
-    if (!k) return NULL;
-    char const *v = PyString_AsString(value);
-    if (!v) return NULL;
-    target->settings = addsettings(target->settings, flag,
-				   object_new(k),
-				   list_new(object_new(v)));
-  }
+  print_dependency_graph(list_from_sequence(targets));
   Py_RETURN_NONE;
 }
 
@@ -158,6 +145,7 @@ static PyObject *bjam_get_target_variables(PyObject *self, PyObject *args)
     return NULL;
   target = bindtarget(object_new(name));
   vars = PyDict_New();
+  pushsettings(root_module(), target->settings);
   for (s = target->settings; s; s = s->next)
   {
     PyObject *name = PyString_FromString(object_str(s->symbol));
@@ -169,6 +157,7 @@ static PyObject *bjam_get_target_variables(PyObject *self, PyObject *args)
       PyList_Append(pyvalues, PyString_FromString(object_str(list_item(iter))));
     PyDict_SetItem(vars, name, pyvalues);
   }
+  popsettings(root_module(), target->settings);
   return vars;
 }
 
@@ -250,6 +239,60 @@ static PyObject *bjam_define_action(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+static PyObject *report_callback;
+
+static void check_errors()
+{
+  if (PyErr_Occurred())
+  {
+    if (!PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
+    {
+      PyErr_Print();
+      PyErr_Clear();
+    }
+  }
+}
+
+void report_recipe(TARGET *target, char const *recipe, int status,
+		   timing_info const *time, char const *cmd,
+		   char const *_stdout, char const *_stderr)
+{
+  PyObject *o = 0;
+  if (report_callback)
+    o = PyObject_CallFunction(report_callback, "sssisss", "__recipe__",
+			      recipe, target->name, status, /*time,*/ cmd,
+			      _stdout ? _stdout : "", _stderr ? _stderr : "");
+  if (!o)
+    check_errors();
+  else
+    Py_DECREF(o);
+}
+
+void report_status(TARGET *target)
+{
+  PyObject *o = 0;
+  if (report_callback)
+    o = PyObject_CallFunction(report_callback, "ssis", "__artefact__",
+			      object_str(target->name),
+			      target->status, target->failed);
+  if (!o)
+    check_errors();
+  else
+    Py_DECREF(o);
+}
+
+void report_summary(int failed, int skipped, int made)
+{
+  PyObject *o = 0;
+  if (report_callback)
+    o = PyObject_CallFunction(report_callback, "siii", "__summary__",
+			      failed, skipped, made);
+  if (!o)
+    check_errors();
+  else
+    Py_DECREF(o);
+}
+
 struct exec_closure
 {
   int status;
@@ -307,8 +350,10 @@ static PyObject *bjam_init(PyObject *self, PyObject *args)
 {
   unsigned long log, noexec, jobs, timeout, force;
   unsigned long i;
-  if (!PyArg_ParseTuple(args, "lllll:init",
-			&log, &noexec, &jobs, &timeout, &force))
+  if (!PyArg_ParseTuple(args, "Olllll:init",
+			&report_callback,
+			&log, &noexec, &jobs, &timeout, &force) ||
+      !PyCallable_Check(report_callback))
     return NULL;
   for (i = 0; i != DEBUG_MAX; ++i)
     globs.debug[i] = log & (1<<i) ? 1 : 0;
@@ -341,15 +386,13 @@ static PyMethodDef bjam_methods[] =
   {"bind_filename", bjam_bind_filename, METH_VARARGS, "Bind target name."},
   {"add_dependency", bjam_add_dependency, METH_VARARGS, "Declare a dependency."},
   {"update", bjam_update, METH_VARARGS, "Request an update."},
-  {"set_target_variables", bjam_set_target_variables, METH_VARARGS,
-   "Set variables for the given target."},
-  {"get_target_variables", bjam_get_target_variables, METH_VARARGS,
-   "Get all variables for the given target."},
+  {"print_dependency_graph", bjam_print_dependency_graph, METH_VARARGS, "Print dependency graph."},
+  {"get_target_variables", bjam_get_target_variables, METH_VARARGS, "Get all variables for the given target."},
   {"define_recipe", bjam_define_recipe, METH_VARARGS, "Define a recipe."},
   {"define_action", bjam_define_action, METH_VARARGS, "Define an action."},
   {"run", bjam_run, METH_VARARGS, "Run the given action."},
   {"init", bjam_init, METH_VARARGS, "Initialize bjam."},
-  {"finish", bjam_finish, METH_VARARGS, "Finalization bjam."},
+  {"finish", bjam_finish, METH_VARARGS, "Finalize bjam."},
   {NULL, NULL, 0, NULL}
 };
 
