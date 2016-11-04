@@ -266,6 +266,7 @@ TARGETS * targetlist                     ( TARGETS *, LIST * target_names );
 void      touch_target                   ( OBJECT * const );
 void      clear_includes                 ( TARGET * );
 TARGET  * target_scc                     ( TARGET * );
+void      foreach_target(void (*callback)(void*, void*), void *closure);
 
 /* Final module cleanup. */
 void rules_done();

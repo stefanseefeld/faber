@@ -228,6 +228,15 @@ TARGET * target_scc( TARGET * t )
     return result;
 }
 
+/*
+ * Call the given function on each target.
+ */
+
+void foreach_target(void (*f)(void*, void*), void *data)
+{
+  if (targethash)
+    hashenumerate(targethash, f, data);
+}
 
 /*
  * targetlist() - turn list of target names into a TARGET chain.
