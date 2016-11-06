@@ -7,18 +7,47 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from . import engine
+from .feature import feature, set
 from .artefact import artefact, notfile
-from .module import module
+from .module import module, ScriptError
 import logging
 
 logger = logging.getLogger(__name__)
 
-def _rule(artefacts, sources, recipe, depends, clean, attrs):
+def _rule(artefacts, sources, recipe, depends, clean, attrs, features):
     m = module.current
+    fs = m.features
+    fs.update(features)
+
+    # 'recipe' may be one of:
+    # 
+    # * None, in which case this rule is merely declaring a dependency
+    # * an unbound action, i.e., a command
+    # * an action bound to a tool without an instance
+    # * a tool method
+    #
+    # If the action has a tool class but no instance,
+    # substitute it by the corresponding tool method
+    path_spec = ''
+    if recipe and recipe._cls:
+        if not recipe._tool:
+            tool = recipe._cls.instance(fs)
+            logger.debug('instantiating action {} with tool {}'.
+                         format(recipe.qname, tool.id))
+            recipe = getattr(tool, recipe.name)
+            fs.update(tool.features)
+        # Set the artefact filename, based on the tool being used to generate it.
+        # This includes any path prefixes to disambiguate variants, as well as
+        # file extensions in case this is a cross-compiler.
+        path_spec = recipe._tool.path_spec
+
+    # now instantiate artefacts
     artefacts = type(artefacts) is list and artefacts or [artefacts]
     def instantiate(t):
-        if not isinstance(t, artefact):
-            t = artefact(t, sources, attrs)
+        if isinstance(t, artefact):
+            t._update(fs, path_spec)
+        else:
+            t = artefact(t, sources, attrs, features=fs.values(), path_spec=path_spec)
         return t
     artefacts = [instantiate(t) for t in artefacts]
     sources = sources if type(sources) is list else [sources]
@@ -47,7 +76,8 @@ def _rule(artefacts, sources, recipe, depends, clean, attrs):
 
     return artefacts
 
-def rule(artefacts, sources=[], recipe=None, depends=[], clean=None, attrs=0):
+def rule(artefacts, sources=[], recipe=None, depends=[],
+         clean=None, attrs=0, features=()):
     """Express how to generate `artefacts`. In the simplest case this involves a
     source and a recipe...
 
@@ -62,9 +92,12 @@ def rule(artefacts, sources=[], recipe=None, depends=[], clean=None, attrs=0):
       * recipe: an action taking `sources` as input and producing `artefacts`.
       * depends: additional dependencies not to be used as source.
       * clean:  an action used to remove the artefact.
-      * attrs:  flags"""
+      * attrs:  flags
+      * features: a set of features"""
 
-    artefacts = _rule(artefacts, sources, recipe, depends, clean, attrs)
+    if not isinstance(features, set):
+        features = set(features)
+    artefacts = _rule(artefacts, sources, recipe, depends, clean, attrs, features)
     return len(artefacts) == 1 and artefacts[0] or artefacts
 
 

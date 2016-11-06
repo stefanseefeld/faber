@@ -7,6 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from .utils import add_metaclass
+from .feature import feature, set
 from .action import action
 from collections import defaultdict
 from copy import copy

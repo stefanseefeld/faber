@@ -7,6 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from . import engine
+from .feature import feature, lazy_set
 from .artefact import artefact, notfile, always
 from .tools.cleaner import cleaner
 from os.path import join, exists, normpath
@@ -40,7 +41,7 @@ class module(object):
         from . import builtin
         self._env = builtin.__dict__.copy()
         self._env['goals'] = module.goals
-        self._params = module.params.copy()
+        self._features = lazy_set(module.params.copy())
         parent = module.current
         if parent:
             self.srcdir = join(parent.srcdir, srcdir or name)
@@ -62,6 +63,7 @@ class module(object):
                 self._env['__name__'] = self.name
         else:
             self._env['__name__'] = self.name
+        self._env['features'] = self._features
         module.current = self
         if not module._parents[-1]:
             # do this once, after the root module has been created
@@ -78,6 +80,10 @@ class module(object):
             rm.define(self)
             rm.submit([self._env['clean']], module._clean, self)
         module.current = parent
+
+    @property
+    def features(self):
+        return self._features
 
     def qname(self, a = '', full=True):
         # qualified name (full or relative)
