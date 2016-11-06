@@ -6,6 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from faber.feature import feature, incidental, map, join
 from faber.action import action
 from faber.artefact import artefact, notfile, always
 from faber.tools import fileutils
@@ -54,6 +55,37 @@ def test_recipe():
         assert scheduler.update(c)
         (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'c <- b'
+
+
+@pytest.mark.usefixtures('module')
+def test_variables():
+    """Check that an action's variables are properly substituted."""
+
+    variable = feature('variable', incidental)
+
+    class A(action):
+
+        var = map(variable, join)
+        command = 'echo $(var)'
+
+    a = artefact('a', attrs=notfile|always)
+    b = artefact('b', attrs=notfile|always)
+    c = artefact('c', attrs=notfile|always)
+    echo = action('echo', 'echo $(variable)')
+    pye = action('pyecho', pyecho, ['variable'])
+    a = rule(A(), a, features=variable('A'))
+    b = rule(echo, b, a, features=variable('B'))
+    c = rule(pye, c, b, features=variable('C'))
+    with patch('faber.scheduler._report_recipe') as recipe:
+        assert scheduler.update(a)
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        assert output.strip() == 'A'
+        assert scheduler.update(b)
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        assert output.strip() == 'B'
+        assert scheduler.update(c)
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        assert output.strip() == "c <- b (variable=['C'])"
 
 
 @pytest.mark.usefixtures('module')

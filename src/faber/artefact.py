@@ -6,10 +6,15 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from .feature import set
+from .delayed import delayed_property
 from .utils import path_formatter
 from os.path import normpath, join
 from collections import defaultdict
 from functools import reduce
+import logging
+
+feature_logger = logging.getLogger('features')
 
 intermediate= 0x0001
 nocare= 0x0002
@@ -73,9 +78,19 @@ class artefact(object):
         return not self.attrs & notfile
 
     @property
+    def relpath(self):
+        """The relative path corresponding to the artefact's feature set."""
+        f = artefact._path_formatter
+        return normpath(f.format(self.path_spec, **self.features))
+
+    @property
     def _filename(self):
         """The (full) filename of this artefact, if it represents a file."""
-        return normpath(join(self.module.builddir, self.name))
+        return normpath(join(self.module.builddir, self.relpath, self.name))
+
+    @delayed_property
+    def filename(self):
+        return self._filename
 
     @property
     def boundname(self):
@@ -83,21 +98,36 @@ class artefact(object):
         this artefact represents a file."""
         return self._filename if self.isfile else self.qname
 
-    def __init__(self, name, attrs=0, module=None,
-                 features=(), use=(),
+    def __init__(self, name, attrs=0, type=None, module=None,
+                 features=(), use=(), condition=None,
                  path_spec=''):
         self.name = name
         from .module import module as M
         self.module = module or M.current
         self.attrs = attrs
         self.path_spec = path_spec
+        self.features = self.module.features | set.instantiate(features)
+        self.use = set.instantiate(use)
+        self.condition = condition
         self.status = None
         self._register()
+
+    def __call__(self, features):
+        """Clone this artefact, and apply new features."""
+
+        import copy
+        clone = copy.copy(self)
+        clone.features = self.module.features | set.instantiate(features)
+        clone._register()
+        return clone
 
     def _register(self):
         from . import scheduler
         artefact._qnames[self.qname].append(self)
         scheduler.define_target(self)
+        deps = self.features.dependencies()
+        if deps:
+            scheduler.add_dependency(self, deps)
 
     def __str__(self):
         return '<{} {}>'.format(self.__class__.__name__, self.qname)

@@ -9,6 +9,7 @@
 from __future__ import absolute_import
 from . import scheduler
 from .action import action
+from .feature import set
 from .artefact import artefact, source, notfile
 from .utils import aslist
 from types import FunctionType, MethodType
@@ -26,6 +27,14 @@ def depend(target, dependencies):
 
 def _rule(recipe, targets, sources, deps, attrs, features, module):
 
+    targets = aslist(targets)
+    sources = aslist(sources)
+    logger.info('rule: {} <- {} with {}'.format(targets, sources, recipe))
+    if not features and isinstance(targets[0], artefact):
+        features = targets[0].features.copy()
+    else:
+        features = module.features | set.instantiate(features)
+
     path_spec = ''
     if recipe:
         # instantiate recipe
@@ -33,11 +42,9 @@ def _rule(recipe, targets, sources, deps, attrs, features, module):
             recipe = action(recipe.__name__, recipe)
         elif recipe and recipe.abstract:
             recipe = recipe.instantiate(features)
+        features |= recipe.features
         path_spec = recipe.path_spec
 
-    targets = aslist(targets)
-    sources = aslist(sources)
-    logger.info('rule: {} <- {} with {}'.format(targets, sources, recipe))
     deps = aslist(deps)
     # instantiate artefacts for sources and dependencies
     sources = [source.instantiate(s, module) for s in sources]
@@ -47,6 +54,8 @@ def _rule(recipe, targets, sources, deps, attrs, features, module):
     def instantiate(a):
         if isinstance(a, artefact):
             a.attrs |= attrs
+            a.features |= features
+            a.features |= artefact.combine_use(sources)
             a.path_spec = path_spec
         else:
             a = artefact(a, attrs, features=features, path_spec=path_spec,

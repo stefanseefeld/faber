@@ -6,9 +6,12 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from .utils import aslist
+from .utils import add_metaclass
 from . import scheduler
+from .feature import set, map
+from .utils import aslist
 from . import output
+import re
 import logging
 
 action_logger = logging.getLogger('actions')
@@ -24,8 +27,19 @@ class CallError(Exception):
         self.cmd = cmd
 
 
+class action_type(type):
+    def __new__(cls, name, bases, dict):
+        """Collect all maps in a private dict so we don't have to
+        look them up each time we need them."""
+        dict['_maps'] = {k: v for k, v in dict.items() if isinstance(v, map)}
+        return super(action_type, cls).__new__(cls, name, bases, dict)
+
+
+@add_metaclass(action_type)
 class action(object):
     """An action is executed in order to (re-)generate an 'artefact'."""
+
+    var_ex = re.compile(r'\$\((?P<variable>\w+)\)')
 
     @staticmethod
     def command_string(func, targets, sources, kwds):
@@ -66,6 +80,10 @@ class action(object):
         return self._cls and not self._tool
 
     @property
+    def features(self):
+        return self._tool.features if self._tool else set()
+
+    @property
     def path_spec(self):
         return self._tool.path_spec if self._tool else ''
 
@@ -78,6 +96,7 @@ class action(object):
 
         self.command = hasattr(self, 'command') and self.command
         self.name = self.__class__.__name__
+        self.vars = []
         if len(args) == 0:
             pass
         elif len(args) == 1:
@@ -86,6 +105,8 @@ class action(object):
             self.name, self.command = args
         else:
             self.name, self.command, self.vars = args[:3]
+        if type(self.command) is str and not self.vars:
+            self.vars = action.var_ex.findall(self.command) if self.command else []
         self._cls = None
         self._tool = None
 
@@ -119,6 +140,10 @@ class action(object):
             cmd = self.command
             cmd = cmd.replace('$(<)', ' '.join(tnames))
             cmd = cmd.replace('$(>)', ' '.join(snames))
+            if targets:
+                vars = scheduler.variables(targets[0])
+                for v in self.vars:
+                    cmd = cmd.replace('$({})'.format(v), ' '.join(vars.get(v, [])))
             status, stdout, stderr = scheduler.run(cmd)
             if stdout:
                 print(stdout)
@@ -133,6 +158,14 @@ class action(object):
             raise RuntimeError(None, ': {} is not implemented'.format(self.qname))
         scheduler.define_action(self)
         scheduler.define_recipe(self, targets, sources)
+
+    def map(self, fs):
+        """translate the given feature-set using any map this action has defined."""
+        fs.eval()
+        if self._maps:
+            return {k: v(fs) for k, v in self._maps.items()}
+        else:
+            return {v: str(fs[v]) if v in fs else '' for v in self.vars}
 
     def __status__(self, targets, status, command, stdout, stderr):
         """Report completion of the recipe."""
