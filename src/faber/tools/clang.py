@@ -9,6 +9,8 @@
 from ..action import action
 from ..feature import set, map, translate, select_if
 from ..artefact import artefact
+from .. import types
+from ..assembly import implicit_rule as irule
 from .. import engine
 from . import compiler
 from .cc import *
@@ -95,3 +97,8 @@ class clang(cc):
         command, version, features = validate(command or 'clang', version, features)
         cc.__init__(self, name=name, version=version)
         self.features |= features
+
+        irule(types.obj, types.cxx, self.compile)
+        irule(types.lib, types.obj, self.archive)
+        irule(types.bin, (types.obj, types.dso, types.lib), self.link)
+        irule(types.dso, (types.obj, types.dso), self.link)

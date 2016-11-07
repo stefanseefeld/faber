@@ -14,6 +14,7 @@ from os.path import join, exists, normpath
 from os import makedirs
 import string
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +33,17 @@ class module(object):
         module.params = params
         module._parents = []
         module._clean = set()
+        module._intermediate = set()
 
+    @staticmethod
+    def finish():
+        # Remove intermediate files
+        for t in module._intermediate:
+            if os.path.exists(t):
+                os.remove(t)
 
     def __init__(self, name, srcdir=None, builddir=None, process=True):
         """Create a new module."""
-        
         self.name = name
         from . import builtin
         self._env = builtin.__dict__.copy()

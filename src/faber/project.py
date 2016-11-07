@@ -51,7 +51,7 @@ def build(goals, parameters, srcdir, builddir):
         engine.update(goals)
     elif result:
         print('no goals given and no "default" artefact defined - nothing to do.')
-    engine.update()
+    module.finish()
     return result
 
 def info(goals, parameters, srcdir, builddir):
@@ -65,5 +65,5 @@ def info(goals, parameters, srcdir, builddir):
         print('  {} {}'.format(a.qname,
                                '(bound to: {})'.format(a.bound_name)
                                if not a.attrs & notfile else ''))
+    module.finish()
     return True
-

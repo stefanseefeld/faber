@@ -8,7 +8,7 @@
 
 from . import engine
 from .feature import feature, set
-from .artefact import artefact, notfile
+from .artefact import artefact, notfile, intermediate
 from .module import module, ScriptError
 import logging
 
@@ -71,7 +71,9 @@ def _rule(artefacts, sources, recipe, depends, clean, attrs, features):
 
     for a in artefacts:
         # if this is a file artefact, remember it in case the user wants to clean up
-        if not a.attrs & notfile:
+        if a.attrs & intermediate:
+            module._intermediate.add(a.filename)
+        elif not a.attrs & notfile:
             module._clean.add(a.filename)
 
     return artefacts

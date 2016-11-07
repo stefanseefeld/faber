@@ -6,6 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from . import types
 from .feature import feature, set
 from os.path import normpath, join
 from collections import defaultdict
@@ -21,6 +22,8 @@ rmold=        0x0080
 xfail=        0x0100
 isfile=       0x0400
 precious=     0x0800
+
+_type = type
 
 class path_formatter(string.Formatter):
 
@@ -70,7 +73,10 @@ class artefact(object):
             return artefact._qnames[qname]
 
     def __init__(self, name, sources=None, attrs=0,
-                 features=(), path_spec='', use=()):
+                 features=(), path_spec='', use=(),
+                 type=None):
+        self.type = type
+        type = _type # restore the original
         # for convenience, accept 'sources' to be a list or a single string
         sources = sources if type(sources) is list else [sources]
         # for convenience, accept a single value in 'features'
@@ -94,6 +100,7 @@ class artefact(object):
             if isinstance(s, artefact) and s.use:
                 self.features += s.use
         self.use = use
+        self.expand()
 
     @property
     def bound_name(self):
@@ -108,7 +115,12 @@ class artefact(object):
         clone = copy.copy(self)
         clone.features = self.module.features
         clone.features.update(features)
+        clone.expand()
         return clone
+
+    def expand(self):
+        if not self.attrs & notfile and not self.type:
+            self.type = types.type.discover(self.filename)
 
     def _update(self, features, path_spec):
         self.features.update(features)
@@ -121,7 +133,7 @@ class artefact(object):
     @property
     def relpath(self):
         f = path_formatter()
-        return f.format(self.path_spec, **self.features._features)
+        return normpath(f.format(self.path_spec, **self.features._features))
 
     def __repr__(self):
         return '<artefact {}>'.format(self.name)

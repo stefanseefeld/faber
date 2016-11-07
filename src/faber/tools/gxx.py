@@ -9,12 +9,12 @@
 from ..action import action
 from ..feature import set, map, translate, select_if
 from ..artefact import artefact
+from .. import types
+from ..assembly import implicit_rule as irule
 from .. import engine
 from . import compiler
-from .gcc import validate
 from .cxx import *
-from os.path import splitext, basename
-import subprocess
+from .gcc import validate
 
 class compile(action):
 
@@ -34,6 +34,16 @@ class link(action):
     ldflags += map(compiler.link, select_if, 'shared', '-shared')
     libs = map(compiler.libs, translate, prefix='-l')
     
+    def submit(self, artefacts, sources, module):
+        # sources may contain object files as well as libraries
+        # Separate the two, and add the libraries to the libs variable.
+
+        src, linkpath, libs = gxx.split_libs(sources)
+        fs = set(compiler.libs(*libs), compiler.linkpath(*linkpath))
+        for t in artefacts:
+            t.features += fs
+        action.submit(self, artefacts, src, module)
+
 
 class gxx(cxx):
 
@@ -41,14 +51,20 @@ class gxx(cxx):
     archive = action('ar rc $(<) $(>)')
     link = link()
 
-    def __init__(self, name='g++', command=None, version='', target='', features=()):
+    def __init__(self, name='g++', command=None, version='', features=()):
 
         command, version, features = validate(command or 'g++', version, features)
         cxx.__init__(self, name=name, version=version)
         self.features |= features
         if command:
-            prefix = cmd[:-3] if cmd.endswith('g++') else ''
-            self.compile.subst('g++', cmd)
+            # if command is of the form <prefix>-g++, make sure
+            # to adjust the names of the other tools of the toolchain.
+            prefix = command[:-3] if command.endswith('g++') else ''
+            self.compile.subst('g++', command)
             self.archive.subst('ar', prefix + 'ar')
-            self.link.subst('g++', cmd)
-        
+            self.link.subst('g++', command)
+
+        irule(types.obj, types.cxx, self.compile)
+        irule(types.lib, types.obj, self.archive)
+        irule(types.bin, (types.obj, types.dso, types.lib), self.link)
+        irule(types.dso, (types.obj, types.dso), self.link)

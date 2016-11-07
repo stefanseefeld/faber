@@ -8,7 +8,9 @@
 
 from . import compiler
 from ..action import action
+import logging
 
+logger = logging.getLogger(__name__)
 
 class cxx(compiler.compiler):
     """C++ compiler base-class.
@@ -24,3 +26,19 @@ class cxx(compiler.compiler):
     # Link binaries (executables or shared libraries).
     link = action()
 
+    @classmethod
+    def instance(cls, fs=None):
+        """Try to find a compiler instance for the current platform."""
+
+        if cls is cxx and not cls.instantiated(fs):
+            # we can't instantiate this class directly, so try to find
+            # a subclass...
+            logger.debug('trying to instantiate a default C++ compiler')
+            import sys
+            if sys.platform == 'win32':
+                compiler.try_instantiate('msvc', fs)
+            compiler.try_instantiate('gxx', fs)
+            compiler.try_instantiate('clangxx', fs)
+            if not cls.instantiated(fs):
+                raise RuntimeError('no C++ compiler found.')
+        return super(cxx, cls).instance(fs)

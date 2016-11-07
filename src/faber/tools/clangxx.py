@@ -9,13 +9,12 @@
 from ..action import action
 from ..feature import set, map, translate, select_if
 from ..artefact import artefact
+from .. import types
+from ..assembly import implicit_rule as irule
 from .. import engine
 from . import compiler
-from .clang import validate
 from .cxx import *
-from os.path import splitext, basename
-import re
-import subprocess
+from .clang import validate
 
 class compile(action):
 
@@ -35,6 +34,16 @@ class link(action):
     ldflags += map(compiler.link, select_if, 'shared', '-shared')
     libs = map(compiler.libs, translate, prefix='-l')
     
+    def submit(self, artefacts, sources, module):
+        # sources may contain object files as well as libraries
+        # Separate the two, and add the libraries to the libs variable.
+
+        src, linkpath, libs = clangxx.split_libs(sources)
+        fs = set(compiler.libs(*libs), compiler.linkpath(*linkpath))
+        for t in artefacts:
+            t.features += fs
+        action.submit(self, artefacts, src, module)
+
 
 class clangxx(cxx):
 
@@ -42,9 +51,13 @@ class clangxx(cxx):
     archive = action('ar rc $(<) $(>)')
     link = link()
 
-    def __init__(self, name='clang++', command=None, version='', target='', features=()):
+    def __init__(self, name='clang++', command=None, version='', features=()):
 
         command, version, features = validate(command or 'clang++', version, features)
         cxx.__init__(self, name=name, version=version)
         self.features |= features
 
+        irule(types.obj, types.cxx, self.compile)
+        irule(types.lib, types.obj, self.archive)
+        irule(types.bin, (types.obj, types.dso, types.lib), self.link)
+        irule(types.dso, (types.obj, types.dso), self.link)

@@ -25,7 +25,9 @@ class action(object):
     """An action is executed in order to (re-)generate an 'artefact'."""
 
     var_ex = re.compile(r'\$\((?P<variable>\w+)\)')
-
+    # make sure recipes are only defined once
+    _defined_recipes = set()
+    
     def __init__(self, *args):
         """Construct an action with one of these signatures:
 
@@ -85,6 +87,10 @@ class action(object):
             self._qname = module.qname(self.qname)
 
     def submit(self, artefacts, sources, module):
+        if (self.qname, tuple([a.bound_name for a in artefacts])) in action._defined_recipes:
+            return # already submitted
+        else:
+            action._defined_recipes.add((self.qname, tuple([a.bound_name for a in artefacts])))
         for a in artefacts:
             engine.set_variables(a.bound_name, **self.map(a.features))
         artefacts = [a.bound_name for a in artefacts]

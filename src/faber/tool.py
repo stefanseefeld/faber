@@ -27,7 +27,7 @@ class tool_type(type):
 
         cls.tool = feature(name, name=feature(), version=feature())
 
-        for k,v in dict.iteritems():
+        for k,v in dict.items():
             if isinstance(v, action):
                 v._cls = cls
                 v.name = k
@@ -54,14 +54,13 @@ class tool(object):
 
     _instances = defaultdict(list)
     path_spec = ''
-    target = '' # only needed for cross-compilers
     
     def __init__(self, name='', version=''):
         name = name or self.__class__.__name__
         self.features = set()
         # Register the tool with all base classes
         for c in self.__class__.__mro__:
-            if issubclass(c, tool):
+            if issubclass(c, tool) and c != tool:
                 tool._instances[c].append(self)
                 self.features += c.tool(name=name, version=version)
 
@@ -78,26 +77,38 @@ class tool(object):
 
     @property
     def name(self):
-        return self.features.tool.name.value
+        return self.features[self.__class__.__name__].name.value
 
     @property
     def version(self):
-        return self.features.tool.version.value
+        return self.features[self.__class__.__name__].version.value
 
     @property
     def id(self):
         v = self.version
         return '{}-{}'.format(self.name, v) if v else self.name
+
+    @classmethod
+    def instantiated(cls, fs=None):
+        """Check whether a tool of the given type and feature-set
+        is already instantiated."""
+        if fs is None:
+            return cls in tool._instances[cls]
+        else:
+            return any([t for t in tool._instances[cls] if t.features in fs])
     
     @classmethod
-    def instance(cls, features=None):
+    def instance(cls, fs=None):
         """Find an instance of cls that meets the feature requirements."""
 
-        # make sure we have at least one instance of cls
-        if not tool._instances[cls]: cls()
-
-        features = features or feature_set()
-        tools = [t for t in tool._instances[cls] if t.features in features]
+        fs = set() if fs is None else fs
+        if not cls.instantiated(fs):
+            try:
+                cls(features=fs)
+            except Exception as e:
+                logger.debug('trying to instantiate {} yields "{}"'
+                             .format(cls.__name__, e))
+        tools = [t for t in tool._instances[cls] if t.features in fs]
         if tools:
             return tools[0]
         else:
