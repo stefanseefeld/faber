@@ -8,6 +8,8 @@
 
 from ..action import action
 from ..feature import set, map, translate, select_if
+from .. import types
+from ..assembly import implicit_rule as irule
 from . import compiler
 from .cc import *
 import subprocess
@@ -98,3 +100,8 @@ class clang(cc):
                                               version, features)
         cc.__init__(self, name=name, version=version)
         self.features |= features
+
+        irule(self.compile, types.obj, types.cxx)
+        irule(self.archive, types.lib, types.obj)
+        irule(self.link, types.bin, (types.obj, types.dso, types.lib))
+        irule(self.link, types.dso, (types.obj, types.dso))

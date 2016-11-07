@@ -6,6 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from . import types
 from .feature import set
 from .delayed import delayed_property
 from .utils import path_formatter
@@ -14,6 +15,7 @@ from collections import defaultdict
 from functools import reduce
 import logging
 
+scheduler_logger = logging.getLogger('scheduler')
 feature_logger = logging.getLogger('features')
 
 intermediate= 0x0001
@@ -26,6 +28,7 @@ rmold= 0x0080
 xfail= 0x0100
 isfile= 0x0400
 precious= 0x0800
+nopropagate = 0x1000
 
 
 class artefact(object):
@@ -110,6 +113,10 @@ class artefact(object):
         self.use = set.instantiate(use)
         self.condition = condition
         self.status = None
+        self.type = type
+        if not self.type and self.isfile:
+            # just a guess, subclasses may override
+            self.type = types.type.discover(self._filename)
         self._register()
 
     def __call__(self, features):

@@ -7,9 +7,12 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from ..artefact import artefact
+from ..artefacts.library import library
 from ..tool import tool
 from ..feature import feature, multi, path, incidental
+from .. import types
 from ..error import ArgumentError
+from os.path import basename
 from importlib import import_module
 import logging
 
@@ -40,11 +43,22 @@ class compiler(tool):
         libs = []
         linkpath = set()
         for s in sources:
-            if isinstance(s, artefact):
+            if isinstance(s, library):
+                libs.append(basename(s.name))
+                linkpath.add(s.path)
+            elif isinstance(s, artefact):
                 src.append(s)
             else:
                 raise ValueError('Unknown type of source {}'.format(s))
         return src, linkpath, libs
+
+    @staticmethod
+    def check_instance_for_type(type, features=None):
+        """Make sure we have a matching compiler for the given type."""
+        name = {types.c: 'cc',
+                types.cxx: 'cxx'}[type]
+        mod = import_module('.{}'.format(name), 'faber.tools')
+        return getattr(mod, name).instance(features)
 
     @classmethod
     def try_instantiate(cls, name, fs=None):

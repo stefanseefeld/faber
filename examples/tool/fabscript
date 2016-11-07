@@ -10,7 +10,7 @@
 from faber.tools.cxx import cxx
 
 # make targets from source using a pre-defined C++ compiler tool
-obj = rule('hello.o', 'hello.cpp', recipe=cxx.compile)
-hello = rule('hello', obj, recipe=cxx.link)
+obj = rule(cxx.compile, 'hello.o', 'hello.cpp')
+hello = rule(cxx.link, 'hello', obj)
 
-default = [hello]
+default = hello

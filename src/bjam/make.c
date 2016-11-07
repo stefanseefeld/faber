@@ -467,6 +467,12 @@ void make0
     fate = T_FATE_STABLE;
     for ( c = t->depends; c; c = c->next )
     {
+        /*
+         * Ignore NOPROPAGATE prerequisites; they have no bearing on
+	 * dependent targets
+	 */
+        if (c->target->flags & T_FLAG_NOPROPAGATE)
+	  continue;
         /* If we are in a different strongly connected component, pull
          * timestamps from the root.
          */

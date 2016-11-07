@@ -8,6 +8,8 @@
 
 from ..action import action
 from ..feature import set, map, translate, select_if
+from .. import types
+from ..assembly import implicit_rule as irule
 from . import compiler
 from .cxx import *
 from .gcc import validate
@@ -63,3 +65,8 @@ class gxx(cxx):
             self.compile.subst('g++', command)
             self.archive.subst('ar', prefix + 'ar')
             self.link.subst('g++', command)
+
+        irule(self.compile, types.obj, types.cxx)
+        irule(self.archive, types.lib, types.obj)
+        irule(self.link, types.bin, (types.obj, types.dso, types.lib))
+        irule(self.link, types.dso, (types.obj, types.dso))

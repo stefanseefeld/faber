@@ -9,10 +9,13 @@
 from ..action import action
 from ..feature import set as fset, map, translate, select_if
 from ..artefact import artefact
+from .. import types
+from ..assembly import implicit_rule as irule
 from . import compiler
 from .cc import *
 from .cxx import *
-from os.path import join, normpath, pathsep, exists
+from ..artefacts.library import library
+from os.path import basename, splitext, join, normpath, pathsep, exists
 try:
     import winreg
 except ImportError:  # python 2
@@ -78,7 +81,10 @@ class msvc(cc, cxx):
         libs = []
         linkpath = set()
         for s in sources:
-            if isinstance(s, artefact):
+            if isinstance(s, library):
+                libs.append(s.filename.apply(lambda x: splitext(basename(x))[0]))
+                linkpath.add(s.path)
+            elif isinstance(s, artefact):
                 src.append(s)
             else:
                 raise ValueError('Unknown type of source {}'.format(s))
@@ -118,6 +124,12 @@ class msvc(cc, cxx):
         linkpath += compiler.linkpath(*[l for l in self.vars['LIBPATH'].split(pathsep) if l])
         self.features += include
         self.features += linkpath
+
+        irule(self.compile, types.obj, types.c)
+        irule(self.compile, types.obj, types.cxx)
+        irule(self.archive, types.lib, types.obj)
+        irule(self.link, types.bin, (types.obj, types.dso, types.lib))
+        irule(self.link, types.dso, (types.obj, types.dso, types.lib))
 
     @classmethod
     def find_path(cls, product_dir, arch):
