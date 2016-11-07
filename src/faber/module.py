@@ -8,6 +8,7 @@
 
 from .feature import lazy_set
 from .artefact import artefact
+from .utils import add_metaclass
 from os.path import join, exists
 from os import makedirs
 import logging
@@ -15,8 +16,38 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class proxy(object):
+    """A module as seen when cross-referenced."""
+    def __init__(self, module):
+        self.__dict__.update(module._env)
+
+
+class module_type(type):
+    def __call__(cls, name, srcdir=None, builddir=None, process=True, **kwds):
+        """Make sure to construct (and process) modules only once."""
+
+        if name.startswith('.'):  # relative import
+            if srcdir or builddir:
+                raise ValueError('invalid arguments for relative imports')
+            name, base = name[1:], module.current
+            while name.startswith('.') and base:
+                name, base = name[1:], base._parent
+            if name.startswith('.'):
+                raise ValueError('{} has no parent module'.format(base.name))
+            name = '.'.join([base.name, name]) if base.name and name else \
+                   name if name else base.name
+            return proxy(cls._instances[name])
+        elif name in cls._instances:
+            return proxy(cls._instances[name])
+        else:
+            m = super(module_type, cls).__call__(name, srcdir, builddir, process, **kwds)
+            return m
+
+
+@add_metaclass(module_type)
 class module(object):
 
+    _instances = {}
     current = None
 
     @staticmethod
@@ -28,6 +59,7 @@ class module(object):
     @staticmethod
     def finish():
         artefact.finish()
+        module._instances.clear()
 
     def __init__(self, name, srcdir=None, builddir=None, process=True, **kwds):
         """Create a new module."""
@@ -49,6 +81,7 @@ class module(object):
         else:
             self.srcdir = srcdir or name
             self.builddir = builddir or name
+        module._instances[name] = self
         if process:
             with self:
                 self.process()
