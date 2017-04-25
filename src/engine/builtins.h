@@ -14,14 +14,6 @@
  */
 
 void load_builtins();
-void init_set();
-void init_path();
-void init_regex();
-void init_property_set();
-void init_sequence();
-void init_order();
-
-void property_set_done();
 
 LIST *builtin_calc( FRAME * frame, int flags );
 LIST *builtin_depends( FRAME * frame, int flags );

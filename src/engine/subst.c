@@ -36,7 +36,7 @@ regexp * regex_compile( OBJECT * pattern )
     return e->regex;
 }
 
-
+#if 0
 LIST * builtin_subst( FRAME * frame, int flags )
 {
     LIST * result = L0;
@@ -96,7 +96,7 @@ LIST * builtin_subst( FRAME * frame, int flags )
 
     return result;
 }
-
+#endif
 
 static void free_regex( void * xregex, void * data )
 {

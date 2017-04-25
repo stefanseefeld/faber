@@ -16,6 +16,8 @@
 #include "output.h"
 #include "execcmd.h"
 #include "builtins.h"
+#include "mem.h"
+#include "jam.h"
 
 #ifdef HAVE_PYTHON
 
@@ -108,7 +110,7 @@ static void make_jam_arguments_from_python(FRAME *inner, PyObject *args)
   frame_init(inner);
   inner->prev = 0;
   inner->prev_user = 0;
-  inner->module = bindmodule(constant_python_interface);
+  //inner->module = bindmodule(constant_python_interface);
 
   size = PyTuple_Size(args);
   for (i = 0 ; i < size; ++i)
@@ -162,27 +164,27 @@ PyObject *bjam_update_now(PyObject *self, PyObject *args)
   }
 }
 
-PyObject *bjam_set_target_variables(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *bjam_set_target_variables(PyObject *self, PyObject *args)
 {
   char const *name;
   int flag;
-  if (!PyArg_ParseTuple(args, "si:set_target_variables", &name, &flag))
+  PyObject *vars;
+  TARGET *target;
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+  if (!PyArg_ParseTuple(args, "siO:set_target_variables", &name, &flag, &vars) ||
+      !PyDict_Check(vars))
     return NULL;
-  TARGET *target = bindtarget(object_new(name));
-  if (kwds)
+  target = bindtarget(object_new(name));
+  while (PyDict_Next(vars, &pos, &key, &value))
   {
-    PyObject *key, *value;
-    Py_ssize_t pos = 0;
-    while (PyDict_Next(kwds, &pos, &key, &value))
-    {
-      char const *k = PyString_AsString(key);
-      if (!k) return NULL;
-      char const *v = PyString_AsString(value);
-      if (!v) return NULL;
-      target->settings = addsettings(target->settings, flag,
-				     object_new(k),
-				     list_new(object_new(v)));
-    }
+    char const *k = PyString_AsString(key);
+    if (!k) return NULL;
+    char const *v = PyString_AsString(value);
+    if (!v) return NULL;
+    target->settings = addsettings(target->settings, flag,
+				   object_new(k),
+				   list_new(object_new(v)));
   }
   Py_INCREF(Py_None);
   return Py_None;
@@ -220,12 +222,12 @@ PyObject *bjam_get_target_variables(PyObject *self, PyObject *args)
 {
   char const *name;
   TARGET *target;
-  OBJECT *var;
+  PyObject *vars;
   SETTINGS *s;
   if (!PyArg_ParseTuple(args, "s:get_target_variables", &name))
     return NULL;
   target = bindtarget(object_new(name));
-  PyObject *vars = PyDict_New();
+  vars = PyDict_New();
   for (s = target->settings; s; s = s->next)
   {
     PyObject *name = PyString_FromString(object_str(s->symbol));
@@ -240,7 +242,7 @@ PyObject *bjam_get_target_variables(PyObject *self, PyObject *args)
   return vars;
 }
 
-PyObject *bjam_call(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *bjam_define_recipe(PyObject *self, PyObject *args)
 {
   FRAME     inner[1];
   LIST     *result;
@@ -255,53 +257,6 @@ PyObject *bjam_call(PyObject *self, PyObject *args, PyObject *kwds)
   if (PyErr_Occurred())
     return NULL;
   Py_DECREF(args_proper);
-
-  /* update any target attributes if specified */
-  PyObject *attrs = kwds ? PyDict_GetItemString(kwds, "attrs") : 0;
-  if (attrs)
-  {
-    long value = PyInt_AsLong(attrs);
-    if (value == -1 && PyErr_Occurred())
-    {
-      Py_DECREF(attrs);
-      return NULL;
-    }
-    else
-      Py_DECREF(attrs);
-    if (value)
-    {
-      LIST *targets = lol_get(inner->args, 0);
-      LISTITER iter = list_begin(targets);
-      LISTITER const end = list_end(targets);
-      for (; iter != end; iter = list_next(iter))
-	bindtarget(list_item(iter))->flags |= value;
-    }
-  }
-
-  /* update any target variables if specified */
-  PyObject *vars = kwds ? PyDict_GetItemString(kwds, "vars") : 0;
-  if (vars)
-  {
-    PyObject *key, *value;
-    Py_ssize_t pos = 0;
-    while (PyDict_Next(vars, &pos, &key, &value))
-    {
-      char const *k = PyString_AsString(key);
-      if (!k) return NULL;
-      char const *v = PyString_AsString(value);
-      if (!v) return NULL;
-      LIST *targets = lol_get(inner->args, 0);
-      LISTITER iter = list_begin(targets);
-      LISTITER const end = list_end(targets);
-      for (; iter != end; iter = list_next(iter))
-      {
-	TARGET *t = bindtarget(list_item(iter));
-	t->settings = addsettings(t->settings, VAR_SET,
-				  object_new(k),
-				  list_new(object_new(v)));
-      }
-    }
-  }
 
   result = evaluate_rule(bindrule(rulename, inner->module), rulename, inner);
   object_free(rulename);
@@ -447,23 +402,53 @@ static PyObject *bjam_run(PyObject *self, PyObject *args)
   return PyInt_FromLong(c.status);
 }
 
-void bjam_init(int optimize)
+struct globs globs =
+{
+  0,   /* noexec */
+  1,   /* jobs */
+  0,   /* quitquick */
+  0,   /* newestfirst */
+  0,   /* pipes action stdout and stderr merged to action output */
+  {0}, /* debug ... */
+  0,   /* output commands, not run them */
+  0,   /* action timeout */
+  0    /* maximum buffer size zero is all output */
+};
+
+int anyhow = 0;
+
+static PyObject *bjam_setopts(PyObject *self, PyObject *args)
+{
+  PyObject *obj;
+  unsigned long log, noexec, jobs, timeout, force;
+  unsigned long i, d;
+  if (!PyArg_ParseTuple(args, "lllll:setopts", &log, &noexec, &jobs, &timeout, &force))
+    return NULL;
+  for (i = 0; i != DEBUG_MAX; ++i)
+    globs.debug[i] = log & (1<<i) ? 1 : 0;
+  globs.noexec = noexec;
+  globs.jobs = jobs;
+  globs.timeout = timeout;
+  anyhow = force;
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+void bjam_init()
 {
   PROFILE_ENTER(MAIN_PYTHON);
-  Py_OptimizeFlag = optimize;
-  Py_Initialize();
   {
     static PyMethodDef BjamMethods[] =
     {
       {"depends", bjam_depends, METH_VARARGS, "Declares a dependency."},
       {"update_now", bjam_update_now, METH_VARARGS, "Request an immediate update."},
-      {"set_target_variables", (PyCFunction)bjam_set_target_variables, METH_KEYWORDS,
+      {"set_target_variables", bjam_set_target_variables, METH_VARARGS,
        "Set variables for the given target."},
       {"get_target_variables", bjam_get_target_variables, METH_VARARGS,
        "Get all variables for the given target."},
       {"get_target_variable", bjam_get_target_variable, METH_VARARGS,
        "Get a variable for the given target."},
-      {"call", (PyCFunction)bjam_call, METH_KEYWORDS,
+      {"define_recipe", bjam_define_recipe, METH_VARARGS,
        "Call the specified bjam rule."},
       {"define_action", bjam_define_action, METH_VARARGS,
        "Defines a command line action."},
@@ -471,12 +456,22 @@ void bjam_init(int optimize)
        "Obtains a variable from bjam's global module."},
       {"run", bjam_run, METH_VARARGS,
        "Runs the given command and returns its exit status."},
+      {"setopts", bjam_setopts, METH_VARARGS,
+       "Set engine options."},
       {NULL, NULL, 0, NULL}
     };
 
     Py_InitModule("bjam", BjamMethods);
   }
   PROFILE_EXIT(MAIN_PYTHON);
+}
+
+PyMODINIT_FUNC initbjam()
+{
+  BJAM_MEM_INIT();
+  constants_init();
+  cwd_init();
+  bjam_init();
 }
 
 #endif  /* #ifdef HAVE_PYTHON */

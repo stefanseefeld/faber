@@ -1,0 +1,29 @@
+#
+# MANIFEST template for source distribution generation
+#
+
+include LICENSE README.md MANIFEST.in setup.py
+exclude setup.cfg
+global-exclude *~
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.o
+global-exclude *.so
+
+# python modules
+recursive-include   src/faber *.py
+
+# engine sources
+recursive-include   src/engine *
+
+#documentation
+recursive-include   doc *
+
+# scripts
+include             scripts/*
+
+# unit tests
+recursive-include tests *
+
+# examples
+recursive-include examples *

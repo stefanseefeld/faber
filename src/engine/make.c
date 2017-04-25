@@ -103,7 +103,7 @@ int make( LIST * targets, int anyhow )
     /* First bind all targets with LOCATE_TARGET setting. This is needed to
      * correctly handle dependencies to generated headers.
      */
-    bind_explicitly_located_targets();
+    //bind_explicitly_located_targets();
 
     {
         LISTITER iter, end;
