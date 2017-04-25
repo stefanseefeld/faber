@@ -442,6 +442,7 @@ static void function_default_named_variable( JAM_FUNCTION * function,
     var_set( frame->module, name, value, VAR_DEFAULT );
 }
 
+#if 0
 static LIST * function_call_rule( JAM_FUNCTION * function, FRAME * frame,
     STACK * s, int n_args, char const * unexpanded, OBJECT * file, int line )
 {
@@ -595,7 +596,7 @@ static LIST * function_call_member_rule( JAM_FUNCTION * function, FRAME * frame,
     object_free( real_rulename );
     return result;
 }
-
+#endif
 
 /* Variable expansion */
 
@@ -3807,7 +3808,6 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 #endif
 
     assert( function_->type == FUNCTION_JAM );
-
     if ( function_->formal_arguments )
         argument_list_push( function_->formal_arguments,
             function_->num_formal_arguments, function_, frame, s );
@@ -3865,6 +3865,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             break;
         }
 
+#if 0
         case INSTR_PUSH_GROUP:
         {
             PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_GROUP);
@@ -4129,7 +4130,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_RESULT);
             break;
         }
-
+#endif
         case INSTR_RETURN:
         {
             PROFILE_ENTER_LOCAL(function_run_INSTR_RETURN);
@@ -4152,7 +4153,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run);
             return result;
         }
-
+#if 0
         /*
          * Local variables
          */
@@ -4669,7 +4670,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_INDEX_MODIFIERS_GROUP);
             break;
         }
-
+#endif
         case INSTR_COMBINE_STRINGS:
         {
             PROFILE_ENTER_LOCAL(function_run_INSTR_COMBINE_STRINGS);
@@ -4688,7 +4689,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_COMBINE_STRINGS);
             break;
         }
-
+#if 0
         case INSTR_GET_GRIST:
         {
             PROFILE_ENTER_LOCAL(function_run_INSTR_GET_GRIST);
@@ -4933,6 +4934,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_WRITE_FILE);
             break;
         }
+#endif
 
         case INSTR_OUTPUT_STRINGS:
         {
@@ -4943,11 +4945,14 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_OUTPUT_STRINGS);
             break;
         }
-
+        default:
+	{
+	  printf("internal error: unhandled instruction %d\n", code->op_code);
+	  abort();
+	}
         }
         ++code;
     }
-
     PROFILE_EXIT_LOCAL(function_run);
 }
 
@@ -5140,83 +5145,97 @@ static module_t * python_module()
 }
 
 
-static LIST * call_python_function( PYTHON_FUNCTION * function, FRAME * frame )
+static LIST *call_python_function(PYTHON_FUNCTION *function, FRAME *frame)
 {
-    LIST * result = 0;
-    PyObject * arguments = 0;
-    PyObject * kw = NULL;
-    int i;
-    PyObject * py_result;
-    FRAME * prev_frame_before_python_call;
-
-    if ( function->base.formal_arguments )
+  LIST *result = 0;
+  PyObject *arguments = 0;
+  PyObject *kw = NULL;
+  int i;
+  PyObject *py_result;
+  FRAME *prev_frame_before_python_call;
+  if (function->base.formal_arguments)
+  {
+    arguments = PyTuple_New(0);
+    kw = PyDict_New();
+    argument_list_to_python(function->base.formal_arguments,
+			    function->base.num_formal_arguments,
+			    &function->base, frame, kw);
+  }
+  else
+  {
+    TARGET *target;
+    SETTINGS *s;
+    arguments = PyTuple_New(frame->args->count);
+    kw = PyDict_New();
+    for (i = 0; i < frame->args->count; ++i)
+      PyTuple_SetItem(arguments, i, list_to_python(lol_get(frame->args, i)));
+    // Use the target-specific variables of the first target
+    target = bindtarget(list_front(lol_get(frame->args, 0)));
+    pushsettings(root_module(), target->settings);
+    for (s = target->settings; s; s = s->next)
     {
-        arguments = PyTuple_New( 0 );
-        kw = PyDict_New();
-        argument_list_to_python( function->base.formal_arguments,
-            function->base.num_formal_arguments, &function->base, frame, kw );
+      PyObject *name = PyString_FromString(object_str(s->symbol));
+      PyObject *pyvalues = PyList_New(0);
+      LIST *values = s->value;
+      LISTITER iter = list_begin(values);
+      LISTITER const end = list_end(values);
+      for (; iter != end; iter = list_next(iter))
+	PyList_Append(pyvalues, PyString_FromString(object_str(list_item(iter))));
+      PyDict_SetItem(kw, name, pyvalues);
+    }
+    popsettings(root_module(), target->settings);
+  }
+  //frame->module = python_module();
+
+  prev_frame_before_python_call = frame_before_python_call;
+  frame_before_python_call = frame;
+  py_result = PyObject_Call(function->python_function, arguments, kw);
+  frame_before_python_call = prev_frame_before_python_call;
+  Py_DECREF(arguments);
+  Py_XDECREF(kw);
+  if (py_result != NULL)
+  {
+    if (PyList_Check(py_result))
+    {
+      int size = PyList_Size(py_result);
+      int i;
+      for (i = 0; i < size; ++i)
+      {
+	OBJECT * s = python_to_string(PyList_GetItem(py_result, i));
+	if (!s)
+	  err_printf("Non-string object returned by Python call.\n");
+	else
+	  result = list_push_back(result, s);
+      }
+    }
+    else if (py_result == Py_None)
+    {
+      result = L0;
     }
     else
     {
-        arguments = PyTuple_New( frame->args->count );
-        for ( i = 0; i < frame->args->count; ++i )
-            PyTuple_SetItem( arguments, i, list_to_python( lol_get( frame->args,
-                i ) ) );
+      OBJECT * const s = python_to_string(py_result);
+      if (s)
+	result = list_new(s);
+      else
+	/* We have tried all we could. Return empty list. There are
+	 * cases, e.g. feature.feature function that should return a
+	 * value for the benefit of Python code and which also can be
+	 * called by Jam code, where no sensible value can be returned.
+	 * We cannot even emit a warning, since there would be a pile of
+	 * them.
+	 */
+	result = L0;
     }
-
-    frame->module = python_module();
-
-    prev_frame_before_python_call = frame_before_python_call;
-    frame_before_python_call = frame;
-    py_result = PyObject_Call( function->python_function, arguments, kw );
-    frame_before_python_call = prev_frame_before_python_call;
-    Py_DECREF( arguments );
-    Py_XDECREF( kw );
-    if ( py_result != NULL )
-    {
-        if ( PyList_Check( py_result ) )
-        {
-            int size = PyList_Size( py_result );
-            int i;
-            for ( i = 0; i < size; ++i )
-            {
-                OBJECT * s = python_to_string( PyList_GetItem( py_result, i ) );
-                if ( !s )
-                    err_printf(
-                        "Non-string object returned by Python call.\n" );
-                else
-                    result = list_push_back( result, s );
-            }
-        }
-        else if ( py_result == Py_None )
-        {
-            result = L0;
-        }
-        else
-        {
-            OBJECT * const s = python_to_string( py_result );
-            if ( s )
-                result = list_new( s );
-            else
-                /* We have tried all we could. Return empty list. There are
-                 * cases, e.g. feature.feature function that should return a
-                 * value for the benefit of Python code and which also can be
-                 * called by Jam code, where no sensible value can be returned.
-                 * We cannot even emit a warning, since there would be a pile of
-                 * them.
-                 */
-                result = L0;
-        }
-
-        Py_DECREF( py_result );
-    }
-    else
-    {
-        PyErr_Print();
-        err_printf( "Call failed\n" );
-    }
-
-    return result;
+    
+    Py_DECREF(py_result);
+  }
+  else
+  {
+    PyErr_Print();
+    err_printf("Call failed\n");
+  }
+  return result;
 }
 
 #endif

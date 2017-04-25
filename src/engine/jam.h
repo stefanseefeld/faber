@@ -22,6 +22,10 @@
 #include <Python.h>
 #endif
 
+#ifdef _WIN32
+# define NT
+#endif
+
 /* Assume popen support is available unless known otherwise. */
 #define HAVE_POPEN 1
 

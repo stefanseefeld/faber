@@ -172,7 +172,7 @@ TARGET * bindtarget( OBJECT * const target_name )
     return t;
 }
 
-
+#if 0
 static void bind_explicitly_located_target( void * xtarget, void * data )
 {
     TARGET * t = (TARGET *)xtarget;
@@ -197,7 +197,7 @@ void bind_explicitly_located_targets()
     if ( targethash )
         hashenumerate( targethash, bind_explicitly_located_target, (void *)0 );
 }
-
+#endif
 
 /*
  * touch_target() - mark a target to simulate being new.

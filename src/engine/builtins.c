@@ -105,12 +105,12 @@
 #define P0 (PARSE *)0
 #define C0 (OBJECT *)0
 
-#if defined( OS_NT ) || defined( OS_CYGWIN )
+#if 0 //defined( OS_NT ) || defined( OS_CYGWIN )
     LIST * builtin_system_registry      ( FRAME *, int );
     LIST * builtin_system_registry_names( FRAME *, int );
 #endif
 
-int glob( char const * s, char const * c );
+//int glob( char const * s, char const * c );
 
 void backtrace        ( FRAME * );
 void backtrace_line   ( FRAME * );
@@ -171,7 +171,7 @@ void load_builtins()
           bind_builtin( "EXIT",
                         builtin_exit, 0, args ) ) );
     }
-
+#if 0
     {
         char const * args[] = { "directories", "*", ":", "patterns", "*", ":",
             "case-insensitive", "?", 0 };
@@ -184,7 +184,7 @@ void load_builtins()
         bind_builtin( "GLOB-RECURSIVELY",
                       builtin_glob_recursive, 0, args );
     }
-
+#endif
     duplicate_rule( "Includes",
       bind_builtin( "INCLUDES",
                     builtin_depends, 1, 0 ) );
@@ -199,7 +199,7 @@ void load_builtins()
     duplicate_rule( "Leaves",
       bind_builtin( "LEAVES",
                     builtin_flags, T_FLAG_LEAVES, 0 ) );
-
+#if 0
     duplicate_rule( "Match",
       bind_builtin( "MATCH",
                     builtin_match, 0, 0 ) );
@@ -209,7 +209,7 @@ void load_builtins()
         bind_builtin( "SPLIT_BY_CHARACTERS",
                       builtin_split_by_characters, 0, args );
     }
-
+#endif
     duplicate_rule( "NoCare",
       bind_builtin( "NOCARE",
                     builtin_flags, T_FLAG_NOCARE, 0 ) );
@@ -258,14 +258,14 @@ void load_builtins()
         bind_builtin( "UPDATE_NOW",
                       builtin_update_now, 0, args );
     }
-
+#if 0
     {
         char const * args[] = { "string", "pattern", "replacements", "+", 0 };
         duplicate_rule( "subst",
           bind_builtin( "SUBST",
                         builtin_subst, 0, args ) );
     }
-
+#endif
     {
         char const * args[] = { "module", "?", 0 };
         bind_builtin( "RULENAMES",
@@ -396,7 +396,7 @@ void load_builtins()
     }
 #endif
 
-# if defined( OS_NT ) || defined( OS_CYGWIN )
+# if 0 //defined( OS_NT ) || defined( OS_CYGWIN )
     {
         char const * args[] = { "key_path", ":", "data", "?", 0 };
         bind_builtin( "W32_GETREG",
@@ -441,10 +441,10 @@ void load_builtins()
                       builtin_precious, 0, args );
     }
 
-    {
-        char const * args [] = { 0 };
-        bind_builtin( "SELF_PATH", builtin_self_path, 0, args );
-    }
+    //{
+    //    char const * args [] = { 0 };
+    //    bind_builtin( "SELF_PATH", builtin_self_path, 0, args );
+    //}
 
     {
         char const * args [] = { "path", 0 };
@@ -455,6 +455,7 @@ void load_builtins()
         const char * args [] = { "path", 0 };
         bind_builtin( "READLINK", builtin_readlink, 0, args );
     }
+#if 0
     {
         char const * args[] = { "archives", "*",
                                 ":", "member-patterns", "*",
@@ -462,14 +463,7 @@ void load_builtins()
                                 ":", "symbol-patterns", "*", 0 };
         bind_builtin( "GLOB_ARCHIVE", builtin_glob_archive, 0, args );
     }
-
-    /* Initialize builtin modules. */
-    init_set();
-    init_path();
-    init_regex();
-    init_property_set();
-    init_sequence();
-    init_order();
+#endif
 }
 
 
@@ -674,7 +668,7 @@ static void downcase_inplace( char * p )
         *p = tolower( *p );
 }
 
-
+#if 0
 static void builtin_glob_back( void * closure, OBJECT * file, int status,
     timestamp const * const time )
 {
@@ -725,7 +719,7 @@ static void builtin_glob_back( void * closure, OBJECT * file, int status,
 
     PROFILE_EXIT( BUILTIN_GLOB_BACK );
 }
-
+#endif
 
 static LIST * downcase_list( LIST * in )
 {
@@ -748,7 +742,7 @@ static LIST * downcase_list( LIST * in )
     return result;
 }
 
-
+#if 0
 LIST * builtin_glob( FRAME * frame, int flags )
 {
     LIST * const l = lol_get( frame->args, 0 );
@@ -781,7 +775,7 @@ LIST * builtin_glob( FRAME * frame, int flags )
 
     return globbing.results;
 }
-
+#endif
 
 static int has_wildcards( char const * const str )
 {
@@ -801,7 +795,7 @@ static LIST * append_if_exists( LIST * list, OBJECT * file )
         : list ;
 }
 
-
+#if 0
 LIST * glob1( OBJECT * dirname, OBJECT * pattern )
 {
     LIST * const plist = list_new( object_copy( pattern ) );
@@ -941,7 +935,6 @@ LIST * builtin_glob_recursive( FRAME * frame, int flags )
     return result;
 }
 
-
 /*
  * builtin_match() - MATCH rule, regexp matching
  */
@@ -1001,7 +994,7 @@ LIST * builtin_match( FRAME * frame, int flags )
     string_free( buf );
     return result;
 }
-
+#endif
 
 /*
  * builtin_split_by_characters() - splits the given string into tokens
@@ -1857,6 +1850,7 @@ LIST * builtin_precious( FRAME * frame, int flags )
 }
 
 
+#if 0
 LIST * builtin_self_path( FRAME * frame, int flags )
 {
     extern char const * saved_argv0;
@@ -1869,6 +1863,7 @@ LIST * builtin_self_path( FRAME * frame, int flags )
     }
     return L0;
 }
+#endif
 
 
 LIST * builtin_makedir( FRAME * frame, int flags )
@@ -2267,7 +2262,7 @@ LIST * builtin_shell( FRAME * frame, int flags )
 
 #endif  /* #ifdef HAVE_POPEN */
 
-
+#if 0
 /*
  * builtin_glob_archive() - GLOB_ARCHIVE rule
  */
@@ -2410,3 +2405,5 @@ LIST * builtin_glob_archive( FRAME * frame, int flags )
 
     return globbing.results;
 }
+
+#endif
