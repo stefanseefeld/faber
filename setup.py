@@ -40,7 +40,7 @@ else:
     sources+=['execunix.c', 'pathunix.c', 'fileunix.c']
 
 bjam = Extension(name='faber.bjam',
-                 sources=prefix('src/engine/', sources),
+                 sources=prefix('src/bjam/', sources),
                  define_macros=[('HAVE_PYTHON', None),
                                 ('OPT_SEMAPHORE', None),
                                 ('OPT_GRAPH_DEBUG_EXT', None)],
