@@ -78,9 +78,15 @@ def clean(level, options, parameters, srcdir, builddir):
     """Clean up file artefacts."""
 
     options = optioncache(builddir, options)
+    module.init([], options, parameters)
+    m = module('', srcdir, builddir)  # noqa F841
     scheduler.clean(level)
     if level > 1:
+        from .config.check import check
+        if check.cache:
+            check.cache.clean()
         options.clean()
+    module.finish()
     return True
 
 
