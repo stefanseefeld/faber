@@ -34,12 +34,12 @@ class PosArgsParser(argparse.Action):
             else:
                 namespace.goals.append(v)
 
-def main(argv):
+log_topics = dict(summary=1, actions=2, commands=4, dependencies=1<<12)
 
-    parser = argparse.ArgumentParser(prog=argv[0],
+def make_parser(prog='faber'):
+
+    parser = argparse.ArgumentParser(prog=prog,
                                      description='Faber is a construction tool.')
-    log_topics = dict(summary=1, actions=2, commands=4, dependencies=1<<12)
-
     parser.add_argument('goals', metavar='GOAL', nargs='*',
                         action=PosArgsParser,
                         help='a goal to update')
@@ -72,6 +72,11 @@ def main(argv):
                         help='set timeout for individual actions')
     parser.add_argument('-i', '--info', action='store_true',
                         help='print information about the build logic')
+    return parser
+
+def main(argv):
+
+    parser = make_parser(argv[0])
     try:
         args, unknown = parser.parse_known_args(argv[1:])
         def with_gen(w):

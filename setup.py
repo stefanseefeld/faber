@@ -8,6 +8,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from distutils.core import setup, Extension
+from distutils.command import build
 import sys, os, os.path, glob, shutil
 import subprocess
 import re
@@ -58,6 +59,26 @@ def find_packages(root_dir, root_name):
     record(root_dir, root_name)
     return packages
 
+class build_doc(build.build):
+
+   description = "build documentation"
+
+   def run(self):
+
+       self.announce('building documentation')
+       python = sys.executable
+       faber = os.path.abspath(os.path.join('scripts', 'faber'))
+       subprocess.check_call([python, faber,
+                              '--srcdir={}'.format('doc'),
+                              '--builddir={}'.format('doc')])
+
+docs = []
+if os.path.exists('doc/html'):
+    for root, dirs, files in os.walk('doc/html'):
+        dest = root.replace('doc/html', 'share/doc/faber-{}'.format(version))
+        docs.append((dest,
+                    [os.path.join(root, file) for file in files
+                     if os.path.isfile(os.path.join(root, file))]))
 
 setup(name='faber',
       version=version,
@@ -67,9 +88,10 @@ setup(name='faber',
       maintainer_email='stefan@seefeld.name',
       url='http://github.com/stefanseefeld/faber',
       description='Faber is a construction tool.',
+      cmdclass={'build_doc': build_doc},
       package_dir={'':'src'},
       packages=find_packages('src/faber', 'faber'),
       ext_modules=[engine],
       scripts=scripts,
-      data_files=data,
+      data_files=data + docs,
       )

@@ -54,7 +54,7 @@ class check(artefact):
     then stores the result in a cache, so it doesn't need to be performed again, until the cache
     is explicitly cleared."""
 
-    cache = cache()
+    cache = cache() if module.current else None # to support sphinx' autoclass
 
     def __init__(self, name, features=(), if_=(), ifnot=()):
 
