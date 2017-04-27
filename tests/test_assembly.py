@@ -28,7 +28,7 @@ def with_module(m):
 
     
 # set up a dummy module as lots of objects expect one
-module.init({}, {})
+module.init(goals={}, config={}, params={})
 mod = module('test', '', '', process=False)
 
 @with_module(mod)

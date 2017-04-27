@@ -104,10 +104,10 @@ def main(argv):
         elif os.path.exists(os.path.expanduser('~/.faber')):
             cfg = project.config(os.path.expanduser('~/.faber'))
         if args.info:
-            return project.info(args.goals, args.parameters,
+            return project.info(args.goals, args.config, args.parameters,
                                 args.srcdir, args.builddir)
         else:
-            return project.build(args.goals, args.parameters,
+            return project.build(args.goals, args.config, args.parameters,
                                  args.srcdir, args.builddir)
     except Exception as e:
         if args.debug:

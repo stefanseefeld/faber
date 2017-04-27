@@ -1,0 +1,64 @@
+# -*- python -*-
+#
+# Copyright (c) 2016 Stefan Seefeld
+# All rights reserved.
+#
+# This file is part of Faber. It is made available under the
+# Boost Software License, Version 1.0.
+# (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
+
+#
+# This example demonstrates how to configure a project.
+#
+# Run with:
+#
+#   * `faber cxxflags=-I/usr/include/python2.7 libs=python2.7`
+#   * `faber cxxflags=-std=c++14`
+#   * `faber --with-python-inc=/usr/include/python2.7 --with-python-lib=python2.7`
+#
+# To remove config artefacts run with:
+#
+#   * `faber .config-clean`
+
+from faber.config.try_link import *
+from faber.artefacts.binary import binary
+from faber.tools.compiler import define, include, linkpath, libs
+from faber.types import cxx
+from faber.config import config, cxx_checks
+
+
+c = config('config.py')
+python_inc = c.get_with('python-inc')
+python_linkpath = c.get_with('python-linkpath')
+python_lib = c.get_with('python-lib')
+if python_inc:
+    c.features += include(python_inc)
+if python_linkpath:
+    c.features += linkpath(python_linkpath)
+if python_lib:
+    c.features += libs(python_lib)
+
+test="""
+#include <Python.h>
+int main()
+{
+  Py_Initialize();
+}
+"""
+checks = [try_link('pytest', test, cxx, c.features,
+                   define('HAS_PYTHON=1'),
+                   define('HAS_PYTHON=0')),
+          cxx_checks.has_cxx11(c.features, define('HAS_CXX11')),
+          cxx_checks.has_cxx14(c.features, define('HAS_CXX14')),
+          cxx_checks.has_cxx17(c.features, define('HAS_CXX17'))]
+
+if 'clean' not in goals and 'config-clean' not in goals:
+    c.check(checks)
+    c.report(checks)
+
+bin = binary('check', 'main.cpp', features=c.features)
+report = rule('report', bin, recipe=action('run', '$(>)'), attrs=notfile|always)
+alias('clean', clean)
+alias('config-clean', c.clean)
+
+default = report

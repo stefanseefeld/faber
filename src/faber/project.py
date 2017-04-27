@@ -26,16 +26,17 @@ def config(script):
     execfile(script, env)
     return env
 
-def build(goals, parameters, srcdir, builddir):
+def build(goals, config, parameters, srcdir, builddir):
     """build a project. Parameters:
 
     * goals: list of artefacts to build
+    * config: any config options being passed
     * parameters: dictionary of pre-defined parameters
     * srcdir: the source directory
     * builddir: the build directory
     """
 
-    module.init(goals, parameters)
+    module.init(goals, config, parameters)
     m = module(None, srcdir, builddir)
     if goals:
         try:
@@ -51,14 +52,15 @@ def build(goals, parameters, srcdir, builddir):
         result = all(engine.update(goals).itervalues())
     elif result:
         print('no goals given and no "default" artefact defined - nothing to do.')
+        result = True
     module.finish()
     return result
 
-def info(goals, parameters, srcdir, builddir):
+def info(goals, config, parameters, srcdir, builddir):
     """print project information, rather than performing a build.
     Parameters are the same as for the `build` function."""
 
-    module.init(goals, parameters)
+    module.init(goals, config, parameters)
     m = module(None, srcdir, builddir)
     print('known artefacts:')
     for a in artefact.iter():

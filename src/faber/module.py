@@ -28,8 +28,9 @@ class module(object):
     current = None
 
     @staticmethod
-    def init(goals, params):
+    def init(goals, config, params):
         module.goals = goals
+        module.config = config
         module.params = params
         module._parents = []
         module._clean = set()
