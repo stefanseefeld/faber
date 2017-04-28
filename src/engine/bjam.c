@@ -18,6 +18,7 @@
 #include "builtins.h"
 #include "mem.h"
 #include "jam.h"
+#include "cwd.h"
 
 #ifdef HAVE_PYTHON
 
@@ -147,21 +148,22 @@ PyObject *bjam_depends(PyObject *self, PyObject *args)
 PyObject *bjam_update_now(PyObject *self, PyObject *args)
 {
   FRAME inner[1];
-  LIST *result;
+  LIST *_result;
+  PyObject *result;
+  TARGETS *targets;
   make_jam_arguments_from_python(inner, args);
   if (PyErr_Occurred()) return NULL;
-  result = builtin_update_now(inner, 0);
+  _result = builtin_update_now(inner, 0);
+  result = PyDict_New();
+  targets = targetlist((TARGETS*)0, lol_get(inner->args, 0));
+  while (targets)
+  {
+    PyDict_SetItemString(result, object_str(targets->target->name),
+			 PyBool_FromLong(targets->target->status==0));
+    targets = targets->next;
+  }
   frame_free(inner);
-  if (!result)
-  {
-    Py_INCREF(Py_False);
-    return Py_False;
-  }
-  else
-  {
-    Py_INCREF(Py_True);
-    return Py_True;
-  }
+  return result;
 }
 
 PyObject *bjam_set_target_variables(PyObject *self, PyObject *args)

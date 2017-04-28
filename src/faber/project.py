@@ -48,7 +48,7 @@ def build(goals, parameters, srcdir, builddir):
         goals = [a.bound_name for a in m.default]
         result = True
     if goals:
-        engine.update(goals)
+        result = all(engine.update(goals).itervalues())
     elif result:
         print('no goals given and no "default" artefact defined - nothing to do.')
     module.finish()
