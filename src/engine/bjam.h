@@ -13,6 +13,16 @@
 
 #ifdef HAVE_PYTHON
 
+#if PY_MAJOR_VERSION >= 3
+# define PYSTRING_CHECK PyUnicode_Check
+# define PYSTRING_FROM_STRING PyUnicode_FromString
+# define PYSTRING_AS_STRING PyUnicode_AsUTF8
+#else
+# define PYSTRING_CHECK PyString_Check
+# define PYSTRING_FROM_STRING PyString_FromString
+# define PYSTRING_AS_STRING PyString_AsString
+#endif
+
 PyObject *list_to_python(LIST * l);
 LIST *list_from_python(PyObject * l);
 

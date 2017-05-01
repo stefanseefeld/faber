@@ -17,7 +17,7 @@ def test_call():
     a = action()
     with pytest.raises(ValueError) as e:
         a()
-    assert 'not implemented' in e.value.message
+    assert 'not implemented' in str(e.value)
 
     with patch('faber.engine.run') as run:
         a = action('compile', 'c++ -c -o $(<) $(>)')

@@ -17,7 +17,7 @@ class action_type(type):
     def __new__(cls, name, bases, dict):
         """Collect all maps in a private dict so we don't have to 
         look them up each time we need them."""
-        dict['_maps'] = {k:v for k,v in dict.iteritems() if isinstance(v,map)}
+        dict['_maps'] = {k:v for k,v in dict.items() if isinstance(v,map)}
         return super(action_type, cls).__new__(cls, name, bases, dict)
 
 @add_metaclass(action_type)
@@ -99,4 +99,4 @@ class action(object):
 
     def map(self, fs):
         """translate the given feature-set using any map this action has defined."""
-        return {k:v(fs) for k,v in self._maps.iteritems()}
+        return {k:v(fs) for k,v in self._maps.items()}

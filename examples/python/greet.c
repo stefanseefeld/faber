@@ -14,7 +14,7 @@ static PyObject *py_greet(PyObject *self, PyObject *args)
 {
   if (!PyArg_ParseTuple(args, ":greet"))
     return NULL;
-  return PyString_FromString(greet());
+  return PyUnicode_FromString(greet());
 }
 
 static PyMethodDef methods[] =
@@ -23,7 +23,32 @@ static PyMethodDef methods[] =
   {NULL, NULL}      /* sentinel */
 };
 
-PyMODINIT_FUNC initgreet()
+#if PY_MAJOR_VERSION >= 3
+
+static struct PyModuleDef moduledef =
 {
-  Py_InitModule3("greet", methods, NULL);
+  PyModuleDef_HEAD_INIT,
+  "greet",
+  0, /* doc      */
+  -1, //sizeof(struct module_state),
+  methods,
+  0, /* reload   */
+  0, /* traverse */
+  0, /* clear    */
+  0  /* free     */
+};
+
+PyMODINIT_FUNC PyInit_greet()
+#else
+PyMODINIT_FUNC initgreet()
+#endif
+{
+  PyObject *module;
+
+#if PY_MAJOR_VERSION >= 3
+  module = PyModule_Create(&moduledef);
+  return module;
+#else
+  module = Py_InitModule("greet", methods);
+#endif
 }

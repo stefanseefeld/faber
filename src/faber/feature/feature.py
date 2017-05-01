@@ -99,7 +99,6 @@ class feature(object):
         return v1
     
     def _validate(self, *args):
-
         def adjust_path(path, base):
             if not base and not os.path.isabs(path):
                 raise ValueError('relative path "{}" in feature "{}" may not be defined outside module'

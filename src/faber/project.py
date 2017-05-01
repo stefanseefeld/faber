@@ -23,7 +23,8 @@ def config(script):
     if not os.path.exists(script):
         raise RuntimeError('config file "{}" not found'.format(script))
     env = {}
-    execfile(script, env)
+    with open(script) as f:
+        exec(f.read(), env)
     return env
 
 def build(goals, config, parameters, srcdir, builddir):

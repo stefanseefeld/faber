@@ -120,7 +120,8 @@ class module(object):
         if not exists(script):
             raise ScriptError(script, ' no such file')
         # Run the script in env
-        execfile(script, self._env)
+        with open(script) as f:
+            exec(f.read(), self._env)
         self._env.setdefault('default', [])
         # FIXME: find a cleaner way to do this !
         self.__dict__.update({k:v for k,v in self._env.items() if isinstance(v, artefact)})

@@ -29,7 +29,7 @@ PyObject *list_to_python(LIST *l)
   LISTITER const end = list_end(l);
   for (; iter != end; iter = list_next(iter))
   {
-    PyObject *s = PyString_FromString(object_str(list_item(iter)));
+    PyObject *s = PYSTRING_FROM_STRING(object_str(list_item(iter)));
     PyList_Append(result, s);
     Py_DECREF(s);
   }
@@ -46,7 +46,7 @@ LIST *list_from_python(PyObject *l)
   for (i = 0; i < n; ++i)
   {
     PyObject *v = PySequence_GetItem(l, i);
-    result = list_push_back(result, object_new(PyString_AsString(v)));
+    result = list_push_back(result, object_new(PYSTRING_AS_STRING(v)));
     Py_DECREF(v);
   }
 
@@ -60,7 +60,7 @@ static LIST *jam_list_from_none()
 
 static LIST *jam_list_from_string(PyObject *a)
 {
-  return list_new(object_new(PyString_AsString(a)));
+  return list_new(object_new(PYSTRING_AS_STRING(a)));
 }
 
 static LIST *jam_list_from_sequence(PyObject *a)
@@ -74,14 +74,14 @@ static LIST *jam_list_from_sequence(PyObject *a)
   {
     /* PySequence_GetItem returns new reference. */
     PyObject *e = PySequence_GetItem(a, i);
-    char *s = PyString_AsString(e);
+    char *s = PYSTRING_AS_STRING(e);
     if (!s)
     {
       /* try to get the repr() on the object */
       PyObject *repr = PyObject_Repr(e);
       if (repr)
       {
-        const char *str = PyString_AsString(repr);
+	const char *str = PYSTRING_AS_STRING(repr);
         PyErr_Format(PyExc_TypeError, "expecting type <str> got %s", str);
       }
       /* fall back to a dumb error */
@@ -119,7 +119,7 @@ static void make_jam_arguments_from_python(FRAME *inner, PyObject *args)
     PyObject * a = PyTuple_GetItem(args, i);
     if (a == Py_None)
       lol_add(inner->args, jam_list_from_none());
-    else if (PyString_Check(a))
+    else if (PYSTRING_CHECK(a))
       lol_add(inner->args, jam_list_from_string(a));
     else if (PySequence_Check(a))
       lol_add(inner->args, jam_list_from_sequence(a));
@@ -148,12 +148,11 @@ PyObject *bjam_depends(PyObject *self, PyObject *args)
 PyObject *bjam_update_now(PyObject *self, PyObject *args)
 {
   FRAME inner[1];
-  LIST *_result;
   PyObject *result;
   TARGETS *targets;
   make_jam_arguments_from_python(inner, args);
   if (PyErr_Occurred()) return NULL;
-  _result = builtin_update_now(inner, 0);
+  (LIST *) builtin_update_now(inner, 0);
   result = PyDict_New();
   targets = targetlist((TARGETS*)0, lol_get(inner->args, 0));
   while (targets)
@@ -180,9 +179,9 @@ PyObject *bjam_set_target_variables(PyObject *self, PyObject *args)
   target = bindtarget(object_new(name));
   while (PyDict_Next(vars, &pos, &key, &value))
   {
-    char const *k = PyString_AsString(key);
+    char const *k = PYSTRING_AS_STRING(key);
     if (!k) return NULL;
-    char const *v = PyString_AsString(value);
+    char const *v = PYSTRING_AS_STRING(value);
     if (!v) return NULL;
     target->settings = addsettings(target->settings, flag,
 				   object_new(k),
@@ -213,7 +212,7 @@ PyObject *bjam_get_target_variable(PyObject *self, PyObject *args)
 	return Py_None;
       }
       else
-	return PyString_FromString(object_str(list_front(s->value)));
+	return PYSTRING_FROM_STRING(object_str(list_front(s->value)));
     }
   }
   Py_INCREF(Py_None);
@@ -232,13 +231,13 @@ PyObject *bjam_get_target_variables(PyObject *self, PyObject *args)
   vars = PyDict_New();
   for (s = target->settings; s; s = s->next)
   {
-    PyObject *name = PyString_FromString(object_str(s->symbol));
+    PyObject *name = PYSTRING_FROM_STRING(object_str(s->symbol));
     PyObject *pyvalues = PyList_New(0);
     LIST *values = s->value;
     LISTITER iter = list_begin(values);
     LISTITER const end = list_end(values);
     for (; iter != end; iter = list_next(iter))
-      PyList_Append(pyvalues, PyString_FromString(object_str(list_item(iter))));
+      PyList_Append(pyvalues, PYSTRING_FROM_STRING(object_str(list_item(iter))));
     PyDict_SetItem(vars, name, pyvalues);
   }
   return vars;
@@ -252,7 +251,7 @@ PyObject *bjam_define_recipe(PyObject *self, PyObject *args)
   PyObject *args_proper;
 
   /* PyTuple_GetItem returns borrowed reference. */
-  rulename = object_new(PyString_AsString(PyTuple_GetItem(args, 0)));
+  rulename = object_new(PYSTRING_AS_STRING(PyTuple_GetItem(args, 0)));
 
   args_proper = PyTuple_GetSlice(args, 1, PyTuple_Size(args));
   make_jam_arguments_from_python(inner, args_proper);
@@ -272,7 +271,7 @@ PyObject *bjam_define_recipe(PyObject *self, PyObject *args)
     LISTITER const end = list_end(result);
     for (; iter != end; iter = list_next(iter))
     {
-      PyList_SetItem(pyResult, i, PyString_FromString(object_str(list_item(iter))));
+      PyList_SetItem(pyResult, i, PYSTRING_FROM_STRING(object_str(list_item(iter))));
       i += 1;
     }
     list_free(result);
@@ -306,8 +305,8 @@ PyObject *bjam_define_action(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "zsOO!i:define_action", &mod, &name, &body,
                         &PyList_Type, &bindlist_python, &flags))
     return NULL;
-  if (PyString_Check(body))
-    cmd = PyString_AsString(body);
+  if (PYSTRING_CHECK(body))
+    cmd = PYSTRING_AS_STRING(body);
   else if (!PyCallable_Check(body))
   {
     PyErr_SetString(PyExc_RuntimeError, "action is neither string nor callable");
@@ -318,12 +317,12 @@ PyObject *bjam_define_action(PyObject *self, PyObject *args)
   for (i = 0; i < n; ++i)
   {
     PyObject * next = PyList_GetItem(bindlist_python, i);
-    if (!PyString_Check(next))
+    if (!PYSTRING_CHECK(next))
     {
       PyErr_SetString(PyExc_RuntimeError, "bind list has non-string type");
       return NULL;
     }
-    bindlist = list_push_back(bindlist, object_new(PyString_AsString(next)));
+    bindlist = list_push_back(bindlist, object_new(PYSTRING_AS_STRING(next)));
   }
 
   name_str = object_new(name);
@@ -364,7 +363,7 @@ PyObject *bjam_variable(PyObject *self, PyObject *args)
 
   result = PyList_New(list_length(value));
   for (i = 0; iter != end; iter = list_next(iter), ++i)
-    PyList_SetItem(result, i, PyString_FromString(object_str(list_item(iter))));
+    PyList_SetItem(result, i, PYSTRING_FROM_STRING(object_str(list_item(iter))));
 
   return result;
 }
@@ -392,7 +391,6 @@ static void exec_callback(void * const X,
 static PyObject *bjam_run(PyObject *self, PyObject *args)
 {
   struct exec_closure c;
-  PyObject *py_result;
   string str;
 
   if (!PyArg_ParseTuple(args, "sss", &c.name, &c.target, &c.command))
@@ -401,7 +399,7 @@ static PyObject *bjam_run(PyObject *self, PyObject *args)
   exec_cmd(&str, exec_callback, &c, NULL);
   exec_wait();
   string_free(&str);
-  return PyInt_FromLong(c.status);
+  return PyLong_FromLong(c.status);
 }
 
 struct globs globs =
@@ -421,9 +419,8 @@ int anyhow = 0;
 
 static PyObject *bjam_setopts(PyObject *self, PyObject *args)
 {
-  PyObject *obj;
   unsigned long log, noexec, jobs, timeout, force;
-  unsigned long i, d;
+  unsigned long i;
   if (!PyArg_ParseTuple(args, "lllll:setopts", &log, &noexec, &jobs, &timeout, &force))
     return NULL;
   for (i = 0; i != DEBUG_MAX; ++i)
@@ -436,44 +433,59 @@ static PyObject *bjam_setopts(PyObject *self, PyObject *args)
   return Py_None;
 }
 
-void bjam_init()
+static PyMethodDef bjam_methods[] =
 {
-  PROFILE_ENTER(MAIN_PYTHON);
-  {
-    static PyMethodDef BjamMethods[] =
-    {
-      {"depends", bjam_depends, METH_VARARGS, "Declares a dependency."},
-      {"update_now", bjam_update_now, METH_VARARGS, "Request an immediate update."},
-      {"set_target_variables", bjam_set_target_variables, METH_VARARGS,
-       "Set variables for the given target."},
-      {"get_target_variables", bjam_get_target_variables, METH_VARARGS,
-       "Get all variables for the given target."},
-      {"get_target_variable", bjam_get_target_variable, METH_VARARGS,
-       "Get a variable for the given target."},
-      {"define_recipe", bjam_define_recipe, METH_VARARGS,
-       "Call the specified bjam rule."},
-      {"define_action", bjam_define_action, METH_VARARGS,
-       "Defines a command line action."},
-      {"variable", bjam_variable, METH_VARARGS,
-       "Obtains a variable from bjam's global module."},
-      {"run", bjam_run, METH_VARARGS,
-       "Runs the given command and returns its exit status."},
-      {"setopts", bjam_setopts, METH_VARARGS,
-       "Set engine options."},
-      {NULL, NULL, 0, NULL}
-    };
+  {"depends", bjam_depends, METH_VARARGS, "Declares a dependency."},
+  {"update_now", bjam_update_now, METH_VARARGS, "Request an immediate update."},
+  {"set_target_variables", bjam_set_target_variables, METH_VARARGS,
+   "Set variables for the given target."},
+  {"get_target_variables", bjam_get_target_variables, METH_VARARGS,
+   "Get all variables for the given target."},
+  {"get_target_variable", bjam_get_target_variable, METH_VARARGS,
+   "Get a variable for the given target."},
+  {"define_recipe", bjam_define_recipe, METH_VARARGS,
+   "Call the specified bjam rule."},
+  {"define_action", bjam_define_action, METH_VARARGS,
+   "Defines a command line action."},
+  {"variable", bjam_variable, METH_VARARGS,
+   "Obtains a variable from bjam's global module."},
+  {"run", bjam_run, METH_VARARGS,
+   "Runs the given command and returns its exit status."},
+  {"setopts", bjam_setopts, METH_VARARGS,
+   "Set engine options."},
+  {NULL, NULL, 0, NULL}
+};
 
-    Py_InitModule("bjam", BjamMethods);
-  }
-  PROFILE_EXIT(MAIN_PYTHON);
-}
+#if PY_MAJOR_VERSION >= 3
 
-PyMODINIT_FUNC initbjam()
+static struct PyModuleDef moduledef =
+{
+  PyModuleDef_HEAD_INIT,
+  "bjam",
+  0, /* doc      */
+  -1, //sizeof(struct module_state),
+  bjam_methods,
+  0, /* reload   */
+  0, /* traverse */
+  0, /* clear    */
+  0  /* free     */
+};
+
+PyMODINIT_FUNC PyInit_bjam()
+#else
+void initbjam()
+#endif
 {
   BJAM_MEM_INIT();
   constants_init();
   cwd_init();
-  bjam_init();
+
+#if PY_MAJOR_VERSION >= 3
+  PyObject *module = PyModule_Create(&moduledef);
+  return module;
+#else
+  PyObject *module = Py_InitModule("bjam", bjam_methods);
+#endif
 }
 
 #endif  /* #ifdef HAVE_PYTHON */

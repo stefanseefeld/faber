@@ -47,7 +47,7 @@ def _rule(artefacts, sources, recipe, depends, clean, attrs, features):
         if isinstance(t, artefact):
             t._update(fs, path_spec)
         else:
-            t = artefact(t, sources, attrs, features=fs.values(), path_spec=path_spec)
+            t = artefact(t, sources, attrs, features=list(fs.values()), path_spec=path_spec)
         return t
     artefacts = [instantiate(t) for t in artefacts]
     sources = sources if type(sources) is list else [sources]

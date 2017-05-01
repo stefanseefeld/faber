@@ -385,7 +385,7 @@ void load_builtins()
                       builtin_check_if_file, 0, args );
     }
 
-#ifdef HAVE_PYTHON
+#if 0
     {
         char const * args[] = { "python-module",
                             ":", "function",
@@ -1985,7 +1985,7 @@ LIST *builtin_readlink( FRAME * frame, int flags )
 }
 
 
-#ifdef HAVE_PYTHON
+#if 0
 
 LIST * builtin_python_import_rule( FRAME * frame, int flags )
 {

@@ -4980,7 +4980,7 @@ static struct arg_list * arg_list_compile_python( PyObject * bjam_signature,
 
             inner = PySequence_Size( v );
             for ( j = 0; j < inner; ++j )
-                argument_compiler_add( arg_comp, object_new( PyString_AsString(
+                argument_compiler_add( arg_comp, object_new(PYSTRING_AS_STRING(
                     PySequence_GetItem( v, j ) ) ), constant_builtin, -1 );
 
             arg = arg_compile_impl( arg_comp, constant_builtin, -1 );
@@ -5042,8 +5042,7 @@ static void argument_list_to_python( struct arg_list * formal, int formal_count,
                         formal_arg->arg_name );
                 type_check_range( formal_arg->type_name, actual_iter, list_next(
                     actual_iter ), frame, function, formal_arg->arg_name );
-                value = PyString_FromString( object_str( list_item( actual_iter
-                    ) ) );
+                value = PYSTRING_FROM_STRING(object_str(list_item(actual_iter)));
                 actual_iter = list_next( actual_iter );
                 break;
             case ARG_OPTIONAL:
@@ -5054,8 +5053,7 @@ static void argument_list_to_python( struct arg_list * formal, int formal_count,
                     type_check_range( formal_arg->type_name, actual_iter,
                         list_next( actual_iter ), frame, function,
                         formal_arg->arg_name );
-                    value = PyString_FromString( object_str( list_item(
-                        actual_iter ) ) );
+                    value = PYSTRING_FROM_STRING(object_str(list_item(actual_iter)));
                     actual_iter = list_next( actual_iter );
                 }
                 break;
@@ -5078,8 +5076,7 @@ static void argument_list_to_python( struct arg_list * formal, int formal_count,
 
             if ( value )
             {
-                PyObject * key = PyString_FromString( object_str(
-                    formal_arg->arg_name ) );
+                PyObject * key = PYSTRING_FROM_STRING(object_str(formal_arg->arg_name));
                 PyDict_SetItem( kw, key, value );
                 Py_DECREF( key );
                 Py_DECREF( value );
@@ -5111,9 +5108,9 @@ static void argument_list_to_python( struct arg_list * formal, int formal_count,
 
 OBJECT * python_to_string( PyObject * value )
 {
-    if ( PyString_Check( value ) )
-        return object_new( PyString_AS_STRING( value ) );
-
+    if (PYSTRING_CHECK(value))
+        return object_new(PYSTRING_AS_STRING(value));
+#if 0
     /* See if this instance defines the special __jam_repr__ method. */
     if ( PyInstance_Check( value )
         && PyObject_HasAttrString( value, "__jam_repr__" ) )
@@ -5125,11 +5122,12 @@ OBJECT * python_to_string( PyObject * value )
             PyObject * value2 = PyObject_Call( repr, arguments2, 0 );
             Py_DECREF( repr );
             Py_DECREF( arguments2 );
-            if ( PyString_Check( value2 ) )
-                return object_new( PyString_AS_STRING( value2 ) );
+	    if (PYSTRING_CHECK(value))
+	        return object_new(PYSTRING_AS_STRING(value));
             Py_DECREF( value2 );
         }
     }
+#endif
     return 0;
 }
 
@@ -5172,13 +5170,13 @@ static LIST *call_python_function(PYTHON_FUNCTION *function, FRAME *frame)
     pushsettings(root_module(), target->settings);
     for (s = target->settings; s; s = s->next)
     {
-      PyObject *name = PyString_FromString(object_str(s->symbol));
+      PyObject *name = PYSTRING_FROM_STRING(object_str(s->symbol));
       PyObject *pyvalues = PyList_New(0);
       LIST *values = s->value;
       LISTITER iter = list_begin(values);
       LISTITER const end = list_end(values);
       for (; iter != end; iter = list_next(iter))
-	PyList_Append(pyvalues, PyString_FromString(object_str(list_item(iter))));
+	PyList_Append(pyvalues, PYSTRING_FROM_STRING(object_str(list_item(iter))));
       PyDict_SetItem(kw, name, pyvalues);
     }
     popsettings(root_module(), target->settings);
