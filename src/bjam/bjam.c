@@ -31,7 +31,7 @@ PyObject *list_to_python(LIST *l)
   LISTITER const end = list_end(l);
   for (; iter != end; iter = list_next(iter))
   {
-    PyObject *s = PyString_FromString(object_str(list_item(iter)));
+    PyObject *s = PYSTRING_FROM_STRING(object_str(list_item(iter)));
     PyList_Append(result, s);
     Py_DECREF(s);
   }
@@ -49,7 +49,7 @@ static LIST *list_from_sequence(PyObject *a)
   for (; i < s; ++i)
   {
     PyObject *e = PySequence_GetItem(a, i);
-    char *s = PyString_AsString(e);
+    char *s = PYSTRING_AS_STRING(e);
     if (!s)
     {
       PyErr_BadArgument();
@@ -148,13 +148,13 @@ static PyObject *bjam_get_target_variables(PyObject *self, PyObject *args)
   pushsettings(root_module(), target->settings);
   for (s = target->settings; s; s = s->next)
   {
-    PyObject *name = PyString_FromString(object_str(s->symbol));
+    PyObject *name = PYSTRING_FROM_STRING(object_str(s->symbol));
     PyObject *pyvalues = PyList_New(0);
     LIST *values = s->value;
     LISTITER iter = list_begin(values);
     LISTITER const end = list_end(values);
     for (; iter != end; iter = list_next(iter))
-      PyList_Append(pyvalues, PyString_FromString(object_str(list_item(iter))));
+      PyList_Append(pyvalues, PYSTRING_FROM_STRING(object_str(list_item(iter))));
     PyDict_SetItem(vars, name, pyvalues);
   }
   popsettings(root_module(), target->settings);
@@ -208,8 +208,8 @@ static PyObject *bjam_define_action(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "sOO!:define_action", &name, &body,
                         &PyList_Type, &bindlist_python))
     return NULL;
-  if (PyString_Check(body))
-    cmd = PyString_AsString(body);
+  if (PYSTRING_CHECK(body))
+    cmd = PYSTRING_AS_STRING(body);
   else if (!PyCallable_Check(body))
   {
     PyErr_SetString(PyExc_RuntimeError, "action is neither string nor callable");
@@ -220,12 +220,12 @@ static PyObject *bjam_define_action(PyObject *self, PyObject *args)
   for (i = 0; i < n; ++i)
   {
     PyObject * next = PyList_GetItem(bindlist_python, i);
-    if (!PyString_Check(next))
+    if (!PYSTRING_CHECK(next))
     {
       PyErr_SetString(PyExc_RuntimeError, "bind list has non-string type");
       return NULL;
     }
-    bindlist = list_push_back(bindlist, object_new(PyString_AsString(next)));
+    bindlist = list_push_back(bindlist, object_new(PYSTRING_AS_STRING(next)));
   }
 
   name_str = object_new(name);
@@ -273,8 +273,8 @@ void bind_target(TARGET *target)
   }
   while (PyDict_Next(vars, &pos, &key, &value))
   {
-    char const *k = PyString_AsString(key);
-    char const *v = PyString_AsString(value);
+    char const *k = PYSTRING_AS_STRING(key);
+    char const *v = PYSTRING_AS_STRING(value);
     if (!k || !v) return;
     target->settings = addsettings(target->settings, flag,
 				   object_new(k),
@@ -426,11 +426,35 @@ static PyMethodDef bjam_methods[] =
   {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initbjam()
+#if PY_MAJOR_VERSION >= 3
+
+static struct PyModuleDef moduledef =
+{
+  PyModuleDef_HEAD_INIT,
+  "bjam",
+  0, /* doc      */
+  -1, //sizeof(struct module_state),
+  bjam_methods,
+  0, /* reload   */
+  0, /* traverse */
+  0, /* clear    */
+  0  /* free     */
+};
+
+PyMODINIT_FUNC PyInit_bjam()
+#else
+void initbjam()
+#endif
 {
   PyObject *module;
   DependencyError = PyErr_NewException("bjam.DependencyError", NULL, NULL);
   Py_INCREF(DependencyError);
+#if PY_MAJOR_VERSION >= 3
+  module = PyModule_Create(&moduledef);
+  PyModule_AddObject(module, "DependencyError", DependencyError);
+  return module;
+#else
   module = Py_InitModule("bjam", bjam_methods);
   PyModule_AddObject(module, "DependencyError", DependencyError);
+#endif
 }
