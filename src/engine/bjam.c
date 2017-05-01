@@ -179,9 +179,11 @@ PyObject *bjam_set_target_variables(PyObject *self, PyObject *args)
   target = bindtarget(object_new(name));
   while (PyDict_Next(vars, &pos, &key, &value))
   {
-    char const *k = PYSTRING_AS_STRING(key);
+    char const *k;
+    char const *v;
+    k = PYSTRING_AS_STRING(key);
     if (!k) return NULL;
-    char const *v = PYSTRING_AS_STRING(value);
+    v = PYSTRING_AS_STRING(value);
     if (!v) return NULL;
     target->settings = addsettings(target->settings, flag,
 				   object_new(k),
@@ -476,15 +478,16 @@ PyMODINIT_FUNC PyInit_bjam()
 void initbjam()
 #endif
 {
+  PyObject *module;
   BJAM_MEM_INIT();
   constants_init();
   cwd_init();
 
 #if PY_MAJOR_VERSION >= 3
-  PyObject *module = PyModule_Create(&moduledef);
+  module = PyModule_Create(&moduledef);
   return module;
 #else
-  PyObject *module = Py_InitModule("bjam", bjam_methods);
+  module = Py_InitModule("bjam", bjam_methods);
 #endif
 }
 
