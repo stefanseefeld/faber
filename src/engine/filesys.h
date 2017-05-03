@@ -105,4 +105,6 @@ void file_query_posix_( file_info_t * const );
 
 void file_done();
 
+void makedir(char const *path);
+
 #endif

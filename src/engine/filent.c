@@ -513,4 +513,57 @@ int file_collect_archive_content_( file_archive_info_t * const archive )
     return 0;
 }
 
+static int dir_exists(char const *dir)
+{
+  int attribs = GetFileAttributesA(dir);
+  if (attribs == INVALID_FILE_ATTRIBUTES)
+    return 0;
+  return (attribs & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+static int _makedirs(char const *dir)
+{
+  int status;
+  char *tmp = strdup(dir);
+  int i = strlen(tmp);
+  while (i)
+  {
+    --i;
+    if (tmp[i] == '\\' || tmp[i] == '/')
+    {
+      char s = tmp[i];
+      tmp[i] = '\0';
+      if (!dir_exists(tmp))
+	_makedirs(tmp);
+      tmp[i] = s;
+      break;
+    }
+  }
+  status = _mkdir(dir);
+  /*
+   * handle error elsewhere
+   */
+  /* if (status != 0 && errno != EEXIST) perror("Can't make directory"); */
+  free(tmp);
+  return status;
+}
+
+void makedir(char const *targetname)
+{
+  char *tmp = strdup(targetname);
+  int i = strlen(tmp);
+  while (i)
+  {
+    --i;
+    if (tmp[i] == '\\' || tmp[i] == '/')
+    {
+      tmp[i] = '\0';
+      break;
+    }
+  }
+  if (i)
+    _makedirs(tmp);
+  free(tmp);
+}
+
 #endif  /* OS_NT */

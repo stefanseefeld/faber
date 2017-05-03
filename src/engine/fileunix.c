@@ -39,6 +39,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <sys/stat.h>  /* needed for mkdir() */
+#include <libgen.h>    /* for dirname() */
+#include <errno.h>
 
 #if defined( sun ) || defined( __sun ) || defined( linux )
 # include <unistd.h>  /* needed for read and close prototype */
@@ -541,5 +543,56 @@ int file_collect_archive_content_( file_archive_info_t * const archive )
 }
 
 #endif  /* AIAMAG - RS6000 AIX */
+
+/*
+ * The following silliness is required due to incompatible
+ * definitions of the dirname function:
+ *
+ * * It *may* modify the input argument (e.g. on Linux),
+ *   requiring the first copy
+ * * It *may* return volatile memory that changes in subsequent calls (e.g., on OSX),
+ *   requiring the second copy.
+ */
+static char *_dirname(char const *filename)
+{
+#ifdef __APPLE__
+  return strdup(dirname(filename));
+#else
+  char *buf = strdup(filename);
+  char *result = strdup(dirname(buf));
+  free(buf);
+  return result;
+#endif
+}
+
+static int _makedirs(char const *dir)
+{
+  char *parent = _dirname(dir);
+  struct stat buf;
+  int status = stat(parent, &buf);
+  if (status == -1 && errno == ENOENT)
+    status = _makedirs(parent);
+  if (status == 0)
+    status = mkdir(dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  free(parent);
+  return status;
+}
+
+void makedir(char const *targetname)
+{
+  char *parent = _dirname(targetname);
+  if (_makedirs(parent) != 0 && errno != EEXIST)
+  {
+    /*
+     * Let the subsequent action fail rather than reporting the error
+     * here...
+     */
+    /* tmp = realloc(tmp, sizeof(char) * (strlen(tmp) + 28)); */
+    /* strcpy(tmp + 27, tmp); */
+    /* strncpy(tmp, "Failed to create directory ", 27); */
+    /* perror(tmp); */
+  }
+  free(parent);
+}
 
 #endif  /* USE_FILEUNIX */

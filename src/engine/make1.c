@@ -552,6 +552,11 @@ static void make1c( state const * const pState )
         }
         else
         {
+            /*
+             * Make sure the dirname of the target exists, if this is a file target.
+             */
+	    if (!(t->flags & T_FLAG_NOTFILE))
+	        makedir(object_str(t->name));
             exec_cmd( cmd->buf, make1c_closure, t, cmd->shell );
 
             /* Wait until under the concurrent command count limit. */
