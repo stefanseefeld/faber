@@ -131,7 +131,7 @@ void out_action
     /* Print out the command output, if requested, or if the program failed, but
      * only output for non-quiet actions.
      */
-    if ( action || exit_reason != EXIT_OK )
+    if ( DEBUG_MAKE && ( action || exit_reason != EXIT_OK ) )
     {
         if ( out_d &&
            ( ( globs.pipe_action & 1 /* STDOUT_FILENO */ ) ||

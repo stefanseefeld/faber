@@ -370,6 +370,49 @@ PyObject *bjam_variable(PyObject *self, PyObject *args)
   return result;
 }
 
+static PyObject *report_callback;
+
+PyObject *bjam_set_report_callback(PyObject *self, PyObject *args)
+{
+  PyObject *cb;
+  if (!PyArg_ParseTuple(args, "O:set_report_callback", &cb) ||
+      !PyCallable_Check(cb))
+    return NULL;
+  report_callback = cb;
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+void report_plan(found, temp, updating, notfound, cantmake)
+{
+  if (report_callback)
+    PyObject_CallFunction(report_callback, "ssiiiii", "__plan__", "",
+			  found, temp, updating, notfound, cantmake);
+}
+
+void report_recipe(TARGET *target, char const *recipe, int status,
+		   timing_info const *time, char const *cmd,
+		   char const *_stdout, char const *_stderr)
+{
+  if (report_callback)
+    PyObject_CallFunction(report_callback, "sssisss", "__recipe__", object_str(target->name),
+			  recipe, status, /*time,*/ cmd, _stdout, _stderr);
+}
+
+void report_status(TARGET *target)
+{
+  if (report_callback)
+    PyObject_CallFunction(report_callback, "ssis", "__status__", object_str(target->name),
+			  target->status, target->failed);
+}
+
+void report_summary(failed, skipped, made)
+{
+  if (report_callback)
+    PyObject_CallFunction(report_callback, "ssiii", "__summary__", "",
+			  failed, skipped, made);
+}
+
 struct exec_closure
 {
   char const *name;
@@ -386,8 +429,9 @@ static void exec_callback(void * const X,
 			  int reason)
 {
   struct exec_closure *c = (struct exec_closure *)X;
+  TARGET *target = bindtarget(object_new(c->target));
   c->status = status;
-  out_action(c->name, c->target, c->command, _stdout, _stderr, reason);
+  report_recipe(target, c->name, status, time, c->command, _stdout, _stderr);
 }
 
 static PyObject *bjam_run(PyObject *self, PyObject *args)
@@ -455,6 +499,8 @@ static PyMethodDef bjam_methods[] =
    "Runs the given command and returns its exit status."},
   {"setopts", bjam_setopts, METH_VARARGS,
    "Set engine options."},
+  {"set_report_callback", bjam_set_report_callback, METH_VARARGS,
+   "Set report callback."},
   {NULL, NULL, 0, NULL}
 };
 

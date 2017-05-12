@@ -12,6 +12,9 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
+def set_report_callback(cb):
+    bjam.set_report_callback(cb)
+
 def setopts(**kwds):
     return bjam.setopts(kwds.get('log', 0),
                         kwds.get('noexec', False),

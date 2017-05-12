@@ -126,6 +126,8 @@ int make( LIST * targets, int anyhow )
     }
 #endif
 
+    report_plan(counts->targets, counts->temp, counts->updating,
+		counts->cantfind, counts->cantmake);
     if ( DEBUG_MAKE )
     {
         if ( counts->targets )

@@ -8,6 +8,8 @@
 
 from . import types
 from .feature import feature, set
+from . import engine
+from . import output
 from os.path import normpath, join
 from collections import defaultdict
 import string
@@ -57,6 +59,16 @@ class artefact(object):
         artefact._qnames[self.qname].append(self)
 
     @staticmethod
+    def _report(what, bname, *args):
+        if what == '__plan__':
+            output.log_plan(*args)
+        elif what == '__summary__':
+            output.log_summary(*args)
+        a = artefact._bnames.get(bname)
+        if a and hasattr(a, what):
+            getattr(a, what)(*args)
+
+    @staticmethod
     def iter():
         """Iterate over all registered artefacts."""
 
@@ -100,6 +112,7 @@ class artefact(object):
             if isinstance(s, artefact) and s.use:
                 self.features += s.use
         self.use = use
+        self.status = None
         self.expand()
 
     @property
@@ -137,3 +150,13 @@ class artefact(object):
 
     def __repr__(self):
         return '<artefact {}>'.format(self.name)
+
+    def __recipe__(self, name, status, command, stdout, stderr):
+        """Report completion of the recipe used to update this artefact."""
+        output.log_recipe(name, self.bound_name, status, command, stdout, stderr)
+
+    def __status__(self, status, *ignored):
+        """Report status when updating this artefact."""
+        self.status = status
+
+engine.set_report_callback(artefact._report)

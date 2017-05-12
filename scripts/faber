@@ -9,6 +9,7 @@
 
 from faber import engine
 from faber import project
+from faber import output
 import os.path
 import argparse
 
@@ -37,7 +38,7 @@ def main(argv):
 
     parser = argparse.ArgumentParser(prog=argv[0],
                                      description='Faber is a construction tool.')
-    log_topics = dict(actions=2, commands=4, dependencies=1<<12)
+    log_topics = dict(summary=1, actions=2, commands=4, dependencies=1<<12)
 
     parser.add_argument('goals', metavar='GOAL', nargs='*',
                         action=PosArgsParser,
@@ -54,7 +55,9 @@ def main(argv):
     logging = parser.add_mutually_exclusive_group()
     logging.add_argument('--log', action='append',
                            choices=log_topics.keys(),
-                           help='set logging topic')
+                           help='add log topic')
+    logging.add_argument('-l', dest='loglevel', type=int,
+                         help='set log level (summary=1, actions=2, commands=4)')
     logging.add_argument('-s', '--silent', action='store_true',
                            help='suppress all output')
     parser.add_argument('-j', '--parallel', type=int, default=1,
@@ -87,14 +90,16 @@ def main(argv):
             import logging
             logging.basicConfig(level=logging.DEBUG)
         if args.silent:
-            log = 0
+            output.level = 0
         elif args.log:
             from operator import add
             from functools import reduce
-            log = reduce(add, [log_topics[l] for l in args.log])
+            output.level = reduce(add, [log_topics[l] for l in args.log])
+        elif args.loglevel is not None:
+            output.level = args.loglevel
         else:
-            log = 2
-        engine.setopts(log=log,
+            output.level = output.summary|output.actions
+        engine.setopts(log=output.level & log_topics['dependencies'],
                        jobs=args.parallel,
                        force=args.force,
                        timeout=args.timeout,

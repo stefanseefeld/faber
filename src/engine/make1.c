@@ -245,7 +245,8 @@ int make1( LIST * targets )
     clear_state_freelist();
 
     /* Talk about it. */
-    if ( counts->failed )
+    report_summary(counts->failed, counts->skipped, counts->made);
+    if ( DEBUG_MAKE && counts->failed )
         out_printf( "...failed updating %d target%s...\n", counts->failed,
             counts->failed > 1 ? "s" : "" );
     if ( DEBUG_MAKE && counts->skipped )
@@ -412,10 +413,12 @@ static void make1b( state * const pState )
      * that it failed on.
      */
     if ( failed )
+    {
         failed_name = failed->flags & T_FLAG_INTERNAL
             ? failed->failed
             : object_str( failed->name );
-    t->failed = failed_name;
+	t->failed = failed_name;
+    }
 
     /* If actions for building any of the dependencies have failed, bail.
      * Otherwise, execute all actions to make the current target.
@@ -675,6 +678,8 @@ static void make1c( state const * const pState )
             push_stack_on_stack( &state_stack, &temp_stack );
         }
     }
+    if (t->progress == T_MAKE_DONE)
+      report_status(t);
 }
 
 
@@ -868,6 +873,8 @@ static void make1c_closure
         /* Assume -p0 is in effect, i.e. cmd_stdout contains merged output. */
         call_action_rule( t, status_orig, time, cmd->buf->value, cmd_stdout );
     }
+    report_recipe(t, object_str(cmd->rule->name), status_orig,
+		  time, cmd->buf->value, cmd_stdout, cmd_stderr);
 
     /* Print command text on failure. */
     if ( t->status == EXEC_CMD_FAIL && DEBUG_MAKE )
