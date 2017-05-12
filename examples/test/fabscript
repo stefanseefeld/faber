@@ -1,0 +1,23 @@
+# -*- python -*-
+#
+# Copyright (c) 2016 Stefan Seefeld
+# All rights reserved.
+#
+# This file is part of Faber. It is made available under the
+# Boost Software License, Version 1.0.
+# (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
+
+from faber.artefacts.binary import binary
+from faber.test import test, report, fail
+
+passing = binary('passing', 'passing.cpp')
+failing = binary('failing', 'failing.cpp')
+
+test1 = test('test1', passing, run=True)
+test2 = test('test2', failing, run=True)
+test3 = test('test3', failing, run=True, expected=fail)
+test4 = test('test4', failing, condition=False)
+
+r = report('report', [test1, test2, test3, test4])
+
+default = r
