@@ -59,6 +59,34 @@ def log_recipe(name, artefact, status, command, stdout, stderr):
     if stderr:
         print(stderr)
 
+def log_test_status(name, outcome):
+    from .test import pass_, fail, xpass, xfail
+    if level & actions:
+        colour = {pass_: 'green',
+                  fail: 'red',
+                  xpass: 'yellow',
+                  xfail: 'green'}[outcome]
+        label =  {pass_: 'PASS',
+                  fail: 'FAIL',
+                  xpass: 'XPASS',
+                  xfail: 'XFAIL'}[outcome]
+        print('{}: {}'.format(name, coloured(label, colour)))
+
+def log_test_summary(passes, failures, xfailures, untested):
+    if level & summary:
+        p = passes and '{} pass'.format(passes) or ''
+        if passes > 1: p += 'es'
+        f = failures and '{} failure'.format(failures) or ''
+        if failures > 1: f += 's'
+        x = xfailures and '{} expected failure'.format(xfailures) or ''
+        if xfailures > 1: x += 's'
+        u = untested and '{} untested' or ''
+        line = ', '.join([o for o in [p, f, x, u] if o])
+        if level > actions:  # if there is more, highlight the summary
+            print(coloured('test summary: ' + line, attrs=['bold']))
+        else:
+            print('test summary: ' + line)
+
 if __name__ == '__main__':
 
     print(coloured('this is red', 'red'))
