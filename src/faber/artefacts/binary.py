@@ -16,6 +16,9 @@ class binary(artefact):
     """Build a binary from one or more source files."""
 
     def expand(self):
+         # make sure all compiler features are instantiated
+        from ..tools import compiler
+
         self.type = types.bin
         assembly.rule(self, self.sources, self.features)
 

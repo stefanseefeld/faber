@@ -26,27 +26,27 @@ def test_tool():
     # just generate an A
     assert isinstance(A.instance(), A)
     # make sure A instances have a feature 'A' with A.name='A'
-    assert isinstance(A.instance(feature_set(A.tool(name='A'))), A)
+    assert isinstance(A.instance(set(A.tool(name='A'))), A)
 
     # test simple inheritance
     assert isinstance(B.instance(), A)
     assert isinstance(B.instance(), B)
-    assert isinstance(B.instance(feature_set(A.tool(name='B'))), B)
-    assert isinstance(B.instance(feature_set(B.tool(name='B'))), B)
+    assert isinstance(B.instance(set(A.tool(name='B'))), B)
+    assert isinstance(B.instance(set(B.tool(name='B'))), B)
 
     # test tools with explicit name
     assert isinstance(C.instance(), C)
-    assert isinstance(C.instance(feature_set(A.tool(name='CC'))), C)
+    assert isinstance(C.instance(set(A.tool(name='CC'))), C)
 
     c1 = C('C1')
     c2 = C('C2')
-    cc1 = C.instance(feature_set(A.tool(name='C1')))
-    cc2 = C.instance(feature_set(A.tool(name='C2')))
+    cc1 = C.instance(set(A.tool(name='C1')))
+    cc2 = C.instance(set(A.tool(name='C2')))
     assert cc1.features.A.name.value == 'C1'
     assert cc2.features.A.name.value == 'C2'
-    cc3 = C.instance(feature_set(A.tool(name='CC')))
+    cc3 = C.instance(set(A.tool(name='CC')))
     with pytest.raises(ValueError):
-        cc = C.instance(feature_set(A.tool(name='CCCC')))
+        cc = C.instance(set(A.tool(name='CCCC')))
 
 def test_action():
 
