@@ -74,7 +74,7 @@ class link(action):
     ldflags += map(compiler.linkpath, translate, prefix='-L')
     ldflags += map(compiler.link, select_if, 'shared', '-shared')
     libs = map(compiler.libs, translate, prefix='-l')
-
+    
     def submit(self, artefacts, sources, module):
         # sources may contain object files as well as libraries
         # Separate the two, and add the libraries to the libs variable.
