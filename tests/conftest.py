@@ -10,3 +10,11 @@ from __future__ import absolute_import, print_function
 
 import pytest
 
+def pytest_addoption(parser):
+    parser.addoption('--compiler', action='append', default=[],
+                     help='specify a compiler to test with. Ex: "gcc", "msvc", "native"')
+
+def pytest_generate_tests(metafunc):
+    if 'compiler' in metafunc.fixturenames:
+        compilers = metafunc.config.option.compiler or ['']
+        metafunc.parametrize('compiler', compilers)
