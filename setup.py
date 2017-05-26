@@ -9,8 +9,15 @@
 
 from distutils.core import setup, Extension
 import sys, os, os.path, glob, shutil
+import subprocess
+import re
 
-version='0.0'
+try:
+    out = subprocess.check_output('git describe --tags --match release/*'.split(),
+                                  stderr=subprocess.STDOUT).decode().strip()
+    version=re.match('release/(.+)', out).group(1)
+except Exception as e:
+    version='snapshot'
 
 def prefix(pref, list): return [pref + x for x in list]
 
