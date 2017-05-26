@@ -10,6 +10,7 @@ from . import engine
 from .feature import feature, lazy_set
 from .artefact import artefact, notfile, always
 from .tools.cleaner import cleaner
+from .utils import add_metaclass
 from os.path import join, exists, normpath
 from os import makedirs
 import string
@@ -23,6 +24,29 @@ class ScriptError(ValueError):
     def __init__(self, script, msg):
         ValueError.__init__(self, '{}: {}'.format(script, msg))
 
+_modules = {}
+
+class module_type(type):
+    def __call__(self, name, srcdir=None, builddir=None, process=True):
+        """Make sure to construct (and process) modules only once."""
+
+        here = module.current.name if module.current else None
+        if name and name.startswith('.'): # relative import
+            if name.startswith('..'):
+                if not here:
+                    raise ScriptError(None,
+                                      'relative import "{}" requires parent module'
+                                      .format(name))
+                here = here.rpartition('.')[0] if here else ''
+                name = here + '.' + name[2:] if here else name[2:]
+        if name in _modules:
+            return _modules[name]
+        else:
+            m = super(module_type, self).__call__(name, srcdir, builddir, process)
+            _modules[name] = m
+            return m
+
+@add_metaclass(module_type)
 class module(object):
 
     current = None
