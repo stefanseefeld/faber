@@ -11,6 +11,7 @@ from . import incidental
 from .feature import feature
 from .value import value, delayed
 from .condition import value as expr
+from ..error import ScriptError
 from operator import iadd, ior
 from functools import reduce
 
@@ -104,13 +105,13 @@ class set(object):
             else:
                 current = fs
         # didn't converge, conditions can't be met
-        raise RuntimeError('cannot satisfy conditionals')  # TODO: list location of all conditionals
+        raise ScriptError('cannot satisfy conditionals')  # TODO: list location of all conditionals
 
     def __getattr__(self, name):
         if name in self._features:
             return self._features[name]
         else:
-            raise AttributeError(name)
+            raise ScriptError('no feature "{}" in set'.format(name), level=2)
 
     def __delattr__(self, name):
         del self._features[name]

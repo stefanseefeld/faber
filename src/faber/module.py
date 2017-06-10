@@ -9,6 +9,7 @@
 from .feature import lazy_set
 from .artefact import artefact
 from .utils import add_metaclass
+from .error import error_reporter
 from os.path import join, exists
 from os import makedirs
 import logging
@@ -116,7 +117,7 @@ class module(object):
         if not exists(script):
             raise ValueError('{}: no such file'.format(script))
         # Run the script in env
-        with open(script) as f:
+        with error_reporter(script), open(script) as f:
             exec(f.read(), self._env)
         self._env.setdefault('default', [])
         self.__dict__.update({k: v for k, v in self._env.items() if not k.startswith('_')})

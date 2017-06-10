@@ -10,6 +10,7 @@ from . import scheduler
 from .artefact import artefact
 from .module import module
 from .cache import optioncache
+from .error import error_reporter
 from .utils import aslist
 import logging
 import warnings
@@ -37,7 +38,7 @@ def config(script):
     if not exists(script):
         raise RuntimeError('config file "{}" not found'.format(script))
     env = {}
-    with open(script) as f:
+    with error_reporter(script), open(script) as f:
         exec(f.read(), env)
     return env
 

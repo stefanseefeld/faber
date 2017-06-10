@@ -25,3 +25,32 @@ class ScriptError(ValueError):
 
 
 class ArgumentError(ValueError): pass
+
+
+@contextmanager
+def error_reporter(script):
+    global _script
+    from . import debug
+
+    _script = script
+    try:
+        yield
+    except SyntaxError as e:
+        if debug:
+            raise
+        filename, lineno = e.filename, e.lineno
+        offset = e.offset or 1  # sometimes e.offset is None...
+        value = 'invalid syntax:\n{}{}\n{}'.format(e.text, (offset - 1) * ' ' + '^', e.msg)
+        if filename == '<string>':
+            filename = script
+        raise ScriptError(value, location=(filename, lineno))
+    except (ScriptError, SystemExit, KeyboardInterrupt):
+        raise  # pass through
+    except Exception:
+        if debug:
+            raise
+        type_, value, tb = sys.exc_info()
+        f, filename, lineno, f, c, i = inspect.getinnerframes(tb)[-1]
+        if filename == '<string>':
+            filename = script
+        raise ScriptError(str(value), location=(filename, lineno))
