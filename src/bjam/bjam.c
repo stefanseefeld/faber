@@ -239,6 +239,7 @@ static PyObject *bjam_define_action(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+static PyObject *target_callback;
 static PyObject *report_callback;
 
 static void check_errors()
@@ -250,6 +251,34 @@ static void check_errors()
       PyErr_Print();
       PyErr_Clear();
     }
+  }
+}
+
+void bind_target(TARGET *target)
+{
+  PyObject *vars;
+  int flag = 0; /* set, rather than append */
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+  RULE *rule;
+  rule = target->actions->action->rule;
+  if (target_callback)
+    vars = PyObject_CallFunction(target_callback, "ss",
+				 object_str(rule->name),
+				 object_str(target->name));
+  if (!vars || !PyDict_Check(vars))
+  {
+    check_errors();
+    return;
+  }
+  while (PyDict_Next(vars, &pos, &key, &value))
+  {
+    char const *k = PyString_AsString(key);
+    char const *v = PyString_AsString(value);
+    if (!k || !v) return;
+    target->settings = addsettings(target->settings, flag,
+				   object_new(k),
+				   list_new(object_new(v)));
   }
 }
 
@@ -350,9 +379,10 @@ static PyObject *bjam_init(PyObject *self, PyObject *args)
 {
   unsigned long log, noexec, jobs, timeout, force;
   unsigned long i;
-  if (!PyArg_ParseTuple(args, "Olllll:init",
-			&report_callback,
+  if (!PyArg_ParseTuple(args, "OOlllll:init",
+			&target_callback, &report_callback,
 			&log, &noexec, &jobs, &timeout, &force) ||
+      !PyCallable_Check(target_callback) ||
       !PyCallable_Check(report_callback))
     return NULL;
   for (i = 0; i != DEBUG_MAX; ++i)

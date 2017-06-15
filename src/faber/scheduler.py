@@ -14,7 +14,7 @@ from .artefact import notfile, intermediate
 from .cache import filecache
 from .utils import aslist
 from types import FunctionType, MethodType
-from os import remove, rmdir
+from os import makedirs, remove, rmdir
 from os.path import dirname, exists
 import logging
 
@@ -81,6 +81,23 @@ def _report(what, *args):
         raise ValueError('invalid report')
 
 
+def _prepare(recipe, target):
+    """Prepare target variables and filename before running recipe."""
+
+    r = actions[recipe]
+    t = artefacts[target]
+    t.features.eval()
+    if not t.attrs & notfile:
+        bind_filename(t)
+        d = dirname(t._filename) or '.'
+        if not exists(d):
+            makedirs(d)
+    vars = r.map(t.features)
+    if vars:
+        logger.info('setting variables for {}: {}'.format(t.id, vars))
+    return vars
+
+
 def _pyaction(name, func):
     """command actions report their execution back.
     Python callables are executed differently, so we wrap them here
@@ -133,7 +150,7 @@ def init(params, builddir, **options):
     noexec = options.get('noexec', False)
     files = filecache(builddir, params)
     keep_intermediates = options.get('intermediates', False)
-    bjam.init(_report,
+    bjam.init(_prepare, _report,
               log,
               noexec,
               options.get('jobs', 1),

@@ -188,6 +188,16 @@ def test_fs_copy():
     assert ls.include == ('a', 'c')
     assert ls2.include == 'a'
 
+    i = include('a')
+    ls = lazy_set({})
+    ls |= i
+    ls2 = ls.copy()
+    print(id(ls.include._value), id(ls2.include._value))
+    ls |= include('c')
+    print(id(ls.include._value), id(ls2.include._value))
+    assert ls.include == ('a', 'c')
+    assert ls2.include == 'a'
+
 
 def test_mapping():
 

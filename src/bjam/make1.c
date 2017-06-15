@@ -391,6 +391,10 @@ static void bind_(state *const pState)
         return;
     }
 
+    if (t->actions)
+      bind_target(t);
+    t->progress = T_MAKE_BOUND;
+
     /* Now ready to build target 't', if dependencies built OK. */
 
     /* Collect status from dependencies. If -n was passed then act as though all
