@@ -6,7 +6,9 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+import sys
 import inspect
+from contextlib import contextmanager
 
 _script = None
 
