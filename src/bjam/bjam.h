@@ -10,6 +10,8 @@
 #define engine_bjam_h_
 
 #include "lists.h"
+#include "execcmd.h"
+#include "rules.h"
 
 #if PY_MAJOR_VERSION >= 3
 # define PYSTRING_CHECK PyUnicode_Check
@@ -22,5 +24,13 @@
 #endif
 
 PyObject *list_to_python(LIST * l);
+
+void bind_target(TARGET *target);
+
+void report_recipe(TARGET *target, char const *recipe, int status,
+		   timing_info const *time, char const *cmd,
+		   char const *_stdout, char const *_stderr);
+void report_status(TARGET *target);
+void report_summary(int failed, int skipped, int made);
 
 #endif

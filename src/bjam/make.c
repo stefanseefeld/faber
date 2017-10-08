@@ -105,52 +105,12 @@ void print_dependency_graph(LIST *targets)
  * make() - make a target, given its name.
  */
 
-int make(LIST *targets)
+int make(LIST * targets)
 {
-    COUNTS counts[ 1 ];
-    int status = 0;  /* 1 if anything fails */
-
 #ifdef OPT_HEADER_CACHE_EXT
     hcache_init();
 #endif
-
-    memset( (char *)counts, 0, sizeof( *counts ) );
-
-    /* First bind all targets with LOCATE_TARGET setting. This is needed to
-     * correctly handle dependencies to generated headers.
-     */
-    //bind_explicitly_located_targets();
-
-    {
-        LISTITER iter, end;
-        PROFILE_ENTER( MAKE_MAKE0 );
-        for ( iter = list_begin( targets ), end = list_end( targets ); iter != end; iter = list_next( iter ) )
-        {
-            TARGET * t = bindtarget( list_item( iter ) );
-            if ( t->fate == T_FATE_INIT )
-                make0( t, 0, 0, counts, 0 );
-        }
-        PROFILE_EXIT( MAKE_MAKE0 );
-    }
-
-#ifdef OPT_GRAPH_DEBUG_EXT
-    if ( DEBUG_GRAPH )
-    {
-        LISTITER iter, end;
-        for ( iter = list_begin( targets ), end = list_end( targets ); iter != end; iter = list_next( iter ) )
-           dependGraphOutput( bindtarget( list_item( iter ) ), 0 );
-    }
-#endif
-
-    status = counts->cantfind || counts->cantmake;
-
-    {
-        PROFILE_ENTER( MAKE_MAKE1 );
-        status |= make1( targets );
-        PROFILE_EXIT( MAKE_MAKE1 );
-    }
-
-    return status;
+    return make1(targets);
 }
 
 
@@ -291,6 +251,8 @@ void make0
     int savedFate;
     int oldTimeStamp;
 #endif
+    if (t->fate > T_FATE_INIT)
+      return;
 
     /*
      * Step 1: Initialize.
@@ -337,6 +299,7 @@ void make0
     /* If temp file does not exist but parent does, use parent. */
     if ( p && ( t->flags & T_FLAG_TEMP ) &&
         ( t->binding == T_BIND_MISSING ) &&
+	 !(p->flags & T_FLAG_NOTFILE) &&
         ( p->binding != T_BIND_MISSING ) )
     {
         t->binding = T_BIND_PARENTS;
@@ -611,10 +574,11 @@ void make0
     {
         fate = T_FATE_TOUCHED;
     }
-    else if ( t->binding == T_BIND_EXISTS && ( t->flags & T_FLAG_TEMP ) )
-    {
-        fate = T_FATE_ISTMP;
-    }
+    /* don't update temp files just because they are temps !!*/
+    /* else if ( t->binding == T_BIND_EXISTS && ( t->flags & T_FLAG_TEMP ) ) */
+    /*   { */
+    /* 	fate = T_FATE_ISTMP; */
+    /*   } */
     else if ( t->binding == T_BIND_EXISTS && p && p->binding != T_BIND_UNBOUND
         && timestamp_cmp( &t->time, &p->time ) > 0 )
     {
