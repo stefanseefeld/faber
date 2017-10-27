@@ -19,13 +19,14 @@ logger = logging.getLogger('rules')
 
 class _candidate(object):
 
-    def __init__(self, recipe, type, target, sources, features, intermediate):
+    def __init__(self, recipe, type, target, sources, features, intermediate, scan=None):
         self.recipe = recipe
         self.type = type
         self.target = target
         self.sources = sources
         self.features = features
         self.intermediate = intermediate
+        self.scan = scan  # this might be a recipe for include-scanning
 
     def instantiate(self, module):
         """Apply the recipe to the given artefact and source object."""
@@ -34,6 +35,10 @@ class _candidate(object):
         t = explicit_rule(self.recipe, self.target, sources=sources,
                           features=self.features,
                           attrs=intermediate if self.intermediate else 0, module=module)
+        if self.scan:
+            from .artefacts.include_scan import scan
+            for s in sources:
+                scan(s, t, self.scan, features=self.features, module=module)
         return t
 
     def __repr__(self):
@@ -84,7 +89,13 @@ class _implicit_rule(object):
 
         fs = self.features.copy()
         fs |= features
-        return _candidate(self.recipe, t.type, target, src, fs, intermediate)
+        # hack: if this is a C/C++ source compilation, inject a header-scan
+        #       to track the additional header dependencies
+        scan = None
+        if source[0].type in (types.c, types.cxx) and t.type is types.obj:
+            tool = self.recipe.tool
+            scan = tool.makedep if tool else None
+        return _candidate(self.recipe, t.type, target, src, fs, intermediate, scan=scan)
 
     def __repr__(self):
         return '<{} {} <- {}>'.format(self.recipe.qname,

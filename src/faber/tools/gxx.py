@@ -12,7 +12,15 @@ from .. import types
 from ..assembly import implicit_rule as irule
 from . import compiler
 from .cxx import *
-from .gcc import validate
+from .gcc import validate, makedep_wrapper
+
+
+class makedep(action):
+
+    command = 'g++ $(cppflags) -MM -o $(<) $(>)'
+    cppflags = map(compiler.cppflags)
+    cppflags += map(compiler.define, translate, prefix='-D')
+    cppflags += map(compiler.include, translate, prefix='-I')
 
 
 class compile(action):
@@ -48,6 +56,7 @@ class link(action):
 
 class gxx(cxx):
 
+    makedep = makedep_wrapper(makedep())
     compile = compile()
     archive = action('ar rc $(<) $(>)')
     link = link()

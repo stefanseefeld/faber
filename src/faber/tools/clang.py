@@ -12,6 +12,7 @@ from .. import types
 from ..assembly import implicit_rule as irule
 from . import compiler
 from .cc import *
+from .gcc import makedep_wrapper
 import subprocess
 import re
 
@@ -57,6 +58,14 @@ def validate(cls, command, version, features):
     return command, version, features
 
 
+class makedep(action):
+
+    command = 'clang $(cppflags) -MM -o $(<) $(>)'
+    cppflags = map(compiler.cppflags)
+    cppflags += map(compiler.define, translate, prefix='-D')
+    cppflags += map(compiler.include, translate, prefix='-I')
+
+
 class compile(action):
 
     command = 'clang $(cppflags) $(cflags) -c -o $(<) $(>)'
@@ -90,6 +99,7 @@ class link(action):
 
 class clang(cc):
 
+    makedep = makedep_wrapper(makedep())
     compile = compile()
     archive = action('ar rc $(<) $(>)')
     link = link()

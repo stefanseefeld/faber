@@ -15,13 +15,52 @@ from . import compiler
 from .cc import *
 from .cxx import *
 from ..artefacts.library import library
-from os.path import basename, splitext, join, normpath, pathsep, exists
+from os.path import basename, splitext, join, normpath, pathsep, exists, isabs, relpath
 try:
     import winreg
 except ImportError:  # python 2
     import _winreg as winreg
 from collections import OrderedDict
 from subprocess import *
+
+
+class makedep(action):
+
+    # TODO: It seems hard to capture include dependencies *only*.
+    #       We either have to also collect the full preprocessor output,
+    #       or we need to redirect stderr, which is dangerous as it may
+    #       hide valuable error messages...
+    command = 'cl /nologo $(cppflags) /showIncludes /EP $(>) 1>NUL 2>$(<)'
+    cppflags = map(compiler.cppflags)
+    cppflags += map(compiler.define, translate, prefix='/D')
+    cppflags += map(compiler.include, translate, prefix='/I"', suffix='"')
+
+
+class makedep_wrapper(action):
+    """This is a wrapper around `cl /showIncludes ...` to normalize the output and
+    make it portable across compilers."""
+
+    def __init__(self):
+        self.cmd = makedep()
+        action.__init__(self, self.cmd.name, self.makedep)
+
+    def map(self, fs):
+        return self.cmd.map(fs)  # just forward variables from makedep
+
+    def makedep(self, targets, sources):
+        dfile = targets[0]._filename
+        self.cmd(targets, sources)
+        with open(dfile) as f:
+            # skip 'Note: including file: ', and remove dupliates
+            headers = set([l[22:].lstrip() for l in f.readlines()
+                           if l.startswith('Note: including file: ')])
+        # header paths are relative to the toplevel srcdir,
+        # while we need them to be relative to the current module
+        base = targets[0].module.srcdir
+        rp = lambda f, base: f if isabs(f) else relpath(f, base)
+        headers = [rp(h, base) for h in headers]
+        with open(dfile, 'w') as f:
+            f.writelines(headers)
 
 
 class compile(action):
@@ -68,6 +107,7 @@ class msvc(cc, cxx):
     win_archs = {'x86_64': 'x64',
                  'x86': 'x86'}
 
+    makedep = makedep_wrapper()
     compile = compile()
     archive = archive()
     link = link()
@@ -110,6 +150,7 @@ class msvc(cc, cxx):
         super(msvc, self).__init__(name=name, version=version)
         self.features |= features
 
+        self.makedep.cmd.subst('cl', '"{}\\{}"'.format(path, 'cl'))
         self.compile.subst('cl', '"{}\\{}"'.format(path, 'cl'))
         self.archive.subst('lib', '"{}\\{}"'.format(path, 'lib'))
         self.link.subst('link', '"{}\\{}"'.format(path, 'link'))

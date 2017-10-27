@@ -12,6 +12,8 @@ from .. import types
 from ..assembly import implicit_rule as irule
 from . import compiler
 from .cc import *
+import os.path
+import os
 import subprocess
 import re
 
@@ -61,6 +63,52 @@ def validate(cls, command, version, features):
     return command, version, features
 
 
+class makedep_wrapper(action):
+    """This is a wrapper around `cc -MM ...` to normalize the output and
+    make it portable across compilers."""
+
+    def __init__(self, cmd):
+        action.__init__(self, cmd.name, self.makedep)
+        self.cmd = cmd
+
+    def map(self, fs):
+        return self.cmd.map(fs)  # just forward variables from makedep
+
+    def makedep(self, targets, sources):
+        dfile = targets[0]._filename
+        self.cmd(targets, sources)
+        with open(dfile) as f:
+            out = ''.join(f.readlines())
+        lines = out.split('\\')
+        # remove the first two tokens, e.g.
+        # '<file>.o:' and '<file>.c'
+        lines[0] = lines[0].split(' ', 2)
+        if len(lines[0]) == 3:
+            lines[0] = lines[0][2]
+        else:
+            del lines[0]
+        # flatten listing to contain one header per item
+        headers = [h for l in lines for h in l.split()]
+        # filter out system headers
+        # TODO: make this configurable
+        headers = [h for h in headers if not h.startswith('/usr/include')]
+        # header paths are relative to the toplevel srcdir,
+        # while we need them to be relative to the current module
+        base = targets[0].module.srcdir
+        relpath = lambda f, base: f if os.path.isabs(f) else os.path.relpath(f, base)
+        headers = [relpath(h, base) + '\n' for h in headers]
+        with open(dfile, 'w') as f:
+            f.writelines(headers)
+
+
+class makedep(action):
+
+    command = 'gcc $(cppflags) -MM -o $(<) $(>)'
+    cppflags = map(compiler.cppflags)
+    cppflags += map(compiler.define, translate, prefix='-D')
+    cppflags += map(compiler.include, translate, prefix='-I')
+
+
 class compile(action):
 
     command = 'gcc $(cppflags) $(cflags) -c -o $(<) $(>)'
@@ -94,6 +142,7 @@ class link(action):
 
 class gcc(cc):
 
+    makedep = makedep_wrapper(makedep())
     compile = compile()
     archive = action('ar rc $(<) $(>)')
     link = link()
