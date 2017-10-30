@@ -168,3 +168,22 @@ class source(artefact):
     @property
     def _filename(self):
         return join(self.module.srcdir, self.name)
+
+
+class conditional(artefact):
+
+    def __init__(self, a, condition, features=()):
+        artefact.__init__(self, 'c:' + a.name, features=features,
+                          attrs=notfile, condition=condition, module=a.module)
+        self.a = a
+        self.dependent = []  # set by depend()
+
+    def __status__(self, status):
+        artefact.__status__(self, status)
+        result = self.condition(self.features.eval())
+        feature_logger.info('condition "{}" yields {}'
+                            .format(self.condition, result))
+        if result:
+            from . import scheduler
+            for d in self.dependent:
+                scheduler.add_dependency(d, self.a)

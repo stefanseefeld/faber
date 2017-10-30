@@ -10,18 +10,45 @@ from __future__ import absolute_import
 from . import scheduler
 from .action import action
 from .feature import set
-from .artefact import artefact, source, notfile
+from .feature.condition import expr as fexpr
+from .artefact import artefact, source, conditional, notfile
 from .utils import aslist
 from types import FunctionType, MethodType
 import logging
 
 logger = logging.getLogger('rules')
+feature_logger = logging.getLogger('features')
+
+
+def conditional_dependency(a, d):
+    if d.condition is None:
+        # unconditional
+        return d
+    elif not isinstance(d.condition, fexpr):
+        # eval using builtin __bool__
+        return d if d.condition else None
+    elif not d.features.dependencies():
+        # eval using feature.condition
+        result = d.condition(d.features.eval())
+        feature_logger.info('condition "{}" yields {}'.format(d.condition, result))
+        return d if result else None
+    else:
+        # postpone eval using feature.condition
+        feature_logger.info('postponing evaluation of condition "{}"'
+                            .format(d.condition))
+        if not isinstance(d, conditional):
+            d = conditional(d, d.condition)
+        d.dependent.append(a)
+        return d
 
 
 def depend(target, dependencies):
     """Declare `target` to depend on `dependencies`."""
 
     dependencies = aslist(dependencies)
+    # wrap conditional dependencies
+    dependencies = list(filter(None, [conditional_dependency(target, d)
+                                      for d in dependencies]))
     scheduler.add_dependency(target, dependencies)
 
 

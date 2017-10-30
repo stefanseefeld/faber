@@ -7,6 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from . import scheduler
+from .feature.condition import expr as fexpr
 from .artefact import artefact
 from .module import module
 from .cache import optioncache
@@ -65,6 +66,21 @@ def build(goals, options, parameters, srcdir, builddir):
             result = False
     else:
         goals = aslist(m.default)
+        # if we pick up default goals, check their conditions first
+        deps = set([d for g in goals for d in g.features.dependencies()])
+        # (allow dependencies to fail)
+        scheduler.update(list(deps))
+
+        def check(a):
+            if a.condition is None:
+                return True
+            elif isinstance(a.condition, fexpr):
+                return a.condition(a.features.eval())
+            else:
+                return a.condition
+
+        # now filter by condition
+        goals = [g for g in goals if check(g)]
         result = True
     if goals:
         result = scheduler.update(goals)
