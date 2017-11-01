@@ -377,6 +377,7 @@ void list_done()
             l = l->impl.next;
             BJAM_FREE( tmp );
         }
+	freelist[i] = 0;
     }
 }
 

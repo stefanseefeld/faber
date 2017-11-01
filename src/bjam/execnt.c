@@ -260,6 +260,12 @@ int exec_check
         error_length, error_max_length );
 }
 
+static LIST * default_shell;
+
+void exec_done()
+{
+  default_shell = 0;
+}
 
 /*
  * exec_cmd() - launch an async command execution
@@ -281,7 +287,6 @@ void exec_cmd
     string cmd_local[ 1 ];
 
     /* Initialize default shell - anything more than /Q/C is non-portable. */
-    static LIST * default_shell;
     if ( !default_shell )
         default_shell = list_new( object_new( "cmd.exe /Q/C" ) );
 

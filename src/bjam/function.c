@@ -5244,4 +5244,5 @@ static LIST *call_python_function(PYTHON_FUNCTION *function, FRAME *frame)
 void function_done( void )
 {
     BJAM_FREE( stack );
+    stack = 0;
 }

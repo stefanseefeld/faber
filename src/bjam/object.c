@@ -166,6 +166,7 @@ static void string_set_init( string_set * set )
 static void string_set_done( string_set * set )
 {
     BJAM_FREE( set->data );
+    set->data = 0;
 }
 
 
@@ -386,6 +387,7 @@ void object_done()
 #endif
 
     string_set_done( &strhash );
+    storage_start = storage_finish = 0;
 
     if ( DEBUG_MEM )
     {

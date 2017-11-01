@@ -127,6 +127,13 @@ int exec_check
 #define EXECCMD_PIPE_READ 0
 #define EXECCMD_PIPE_WRITE 1
 
+static LIST * default_shell;
+
+void exec_done()
+{
+  default_shell = 0;
+}
+
 void exec_cmd
 (
     string const * command,
@@ -145,7 +152,6 @@ void exec_cmd
     char const * argv[ MAXARGC + 1 ];  /* +1 for NULL */
 
     /* Initialize default shell. */
-    static LIST * default_shell;
     if ( !default_shell )
         default_shell = list_push_back( list_new(
             object_new( "/bin/sh" ) ),

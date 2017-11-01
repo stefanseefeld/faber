@@ -485,6 +485,7 @@ void rules_done()
     {
         hashenumerate( targethash, freetarget, 0 );
         hashdone( targethash );
+	targethash = 0;
     }
     while ( settings_freelist )
     {
