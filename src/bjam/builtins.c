@@ -229,11 +229,11 @@ void load_builtins()
 
       bind_builtin( "ISFILE",
                     builtin_flags, T_FLAG_ISFILE, 0 );
-
+#if 0
     duplicate_rule( "HdrMacro",
       bind_builtin( "HDRMACRO",
                     builtin_hdrmacro, 0, 0 ) );
-
+#endif
     /* FAIL_EXPECTED is used to indicate that the result of a target build
      * action should be inverted (ok <=> fail) this can be useful when
      * performing test runs from Jamfiles.
@@ -1026,7 +1026,7 @@ LIST * builtin_split_by_characters( FRAME * frame, int flags )
     return result;
 }
 
-
+#if 0
 /*
  * builtin_hdrmacro() - ???
  */
@@ -1051,7 +1051,7 @@ LIST * builtin_hdrmacro( FRAME * frame, int flags )
 
     return L0;
 }
-
+#endif
 
 /*
  * builtin_rulenames() - RULENAMES ( MODULE ? )
@@ -1433,7 +1433,6 @@ LIST * builtin_update( FRAME * frame, int flags )
     return result;
 }
 
-extern int anyhow;
 int last_update_now_status;
 
 /* Takes a list of target names and immediately updates them.
@@ -1481,7 +1480,7 @@ LIST * builtin_update_now( FRAME * frame, int flags )
         globs.quitquick = 0;
     }
 
-    status = make( targets, anyhow );
+    status = make( targets);
 
     if ( !list_empty( force ) )
     {

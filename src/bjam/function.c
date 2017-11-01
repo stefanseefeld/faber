@@ -3786,8 +3786,8 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
     if ( function_->type == FUNCTION_BUILTIN )
     {
-        PROFILE_ENTER_LOCAL(function_run_FUNCTION_BUILTIN);
         BUILTIN_FUNCTION const * const f = (BUILTIN_FUNCTION *)function_;
+        PROFILE_ENTER_LOCAL(function_run_FUNCTION_BUILTIN);
         if ( function_->formal_arguments )
             argument_list_check( function_->formal_arguments,
                 function_->num_formal_arguments, function_, frame );
@@ -3799,8 +3799,8 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 #ifdef HAVE_PYTHON
     else if ( function_->type == FUNCTION_PYTHON )
     {
-        PROFILE_ENTER_LOCAL(function_run_FUNCTION_PYTHON);
         PYTHON_FUNCTION * f = (PYTHON_FUNCTION *)function_;
+        PROFILE_ENTER_LOCAL(function_run_FUNCTION_PYTHON);
         PROFILE_EXIT_LOCAL(function_run_FUNCTION_PYTHON);
         PROFILE_EXIT_LOCAL(function_run);
         return call_python_function( f, frame );
@@ -3833,8 +3833,8 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_PUSH_CONSTANT:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_CONSTANT);
             OBJECT * value = function_get_constant( function, code->arg );
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_CONSTANT);
             stack_push( s, list_new( object_copy( value ) ) );
             PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_CONSTANT);
             break;
@@ -3868,10 +3868,10 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 #if 0
         case INSTR_PUSH_GROUP:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_GROUP);
             LIST * value = L0;
             LISTITER iter;
             LISTITER end;
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_GROUP);
             l = stack_pop( s );
             for ( iter = list_begin( l ), end = list_end( l ); iter != end;
                 iter = list_next( iter ) )
@@ -4563,7 +4563,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_MODIFIERS);
             break;
         }
-
+#endif
         case INSTR_APPLY_INDEX:
         {
             PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_INDEX);
@@ -4574,7 +4574,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_INDEX);
             break;
         }
-
+#if 0
         case INSTR_APPLY_INDEX_MODIFIERS:
         {
             PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_INDEX_MODIFIERS);
@@ -4673,12 +4673,12 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 #endif
         case INSTR_COMBINE_STRINGS:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_COMBINE_STRINGS);
             size_t const buffer_size = code->arg * sizeof( expansion_item );
             LIST * * const stack_pos = stack_get( s );
             expansion_item * items = stack_allocate( s, buffer_size );
             LIST * result;
             int i;
+            PROFILE_ENTER_LOCAL(function_run_INSTR_COMBINE_STRINGS);
             for ( i = 0; i < code->arg; ++i )
                 items[ i ].values = stack_pos[ i ];
             result = expand( items, code->arg );
@@ -4692,10 +4692,10 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 #if 0
         case INSTR_GET_GRIST:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_GET_GRIST);
             LIST * vals = stack_pop( s );
             LIST * result = L0;
             LISTITER iter, end;
+            PROFILE_ENTER_LOCAL(function_run_INSTR_GET_GRIST);
 
             for ( iter = list_begin( vals ), end = list_end( vals ); iter != end; ++iter )
             {
@@ -4724,8 +4724,8 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_INCLUDE:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_INCLUDE);
             LIST * nt = stack_pop( s );
+            PROFILE_ENTER_LOCAL(function_run_INSTR_INCLUDE);
             if ( !list_empty( nt ) )
             {
                 TARGET * const t = bindtarget( list_front( nt ) );
@@ -4763,9 +4763,9 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_PUSH_MODULE:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_MODULE);
             LIST * const module_name = stack_pop( s );
             module_t * const outer_module = frame->module;
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_MODULE);
             frame->module = !list_empty( module_name )
                 ? bindmodule( list_front( module_name ) )
                 : root_module();
@@ -4778,8 +4778,8 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_POP_MODULE:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_POP_MODULE);
             module_t * const outer_module = *(module_t * *)stack_get( s );
+            PROFILE_ENTER_LOCAL(function_run_INSTR_POP_MODULE);
             stack_deallocate( s, sizeof( module_t * ) );
             frame->module = outer_module;
             PROFILE_EXIT_LOCAL(function_run_INSTR_POP_MODULE);
@@ -4788,12 +4788,12 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_CLASS:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_CLASS);
             LIST * bases = stack_pop( s );
             LIST * name = stack_pop( s );
             OBJECT * class_module = make_class_module( name, bases, frame );
 
             module_t * const outer_module = frame->module;
+            PROFILE_ENTER_LOCAL(function_run_INSTR_CLASS);
             frame->module = bindmodule( class_module );
             object_free( class_module );
 
@@ -4813,8 +4813,8 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_APPEND_STRINGS:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_APPEND_STRINGS);
             string buf[ 1 ];
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPEND_STRINGS);
             string_new( buf );
             combine_strings( s, code->arg, buf );
             stack_push( s, list_new( object_new( buf->value ) ) );
@@ -4825,12 +4825,12 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_WRITE_FILE:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_WRITE_FILE);
             string buf[ 1 ];
             char const * out;
             OBJECT * tmp_filename = 0;
             int out_debug = DEBUG_EXEC ? 1 : 0;
             FILE * out_file = 0;
+            PROFILE_ENTER_LOCAL(function_run_INSTR_WRITE_FILE);
             string_new( buf );
             combine_strings( s, code->arg, buf );
             out = object_str( list_front( stack_top( s ) ) );
@@ -4938,9 +4938,9 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_OUTPUT_STRINGS:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_OUTPUT_STRINGS);
             string * const buf = *(string * *)( (char *)stack_get( s ) + (
                 code->arg * sizeof( LIST * ) ) );
+            PROFILE_ENTER_LOCAL(function_run_INSTR_OUTPUT_STRINGS);
             combine_strings( s, code->arg, buf );
             PROFILE_EXIT_LOCAL(function_run_INSTR_OUTPUT_STRINGS);
             break;
@@ -5102,48 +5102,7 @@ static void argument_list_to_python( struct arg_list * formal, int formal_count,
     }
 }
 
-
-/* Given a Python object, return a string to use in Jam code instead of the said
- * object.
- *
- * If the object is a string, use the string value.
- * If the object implemenets __jam_repr__ method, use that.
- * Otherwise return 0.
- */
-
-OBJECT * python_to_string( PyObject * value )
-{
-    if ( PyString_Check( value ) )
-        return object_new( PyString_AS_STRING( value ) );
-
-    /* See if this instance defines the special __jam_repr__ method. */
-    if ( PyInstance_Check( value )
-        && PyObject_HasAttrString( value, "__jam_repr__" ) )
-    {
-        PyObject * repr = PyObject_GetAttrString( value, "__jam_repr__" );
-        if ( repr )
-        {
-            PyObject * arguments2 = PyTuple_New( 0 );
-            PyObject * value2 = PyObject_Call( repr, arguments2, 0 );
-            Py_DECREF( repr );
-            Py_DECREF( arguments2 );
-            if ( PyString_Check( value2 ) )
-                return object_new( PyString_AS_STRING( value2 ) );
-            Py_DECREF( value2 );
-        }
-    }
-    return 0;
-}
-
-
-static module_t * python_module()
-{
-    static module_t * python = 0;
-    if ( !python )
-        python = bindmodule( constant_python );
-    return python;
-}
-
+int python_call_status;
 
 static LIST *call_python_function(PYTHON_FUNCTION *function, FRAME *frame)
 {
@@ -5185,7 +5144,6 @@ static LIST *call_python_function(PYTHON_FUNCTION *function, FRAME *frame)
     }
     popsettings(root_module(), target->settings);
   }
-  //frame->module = python_module();
 
   prev_frame_before_python_call = frame_before_python_call;
   frame_before_python_call = frame;
@@ -5193,49 +5151,17 @@ static LIST *call_python_function(PYTHON_FUNCTION *function, FRAME *frame)
   frame_before_python_call = prev_frame_before_python_call;
   Py_DECREF(arguments);
   Py_XDECREF(kw);
-  if (py_result != NULL)
-  {
-    if (PyList_Check(py_result))
-    {
-      int size = PyList_Size(py_result);
-      int i;
-      for (i = 0; i < size; ++i)
-      {
-	OBJECT * s = python_to_string(PyList_GetItem(py_result, i));
-	if (!s)
-	  err_printf("Non-string object returned by Python call.\n");
-	else
-	  result = list_push_back(result, s);
-      }
-    }
-    else if (py_result == Py_None)
-    {
-      result = L0;
-    }
-    else
-    {
-      OBJECT * const s = python_to_string(py_result);
-      if (s)
-	result = list_new(s);
-      else
-	/* We have tried all we could. Return empty list. There are
-	 * cases, e.g. feature.feature function that should return a
-	 * value for the benefit of Python code and which also can be
-	 * called by Jam code, where no sensible value can be returned.
-	 * We cannot even emit a warning, since there would be a pile of
-	 * them.
-	 */
-	result = L0;
-    }
-    
-    Py_DECREF(py_result);
-  }
-  else
-  {
-    PyErr_Print();
-    err_printf("Call failed\n");
-  }
-  return result;
+  /* exceptions are fatal. We need to abort the current call... */
+  if (!py_result)
+    return L0;
+  /*
+   * Allow None as a valid return value, but consider anything else
+   * evaluating to False to be a failure.
+   */
+  else if (py_result != Py_None && PyObject_Not(py_result))
+    python_call_status = -1; /* function failed */
+  Py_DECREF(py_result);
+  return L0;
 }
 
 #endif

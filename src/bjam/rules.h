@@ -200,8 +200,8 @@ struct _target
     char       progress;              /* tracks make1() progress */
 
 #define T_MAKE_INIT           0       /* make1(target) not yet called */
-#define T_MAKE_ONSTACK        1       /* make1(target) on stack */
-#define T_MAKE_ACTIVE         2       /* make1(target) in make1b() */
+#define T_MAKE_LAUNCHED       1       /* make1(target) on stack */
+#define T_MAKE_BOUND          2       /* make1(target) in bind() */
 #define T_MAKE_RUNNING        3       /* make1(target) running commands */
 #define T_MAKE_DONE           4       /* make1(target) done */
 #define T_MAKE_NOEXEC_DONE    5       /* make1(target) done with -n in effect */
@@ -264,7 +264,6 @@ void      target_include_many            ( TARGET * const including,
                                            LIST * const included_names );
 TARGETS * targetlist                     ( TARGETS *, LIST * target_names );
 void      touch_target                   ( OBJECT * const );
-void      clear_includes                 ( TARGET * );
 TARGET  * target_scc                     ( TARGET * );
 
 /* Final module cleanup. */

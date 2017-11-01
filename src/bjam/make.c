@@ -36,7 +36,6 @@
 #ifdef OPT_HEADER_CACHE_EXT
 # include "hcache.h"
 #endif
-#include "headers.h"
 #include "lists.h"
 #include "object.h"
 #include "parse.h"
@@ -85,11 +84,28 @@ static char const * target_bind[] =
 #define spaces(x) ( "                    " + ( x > 20 ? 0 : 20-x ) )
 
 
+static void clear_visited(TARGET *target)
+{
+  TARGETS *c;
+  target->flags &= ~T_FLAG_VISITED;
+  for (c = target->depends; c; c = c->next)
+    clear_visited(c->target);
+}
+
+void print_dependency_graph(LIST *targets)
+{
+  LISTITER iter, end;
+  for (iter=list_begin(targets), end=list_end(targets); iter!=end; iter=list_next(iter))
+    dependGraphOutput(bindtarget(list_item(iter)), 0);
+  for (iter=list_begin(targets), end=list_end(targets); iter!=end; iter=list_next(iter))
+    clear_visited(bindtarget(list_item(iter)));
+}
+
 /*
  * make() - make a target, given its name.
  */
 
-int make( LIST * targets, int anyhow )
+int make(LIST *targets)
 {
     COUNTS counts[ 1 ];
     int status = 0;  /* 1 if anything fails */
@@ -112,7 +128,7 @@ int make( LIST * targets, int anyhow )
         {
             TARGET * t = bindtarget( list_item( iter ) );
             if ( t->fate == T_FATE_INIT )
-                make0( t, 0, 0, counts, anyhow, 0 );
+                make0( t, 0, 0, counts, 0 );
         }
         PROFILE_EXIT( MAKE_MAKE0 );
     }
@@ -239,7 +255,7 @@ int make0rescan( TARGET * t, TARGET * rescanning )
         return 0;
 
     /* If t is already updated, ignore it. */
-    if ( t->scc_root == NULL && t->progress > T_MAKE_ACTIVE )
+    if (t->scc_root == NULL && t->progress > T_MAKE_BOUND)
         return 0;
 
     t->rescanning = rescanning;
@@ -277,7 +293,6 @@ void make0
     TARGET * p,       /* parent */
     int      depth,   /* for display purposes */
     COUNTS * counts,  /* for reporting */
-    int      anyhow,
     TARGET * rescanning
 )  /* forcibly touch all (real) targets */
 {
@@ -296,9 +311,6 @@ void make0
     int oldTimeStamp;
 #endif
 
-    if ( DEBUG_MAKEPROG )
-        out_printf( "make\t--\t%s%s\n", spaces( depth ), object_str( t->name ) );
-
     /*
      * Step 1: Initialize.
      */
@@ -313,7 +325,7 @@ void make0
      * Step 2: Under the influence of "on target" variables, bind the target and
      * search for headers.
      */
-
+#if 0
     /* Step 2a: Set "on target" variables. */
     s = copysettings( t->settings );
     pushsettings( root_module(), s );
@@ -340,7 +352,7 @@ void make0
     /* INTERNAL, NOTFILE header nodes have the time of their parents. */
     if ( p && ( t->flags & T_FLAG_INTERNAL ) )
         ptime = p;
-
+#endif
     /* If temp file does not exist but parent does, use parent. */
     if ( p && ( t->flags & T_FLAG_TEMP ) &&
         ( t->binding == T_BIND_MISSING ) &&
@@ -361,7 +373,7 @@ void make0
         }
     }
 #endif
-
+#if 0
     /* Step 2c: If its a file, search for headers. */
     if ( t->binding == T_BIND_EXISTS )
         headers( t );
@@ -369,7 +381,7 @@ void make0
     /* Step 2d: reset "on target" variables. */
     popsettings( root_module(), s );
     freesettings( s );
-
+#endif
     /*
      * Pause for a little progress reporting.
      */
@@ -409,7 +421,7 @@ void make0
          * other alot.
          */
         if ( c->target->fate == T_FATE_INIT )
-            make0( c->target, ptime, depth + 1, counts, anyhow, rescanning );
+            make0( c->target, ptime, depth + 1, counts, rescanning );
         else if ( c->target->fate == T_FATE_MAKING && !internal )
             out_printf( "warning: %s depends on itself\n", object_str(
                 c->target->name ) );
@@ -423,7 +435,7 @@ void make0
     if ( located_target )
     {
         if ( located_target->fate == T_FATE_INIT )
-            make0( located_target, ptime, depth + 1, counts, anyhow, rescanning
+            make0( located_target, ptime, depth + 1, counts, rescanning
                 );
         else if ( located_target->fate != T_FATE_MAKING && rescanning )
             make0rescan( located_target, rescanning );
@@ -431,7 +443,7 @@ void make0
 
     /* Step 3b: Recursively make0() internal includes node. */
     if ( t->includes )
-        make0( t->includes, p, depth + 1, counts, anyhow, rescanning );
+        make0( t->includes, p, depth + 1, counts, rescanning );
 
     /* Step 3c: Add dependencies' includes to our direct dependencies. */
     {
@@ -608,7 +620,7 @@ void make0
     {
         fate = T_FATE_TOUCHED;
     }
-    else if ( anyhow && !( t->flags & T_FLAG_NOUPDATE ) )
+    else if ( globs.force && !( t->flags & T_FLAG_NOUPDATE ) )
     {
         fate = T_FATE_TOUCHED;
     }
@@ -697,7 +709,7 @@ void make0
             {
                 if ( c->target->fate == T_FATE_INIT )
                 {
-                    make0( c->target, ptime, depth + 1, counts, anyhow, rescanning );
+                    make0( c->target, ptime, depth + 1, counts, rescanning );
                 }
             }
         }

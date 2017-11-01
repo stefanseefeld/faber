@@ -25,13 +25,10 @@ sources=['bjam.c', 'rules.c', 'hash.c', 'modules.c',
          'frames.c', 'constants.c',
          'lists.c', 'timestamp.c', 'function.c',
          'pathsys.c', 'builtins.c',
-         'md5.c', 'filesys.c',
-         'option.c', 'class.c', 'variable.c',
-         'strings.c', 'output.c', 'execcmd.c',
-         'debug.c', 'search.c', 'subst.c',
-         'make.c', 'make1.c', 'command.c',
-         'cwd.c', 'native.c', 'compile.c', 'regexp.c',
-         'headers.c', 'object.c', 'hdrmacro.c']
+         'md5.c', 'filesys.c', 'variable.c',
+         'strings.c', 'output.c', 'execcmd.c', 'debug.c',
+         'graph.c', 'make.c', 'make1.c', 'command.c',
+         'cwd.c', 'native.c', 'compile.c', 'object.c']
 libraries=[]
 if sys.platform == 'win32':
     sources+=['execnt.c', 'pathnt.c', 'filent.c']

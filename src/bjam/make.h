@@ -15,7 +15,9 @@
 #include "object.h"
 #include "rules.h"
 
-int make( LIST * targets, int anyhow );
+void print_dependency_graph(LIST *targets);
+int make(LIST *targets);
+void schedule_targets(LIST *, TARGET *p);
 int make1( LIST * t );
 
 typedef struct {
@@ -28,7 +30,7 @@ typedef struct {
 } COUNTS ;
 
 
-void make0( TARGET * t, TARGET * p, int depth, COUNTS * counts, int anyhow,
+void make0( TARGET * t, TARGET * p, int depth, COUNTS * counts,
     TARGET * rescanning );
 
 

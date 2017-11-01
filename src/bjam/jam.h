@@ -467,6 +467,7 @@
 struct globs
 {
     int    noexec;
+    int    force;
     int    jobs;
     int    quitquick;
     int    newestfirst;         /* build newest sources first */

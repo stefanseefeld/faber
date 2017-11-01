@@ -20,13 +20,13 @@
  *   make1() - execute commands to update a TARGET and all of its dependencies
  *
  * Internal routines, the recursive/asynchronous command executors:
- *   make1a()         - recursively schedules dependency builds and then goes to
- *                      MAKE1B
- *   make1b()         - if nothing is blocking this target's build, proceed to
- *                      MAKE1C
- *   make1c()         - launch target's next command, or go to parents' MAKE1B
+ *   launch()        - recursively schedules dependency builds and then goes to
+ *                      BIND
+ *   bind_()         - if nothing is blocking this target's build, proceed to
+ *                      RUN
+ *   run_cmd()       - launch target's next command, or go to parents' BIND
  *                      if none
- *   make1c_closure() - handle command execution completion and go to MAKE1C
+ *   cmd_closure()   - handle command execution completion and go to RUN
  *
  * Internal support routines:
  *   make1cmds()     - turn ACTIONS into CMDs, grouping, splitting, etc.
@@ -41,13 +41,11 @@
 #include "command.h"
 #include "compile.h"
 #include "execcmd.h"
-#include "headers.h"
 #include "lists.h"
 #include "object.h"
 #include "output.h"
 #include "parse.h"
 #include "rules.h"
-#include "search.h"
 #include "variable.h"
 #include "output.h"
 
@@ -58,16 +56,22 @@
     #include <unistd.h>  /* for unlink */
 #endif
 
+#undef assert
+#define assert(E) if (!(E)) { printf("Assertion error in %s:%d: \"%s\"\n", __FILE__, __LINE__, #E); abort();}
+
+/* hack to determine the status of a Python action */
+extern int python_call_status;
+
+
 static CMD      * make1cmds      ( TARGET * );
 static LIST     * make1list      ( LIST *, TARGETS *, int flags );
 static SETTINGS * make1settings  ( struct module_t *, LIST * vars );
 static void       make1bind      ( TARGET * );
-static TARGET   * make1findcycle ( TARGET * );
-static void       make1breakcycle( TARGET *, TARGET * cycle_root );
 static void       push_cmds( CMDLIST * cmds, int status );
+#ifdef OPT_SEMAPHORE
 static int        cmd_sem_lock( TARGET * t );
 static void       cmd_sem_unlock( TARGET * t );
-
+#endif
 static int targets_contains( TARGETS * l, TARGET * t );
 static int targets_equal( TARGETS * l1, TARGETS * l2 );
 
@@ -82,26 +86,26 @@ static struct
 } counts[ 1 ];
 
 /* Target state. */
-#define T_STATE_MAKE1A  0  /* make1a() should be called */
-#define T_STATE_MAKE1B  1  /* make1b() should be called */
-#define T_STATE_MAKE1C  2  /* make1c() should be called */
+#define T_STATE_LAUNCH  0  /* launch() should be called */
+#define T_STATE_BIND    1  /* bind_() should be called */
+#define T_STATE_RUN     2  /* run_cmd() should be called */
 
 typedef struct _state state;
 struct _state
 {
     state  * prev;      /* previous state on stack */
     TARGET * t;         /* current target */
-    TARGET * parent;    /* parent argument necessary for MAKE1A */
+    TARGET * parent;    /* parent argument necessary for LAUNCH */
     int      curstate;  /* current state */
 };
 
-static void make1a( state * const );
-static void make1b( state * const );
-static void make1c( state const * const );
+static void launch(state *const);
+static void bind_(state *const);
+static void run_cmd(state const *const);
 
-static void make1c_closure( void * const closure, int status,
-    timing_info const * const, char const * const cmd_stdout,
-    char const * const cmd_stderr, int const cmd_exit_reason );
+static void run_closure(void *const closure, int status,
+    timing_info const *const, char const *const cmd_stdout,
+    char const *const cmd_stderr, int const cmd_exit_reason);
 
 typedef struct _stack
 {
@@ -196,8 +200,20 @@ static void push_stack_on_stack( stack * const pDest, stack * const pSrc )
  * make1() - execute commands to update a list of targets and all of their dependencies
  */
 
-static int intr = 0;
 static int quit = 0;
+
+void schedule_targets(LIST *targets, TARGET *parent)
+{
+  LISTITER iter, end;
+  stack temp_stack = { NULL };
+  for (iter = list_begin(targets), end = list_end(targets);
+       iter != end && !quit; iter = list_next(iter))
+  {
+    TARGET *t = bindtarget(list_item(iter));
+    push_state(&temp_stack, t, parent, T_STATE_LAUNCH);
+  }
+  push_stack_on_stack(&state_stack, &temp_stack);
+}
 
 int make1( LIST * targets )
 {
@@ -211,7 +227,7 @@ int make1( LIST * targets )
         stack temp_stack = { NULL };
         for ( iter = list_begin( targets ), end = list_end( targets );
               iter != end; iter = list_next( iter ) )
-            push_state( &temp_stack, bindtarget( list_item( iter ) ), NULL, T_STATE_MAKE1A );
+            push_state(&temp_stack, bindtarget(list_item(iter)), NULL, T_STATE_LAUNCH);
         push_stack_on_stack( &state_stack, &temp_stack );
     }
 
@@ -226,14 +242,13 @@ int make1( LIST * targets )
         {
             if ( quit )
                 pop_state( &state_stack );
-
             switch ( pState->curstate )
             {
-                case T_STATE_MAKE1A: make1a( pState ); break;
-                case T_STATE_MAKE1B: make1b( pState ); break;
-                case T_STATE_MAKE1C: make1c( pState ); break;
-                default:
-                    assert( !"make1(): Invalid state detected." );
+	      case T_STATE_LAUNCH: launch(pState); break;
+	      case T_STATE_BIND: bind_(pState); break;
+	      case T_STATE_RUN: run_cmd(pState); break;
+	      default:
+		assert(!"make1(): Invalid state detected.");
             }
         }
         if ( !cmdsrunning )
@@ -245,21 +260,8 @@ int make1( LIST * targets )
     clear_state_freelist();
 
     /* Talk about it. */
-    if ( counts->failed )
-        out_printf( "...failed updating %d target%s...\n", counts->failed,
-            counts->failed > 1 ? "s" : "" );
-    if ( DEBUG_MAKE && counts->skipped )
-        out_printf( "...skipped %d target%s...\n", counts->skipped,
-            counts->skipped > 1 ? "s" : "" );
-    if ( DEBUG_MAKE && counts->made )
-        out_printf( "...updated %d target%s...\n", counts->made,
-            counts->made > 1 ? "s" : "" );
-
-    /* If we were interrupted, exit now that all child processes
-       have finished. */
-    if ( intr )
-        exit( EXITBAD );
-
+    if (!quit)
+      report_summary(counts->failed, counts->skipped, counts->made);
     {
         LISTITER iter, end;
         for ( iter = list_begin( targets ), end = list_end( targets );
@@ -284,14 +286,14 @@ int make1( LIST * targets )
 
 
 /*
- * make1a() - recursively schedules dependency builds and then goes to MAKE1B
+ * launch() - recursively schedules dependency builds and then goes to BIND
  *
  * Called to start processing a specified target. Does nothing if the target is
  * already being processed or otherwise starts processing all of its
  * dependencies.
  */
 
-static void make1a( state * const pState )
+static void launch(state *const pState)
 {
     TARGET * t = pState->t;
     TARGET * const scc_root = target_scc( t );
@@ -300,7 +302,7 @@ static void make1a( state * const pState )
         pState->t = t = scc_root;
 
     /* If the parent is the first to try to build this target or this target is
-     * in the MAKE1C quagmire, arrange for the parent to be notified when this
+     * in the RUN quagmire, arrange for the parent to be notified when this
      * target has been built.
      */
     if ( pState->parent && t->progress <= T_MAKE_RUNNING )
@@ -330,12 +332,12 @@ static void make1a( state * const pState )
     }
 
     /* Guard against circular dependencies. */
-    t->progress = T_MAKE_ONSTACK;
+    t->progress = T_MAKE_LAUNCHED;
 
     /* 'asynccnt' counts the dependencies preventing this target from proceeding
-     * to MAKE1C for actual building. We start off with a count of 1 to prevent
+     * to RUN for actual building. We start off with a count of 1 to prevent
      * anything from happening until we can notify all dependencies that they
-     * are needed. This 1 is then accounted for when we enter MAKE1B ourselves,
+     * are needed. This 1 is then accounted for when we enter BIND ourselves,
      * below. Without this if a dependency gets built before we finish
      * processing all of our other dependencies our build might be triggerred
      * prematurely.
@@ -347,33 +349,33 @@ static void make1a( state * const pState )
         stack temp_stack = { NULL };
         TARGETS * c;
         for ( c = t->depends; c && !quit; c = c->next )
-            push_state( &temp_stack, c->target, t, T_STATE_MAKE1A );
+	  push_state(&temp_stack, c->target, t, T_STATE_LAUNCH);
         push_stack_on_stack( &state_stack, &temp_stack );
     }
 
-    t->progress = T_MAKE_ACTIVE;
+    t->progress = T_MAKE_BOUND;
 
     /* Once all of our dependencies have started getting processed we can move
-     * onto MAKE1B.
+     * onto BIND.
      */
     /* Implementation note:
      *   In theory this would be done by popping this state before pushing
      * dependency target build requests but as a slight optimization we simply
      * modify our current state and leave it on the stack instead.
      */
-    pState->curstate = T_STATE_MAKE1B;
+    pState->curstate = T_STATE_BIND;
 }
 
 
 /*
- * make1b() - if nothing is blocking this target's build, proceed to MAKE1C
+ * bind_() - if nothing is blocking this target's build, proceed to RUN
  *
  * Called after something stops blocking this target's build, e.g. that all of
  * its dependencies have started being processed, one of its dependencies has
  * been built or a semaphore this target has been waiting for is free again.
  */
 
-static void make1b( state * const pState )
+static void bind_(state *const pState)
 {
     TARGET * const t = pState->t;
     TARGET * failed = 0;
@@ -412,11 +414,12 @@ static void make1b( state * const pState )
      * that it failed on.
      */
     if ( failed )
+    {
         failed_name = failed->flags & T_FLAG_INTERNAL
             ? failed->failed
             : object_str( failed->name );
-    t->failed = failed_name;
-
+	t->failed = failed_name;
+    }
     /* If actions for building any of the dependencies have failed, bail.
      * Otherwise, execute all actions to make the current target.
      */
@@ -467,8 +470,15 @@ static void make1b( state * const pState )
                 if ( DEBUG_MAKE && !( counts->total % 100 ) )
                     out_printf( "...on %dth target...\n", counts->total );
 
+		python_call_status = 0;
                 t->cmds = (char *)make1cmds( t );
-                /* Update the target's "progress" so MAKE1C processing counts it
+		/* if we just ran a Python action that failed,
+		   abort the build */
+		if (PyErr_Occurred())
+		  ++quit;
+		else if (python_call_status != 0)
+		  ((CMD*)t->cmds)->status = EXEC_CMD_FAIL;
+                /* Update the target's "progress" so RUN processing counts it
                  * among its successes/failures.
                  */
                 t->progress = T_MAKE_RUNNING;
@@ -482,14 +492,14 @@ static void make1b( state * const pState )
             abort();
         }
 
-    /* Proceed to MAKE1C to begin executing the chain of commands prepared for
+    /* Proceed to RUN to begin executing the chain of commands prepared for
      * building the target. If we are not going to build the target (e.g. due to
      * dependency failures or no commands needing to be run) the chain will be
-     * empty and MAKE1C processing will directly signal the target's completion.
+     * empty and RUN processing will directly signal the target's completion.
      */
 
     if ( t->cmds == NULL || --( ( CMD * )t->cmds )->asynccnt == 0 )
-        push_state( &state_stack, t, NULL, T_STATE_MAKE1C );
+        push_state(&state_stack, t, NULL, T_STATE_RUN);
     else if ( DEBUG_EXECCMD )
     {
         CMD * cmd = ( CMD * )t->cmds;
@@ -499,18 +509,18 @@ static void make1b( state * const pState )
 
 
 /*
- * make1c() - launch target's next command, or go to parents' MAKE1B if none
+ * run_cmd() - launch target's next command, or go to parents' BIND if none
  *
  * If there are (more) commands to run to build this target (and we have not hit
  * an error running earlier comands) we launch the command using exec_cmd().
  * Command execution signals its completion in exec_wait() by calling our
- * make1c_closure() callback.
+ * run_closure() callback.
  *
  * If there are no more commands to run, we collect the status from all the
  * actions and report our completion to all the parents.
  */
 
-static void make1c( state const * const pState )
+static void run_cmd(state const *const pState)
 {
     TARGET * const t = pState->t;
     CMD * const cmd = (CMD *)t->cmds;
@@ -518,7 +528,7 @@ static void make1c( state const * const pState )
     if ( cmd )
     {
         /* Pop state first in case something below (e.g. exec_cmd(), exec_wait()
-         * or make1c_closure()) pushes a new state. Note that we must not access
+         * or run_closure()) pushes a new state. Note that we must not access
          * the popped state data after this as the same stack node might have
          * been reused internally for some newly pushed state.
          */
@@ -548,11 +558,11 @@ static void make1c( state const * const pState )
             timing_info time_info = { 0 };
             timestamp_current( &time_info.start );
             timestamp_copy( &time_info.end, &time_info.start );
-            make1c_closure( t, EXEC_CMD_OK, &time_info, "", "", EXIT_OK );
+            run_closure(t, EXEC_CMD_OK, &time_info, "", "", EXIT_OK);
         }
         else
         {
-            exec_cmd( cmd->buf, make1c_closure, t, cmd->shell );
+            exec_cmd(cmd->buf, run_closure, t, cmd->shell);
 
             /* Wait until under the concurrent command count limit. */
             /* FIXME: This wait could be skipped here and moved to just before
@@ -587,6 +597,7 @@ static void make1c( state const * const pState )
 
             t->progress = globs.noexec ? T_MAKE_NOEXEC_DONE : T_MAKE_DONE;
 
+#if 0
             /* Target has been updated so rescan it for dependencies. */
             if ( t->fate >= T_FATE_MISSING && t->status == EXEC_CMD_OK &&
                 !( t->flags & T_FLAG_INTERNAL ) )
@@ -609,19 +620,18 @@ static void make1c( state const * const pState )
                     /* Tricky. The parents have already been processed, but they
                      * have not seen the internal node, because it was just
                      * created. We need to:
-                     *  - push MAKE1A states that would have been pushed by the
+                     *  - push LAUNCH states that would have been pushed by the
                      *    parents here
                      *  - make sure all unprocessed parents will pick up the
                      *    new includes
-                     *  - make sure processing the additional MAKE1A states is
-                     *    done before processing the MAKE1B state for our
+                     *  - make sure processing the additional LAUNCH states is
+                     *    done before processing the BIND state for our
                      *    current target (which would mean this target has
                      *    already been built), otherwise the parent would be
-                     *    considered built before the additional MAKE1A state
+                     *    considered built before the additional LAUNCH state
                      *    processing even got a chance to start.
                      */
-                    make0( t->includes, t->parents->target, 0, 0, 0, t->includes
-                        );
+                    make0( t->includes, t->parents->target, 0, 0, t->includes);
                     /* Link the old includes on to make sure that it gets
                      * cleaned up correctly.
                      */
@@ -641,8 +651,8 @@ static void make1c( state const * const pState )
             if ( additional_includes )
                 for ( c = t->parents; c; c = c->next )
                     push_state( &temp_stack, additional_includes, c->target,
-                        T_STATE_MAKE1A );
-
+                        T_STATE_LAUNCH);
+#endif
             if ( t->scc_root )
             {
                 TARGET * const scc_root = target_scc( t );
@@ -650,8 +660,7 @@ static void make1c( state const * const pState )
                 for ( c = t->parents; c; c = c->next )
                 {
                     if ( target_scc( c->target ) == scc_root )
-                        push_state( &temp_stack, c->target, NULL, T_STATE_MAKE1B
-                            );
+		      push_state(&temp_stack, c->target, NULL, T_STATE_BIND);
                     else
                         scc_root->parents = targetentry( scc_root->parents,
                             c->target );
@@ -660,7 +669,7 @@ static void make1c( state const * const pState )
             else
             {
                 for ( c = t->parents; c; c = c->next )
-                    push_state( &temp_stack, c->target, NULL, T_STATE_MAKE1B );
+		  push_state(&temp_stack, c->target, NULL, T_STATE_BIND);
             }
 
             /* Must pop state before pushing any more. */
@@ -670,6 +679,8 @@ static void make1c( state const * const pState )
             push_stack_on_stack( &state_stack, &temp_stack );
         }
     }
+    if (t->progress == T_MAKE_DONE)
+      report_status(t);
 }
 
 
@@ -789,19 +800,19 @@ static void call_action_rule
 
 
 /*
- * make1c_closure() - handle command execution completion and go to MAKE1C.
+ * run_closure() - handle command execution completion and go to RUN.
  *
  * Internal function passed as a notification callback for when a command
  * finishes getting executed by the OS or called directly when faking that a
  * command had been executed by the OS.
  *
  * Now all we need to do is fiddle with the command exit status and push a new
- * MAKE1C state to execute the next command scheduled for building this target
+ * RUN state to execute the next command scheduled for building this target
  * or close up the target's build process in case there are no more commands
  * scheduled for it. On interrupts, we bail heavily.
  */
 
-static void make1c_closure
+static void run_closure
 (
     void * const closure,
     int status_orig,
@@ -863,6 +874,9 @@ static void make1c_closure
         /* Assume -p0 is in effect, i.e. cmd_stdout contains merged output. */
         call_action_rule( t, status_orig, time, cmd->buf->value, cmd_stdout );
     }
+    if (!cmd->noop) /* If this is a noop there is nothing left to report */
+      report_recipe(t, object_str(cmd->rule->name), status_orig,
+                    time, cmd->buf->value, cmd_stdout, cmd_stderr);
 
     /* Print command text on failure. */
     if ( t->status == EXEC_CMD_FAIL && DEBUG_MAKE )
@@ -878,12 +892,8 @@ static void make1c_closure
     /* On interrupt, set quit so _everything_ fails. Do the same for failed
      * commands if we were asked to stop the build in case of any errors.
      */
-    if ( t->status == EXEC_CMD_INTR )
-    {
-        ++intr;
-        ++quit;
-    }
-    if ( t->status == EXEC_CMD_FAIL && globs.quitquick )
+    if (t->status == EXEC_CMD_INTR ||
+	(t->status == EXEC_CMD_FAIL && globs.quitquick))
         ++quit;
 
     /* If the command was not successful remove all of its targets not marked as
@@ -908,7 +918,7 @@ static void make1c_closure
     cmd_sem_unlock( t );
 #endif
 
-    /* Free this command and push the MAKE1C state to execute the next one
+    /* Free this command and push the RUN state to execute the next one
      * scheduled for building this same target.
      */
     t->cmds = NULL;
@@ -916,7 +926,7 @@ static void make1c_closure
     cmd_free( cmd );
 }
 
-/* push the next MAKE1C state after a command is run. */
+/* push the next RUN state after a command is run. */
 static void push_cmds( CMDLIST * cmds, int status )
 {
     CMDLIST * cmd_iter;
@@ -936,7 +946,7 @@ static void push_cmds( CMDLIST * cmds, int status )
                  */
                 TARGET * first_target = bindtarget( list_front( lol_get( &next_cmd->args, 0 ) ) );
                 first_target->cmds = (char *)next_cmd;
-                push_state( &state_stack, first_target, NULL, T_STATE_MAKE1C );
+                push_state(&state_stack, first_target, NULL, T_STATE_RUN);
             }
             else if ( DEBUG_EXECCMD )
             {
@@ -951,7 +961,7 @@ static void push_cmds( CMDLIST * cmds, int status )
             if ( updated_target->status < status )
                 updated_target->status = status;
             updated_target->cmds = NULL;
-            push_state( &state_stack, updated_target, NULL, T_STATE_MAKE1C );
+            push_state(&state_stack, updated_target, NULL, T_STATE_RUN);
         }
     }
 }
@@ -1214,7 +1224,7 @@ static CMD * make1cmds( TARGET * t )
                 if ( targets_contains( targets_iter->next, targets_iter->target ) )
                     continue;
                 /* Add all targets produced by the action to the update list. */
-                push_state( &state_stack, targets_iter->target, NULL, T_STATE_MAKE1A );
+                push_state(&state_stack, targets_iter->target, NULL, T_STATE_LAUNCH);
                 ++unique_targets;
             }
             /* We need to wait until all the targets agree that
@@ -1356,12 +1366,14 @@ static void make1bind( TARGET * t )
 {
     if ( t->flags & T_FLAG_NOTFILE )
         return;
-
+    assert(t->binding != T_BIND_UNBOUND);
+#if 0
     pushsettings( root_module(), t->settings );
     object_free( t->boundname );
     t->boundname = search( t->name, &t->time, 0, t->flags & T_FLAG_ISFILE );
     t->binding = timestamp_empty( &t->time ) ? T_BIND_MISSING : T_BIND_EXISTS;
     popsettings( root_module(), t->settings );
+#endif
 }
 
 
@@ -1453,7 +1465,7 @@ static void cmd_sem_unlock( TARGET * t )
 
             if ( cmd_sem_lock( t1 ) )
             {
-                push_state( &state_stack, t1, NULL, T_STATE_MAKE1C );
+                push_state(&state_stack, t1, NULL, T_STATE_RUN);
                 break;
             }
         }
