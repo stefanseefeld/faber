@@ -220,6 +220,19 @@ int make0rescan( TARGET * t, TARGET * rescanning )
     return result;
 }
 
+/* recursively reset fate of temporary dependencies to UPDATE */
+static void force_temp_dep_update(TARGET *t)
+{
+  TARGETS *c;
+  for (c = t->depends; c; c = c->next)
+    if (c->target->flags & T_FLAG_TEMP &&
+	c->target->binding == T_BIND_PARENTS)
+    {
+      c->target->fate = T_FATE_UPDATE;
+      force_temp_dep_update(c->target);
+    }
+}
+
 
 /*
  * make0() - bind and scan everything to make a TARGET.
@@ -245,7 +258,7 @@ void make0
     timestamp    hlast;
     int          fate;
     char const * flag = "";
-    SETTINGS   * s;
+    //    SETTINGS   * s;
 
 #ifdef OPT_GRAPH_DEBUG_EXT
     int savedFate;
@@ -671,6 +684,10 @@ void make0
      */
     if ( ( fate >= T_FATE_BUILD ) && ( fate < T_FATE_BROKEN ) )
         force_rebuilds( t );
+
+    /* Step 4i: Tell all temporary dependencies to be updated. */
+    if (fate >= T_FATE_BUILD && fate < T_FATE_BROKEN)
+      force_temp_dep_update(t);
 
     /*
      * Step 5: Sort dependencies by their update time.
