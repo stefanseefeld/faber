@@ -167,11 +167,11 @@ class action(object):
         else:
             return {v: str(fs[v]) if v in fs else '' for v in self.vars}
 
-    def __status__(self, targets, status, command, stdout, stderr):
+    def __status__(self, targets, status, command, time, stdout, stderr):
         """Report completion of the recipe."""
         targets = ' '.join([t.qname for t in targets])
         action_logger.info(output.coloured('{} {}'.format(self.qname, targets), attrs=['bold']))
-        command_logger.info(command)
+        command_logger.info(command, extra={'time': time})
         if stdout:
             print(stdout)
         if stderr:

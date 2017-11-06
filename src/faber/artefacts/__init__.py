@@ -30,7 +30,7 @@ class assemble(action):
     call.__noexec__ = True
     command = staticmethod(call)
 
-    def __status__(self, targets, status, command, stdout, stderr):
+    def __status__(self, targets, status, command, time, stdout, stderr):
         # suppress output unless we are in debug mode
         if action_logger.isEnabledFor(logging.DEBUG):
             if isinstance(targets, list):

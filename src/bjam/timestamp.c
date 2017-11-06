@@ -133,7 +133,9 @@ void timestamp_current( timestamp * const t )
     GetSystemTimeAsFileTime( &ft );
     timestamp_from_filetime( t, &ft );
 #else  /* OS_NT */
-    timestamp_init( t, time( 0 ), 0 );
+    struct timeval tv;
+    gettimeofday(&tv, 0);
+    timestamp_init(t, tv.tv_sec, tv.tv_usec*1000);
 #endif  /* OS_NT */
 }
 
@@ -267,5 +269,5 @@ void timestamp_done()
  */
 double timestamp_delta_seconds( timestamp const * const a , timestamp const * const b )
 {
-	return ((b->secs*1000000.0+b->nsecs)-(a->secs*1000000.0+a->nsecs))/1000000.0;
+	return ((b->secs*1000000000.0+b->nsecs)-(a->secs*1000000000.0+a->nsecs))/1000000000.0;
 }

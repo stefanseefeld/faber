@@ -50,10 +50,10 @@ def test_recipe():
     c = rule(pyecho, c, b)
     with patch('faber.scheduler._report_recipe') as recipe:
         assert scheduler.update(b)
-        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'b <- a'
         assert scheduler.update(c)
-        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'c <- b'
 
 
@@ -78,13 +78,13 @@ def test_variables():
     c = rule(pye, c, b, features=variable('C'))
     with patch('faber.scheduler._report_recipe') as recipe:
         assert scheduler.update(a)
-        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'A'
         assert scheduler.update(b)
-        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'B'
         assert scheduler.update(c)
-        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == "c <- b (variable=['C'])"
 
 

@@ -39,6 +39,6 @@ def test_composite():
 
     with patch('faber.scheduler._report_recipe') as recipe:
         scheduler.update([check])
-        (_, _, status, _, _, _), kwds = recipe.call_args_list[-1]
+        (_, _, status, _, _, _, _), kwds = recipe.call_args_list[-1]
         assert recipe.call_count == 3
         assert status == 0

@@ -46,6 +46,6 @@ def test_composite():
 
     with patch('faber.scheduler._report_recipe') as recipe:
         scheduler.update([test])
-        (_, _, status, _, output, _), kwds = recipe.call_args_list[-1]
+        (_, _, status, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output == 'testing test-build' + os.sep + 'bin\n'
         assert status == 0

@@ -85,9 +85,23 @@ def make_parser(prog='faber'):
                         help='cleanup')
     parser.add_argument('-t', '--timeout', type=int, default=0,
                         help='set timeout for individual actions')
+    parser.add_argument('-p', '--profile', action='store_true',
+                        help='log timing info with command')
     parser.add_argument('--info', action='store_true',
                         help='print information about the build logic')
     return parser
+
+
+class ProfileFormatter(logging.Formatter):
+    """If the given record contains a `time` field and it is a non-negative
+    value, add its value to the log output."""
+
+    def format(self, record):
+        s = super(ProfileFormatter, self).format(record)
+        time = record.time if hasattr(record, 'time') else -1.
+        if time >= 0.:
+            s += '\t (time={} s)'.format(time)
+        return s
 
 
 def setup_logging(args):
@@ -105,6 +119,15 @@ def setup_logging(args):
                     logging.getLogger(n).setLevel(level=logging.INFO)
         elif not args.silent:  # by default, enable actions logger only
             logging.getLogger('actions').setLevel(level=logging.INFO)
+    if args.profile:
+        h = logging.StreamHandler()
+        h.setFormatter(ProfileFormatter())
+        c = logging.getLogger('commands')
+        c.handlers[:] = []  # hack !
+        c.addHandler(h)
+        c.propagate = False
+        # `-p` implies `--log=commands`
+        c.setLevel(level=logging.INFO)
 
 
 def main(argv):

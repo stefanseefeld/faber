@@ -43,7 +43,7 @@ def _format_count(msg, number):
         summary_logger.info(msg.format(number, 's' if number > 1 else ''))
 
 
-def _report_recipe(name, target, status, cmd, stdout, stderr):
+def _report_recipe(name, target, status, cmd, time, stdout, stderr):
     a = actions.get(name)
     if a:
         if isinstance(target, list):
@@ -55,7 +55,7 @@ def _report_recipe(name, target, status, cmd, stdout, stderr):
                                   if t.attrs & intermediate])
             files.extend([t._filename for t in target if not t.attrs & notfile])
 
-        a.__status__(target, status == 0, cmd, stdout, stderr)
+        a.__status__(target, status == 0, cmd, time, stdout, stderr)
 
 
 def _report_artefact(name, status, failed):
@@ -137,7 +137,7 @@ def _pyaction(name, func):
         if not cmd:
             cmd = action.command_string(func, target, source, kwds)
         target = [t.id for t in tt]
-        _report_recipe(name, target, 0 if status else 1, cmd,
+        _report_recipe(name, target, 0 if status else 1, cmd, -1.,
                        out.getvalue(), err.getvalue())
         return status
     return wrapper

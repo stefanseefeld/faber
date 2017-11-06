@@ -53,5 +53,5 @@ def test_conditional_dependency():
                                       placeholder(c, b2, set.name != '')])
     with patch('faber.scheduler._report_recipe') as recipe:
         scheduler.update(c)
-        output = [i[0][4].strip() for i in recipe.call_args_list]
+        output = [i[0][5].strip() for i in recipe.call_args_list]
         assert 'b1 <-' not in output and 'b2 <-' in output

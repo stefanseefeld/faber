@@ -287,10 +287,10 @@ void report_recipe(TARGET *target, char const *recipe, int status,
 		   char const *_stdout, char const *_stderr)
 {
   PyObject *o = 0;
-  if (report_callback)
-    o = PyObject_CallFunction(report_callback, "sssisss", "__recipe__",
-			      recipe, target->name, status, /*time,*/ cmd,
-			      _stdout ? _stdout : "", _stderr ? _stderr : "");
+  double t = timestamp_delta_seconds(&time->start, &time->end);
+  o = PyObject_CallFunction(report_callback, "sssisdss", "__recipe__",
+			    recipe, target->name, status, cmd, t,
+			    _stdout ? _stdout : "", _stderr ? _stderr : "");
   if (!o)
     check_errors();
   else
@@ -300,10 +300,9 @@ void report_recipe(TARGET *target, char const *recipe, int status,
 void report_status(TARGET *target)
 {
   PyObject *o = 0;
-  if (report_callback)
-    o = PyObject_CallFunction(report_callback, "ssis", "__artefact__",
-			      object_str(target->name),
-			      target->status, target->failed);
+  o = PyObject_CallFunction(report_callback, "ssis", "__artefact__",
+			    object_str(target->name),
+			    target->status, target->failed);
   if (!o)
     check_errors();
   else
@@ -313,9 +312,8 @@ void report_status(TARGET *target)
 void report_summary(int failed, int skipped, int made)
 {
   PyObject *o = 0;
-  if (report_callback)
-    o = PyObject_CallFunction(report_callback, "siii", "__summary__",
-			      failed, skipped, made);
+  o = PyObject_CallFunction(report_callback, "siii", "__summary__",
+			    failed, skipped, made);
   if (!o)
     check_errors();
   else
