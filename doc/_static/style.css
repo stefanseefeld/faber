@@ -1,0 +1,55 @@
+@import url(boost.css);
+
+.header h1 a
+{
+  color: #00507f;
+  font-size: 200%;
+  font-style: italic; 
+}
+.header h3 { margin: 1px;}
+#contents 
+{ 
+/*    border-bottom: solid thin black;*/
+}
+.footer p
+{
+  text-align: center;
+  color: gray;
+  font-style: italic;
+}
+
+.highlight
+{
+  border: 1px solid #dcdcdc;
+  background-color: inherit;
+  padding: 0 1em;
+  margin: 0 5em;
+}
+#searchbox
+{
+  float: right;
+  width: auto;
+  margin: 0 2em;
+}
+
+.admonition-title { font-weight: bold;}
+.toctree-wrapper,
+#table-of-contents
+{
+  border: 1px solid #dcdcdc;
+  padding: 1em;
+  margin: 0 2em;
+  display: inline-block;
+}
+.toctree-wrapper .caption,
+.toctree-wrapper .topic-title,
+#table-of-contents .topic-title { font-weight: bold;}
+
+.admonition
+{
+  border: 1px solid #dcdcdc;
+  padding: 1em;
+  margin: 0 2em;
+}
+
+#command-line-interface col.option { min-width: 10em;}

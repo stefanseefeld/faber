@@ -8,6 +8,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from distutils.core import setup, Extension
+from distutils.command import build, install_scripts
 import sys, os, os.path, glob, shutil
 import subprocess
 import re
@@ -57,6 +58,66 @@ def find_packages(root_dir, root_name):
     record(root_dir, root_name)
     return packages
 
+class build_doc(build.build):
+
+   description = "build documentation"
+
+   def run(self):
+
+       self.announce('building documentation')
+       python = sys.executable
+       faber = os.path.abspath(os.path.join('scripts', 'faber'))
+       subprocess.check_call([python, faber,
+                              '--srcdir={}'.format('doc'),
+                              '--builddir={}'.format('doc')])
+
+docs = []
+if os.path.exists('doc/html'):
+    for root, dirs, files in os.walk('doc/html'):
+        dest = root.replace('doc/html', 'share/doc/faber-{}'.format(version))
+        docs.append((dest,
+                    [os.path.join(root, file) for file in files
+                     if os.path.isfile(os.path.join(root, file))]))
+
+class install_faber(install_scripts.install_scripts):
+
+    bat = r"""@echo off
+REM wrapper to use shebang first line of {FNAME}
+set mypath=%~dp0
+set pyscript="%mypath%{FNAME}"
+set /p line1=<%pyscript%
+if "%line1:~0,2%" == "#!" (goto :goodstart)
+echo First line of %pyscript% does not start with "#!"
+exit /b 1
+:goodstart
+set py_exe=%line1:~2%
+call "%py_exe%" %pyscript% %*
+"""
+
+    def run(self):
+        install_scripts.install_scripts.run(self)
+        if os.name != 'nt':  # done
+            return
+        for filepath in self.get_outputs():
+            pth, fname = os.path.split(filepath)
+            froot, ext = os.path.splitext(fname)
+            bat_file = os.path.join(pth, froot + '.bat')
+            bat_contents = install_faber.bat.format(FNAME=fname)
+            if self.dry_run:
+                continue
+            with open(bat_file, 'wt') as fobj:
+                fobj.write(bat_contents)
+
+class check(build.build):
+
+   description = "run tests"
+
+   def run(self):
+
+       self.announce('running tests')
+       python = sys.executable
+       faber = os.path.abspath(os.path.join('scripts', 'faber'))
+       subprocess.check_call([python, '-m', 'pytest'])
 
 setup(name='faber',
       version=version,
@@ -66,9 +127,12 @@ setup(name='faber',
       maintainer_email='stefan@seefeld.name',
       url='http://github.com/stefanseefeld/faber',
       description='Faber is a construction tool.',
+      cmdclass={'build_doc': build_doc,
+                'install_scripts': install_faber,
+                'check': check},
       package_dir={'':'src'},
       packages=find_packages('src/faber', 'faber'),
       ext_modules=[bjam],
       scripts=scripts,
-      data_files=data,
+      data_files=data + docs,
       )
