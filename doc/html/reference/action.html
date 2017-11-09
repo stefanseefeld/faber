@@ -1,0 +1,151 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>action - Faber 0.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '0.2',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 0.2 documentation" href="../index.html" />
+    <link rel="up" title="Faber Reference" href="index.html" />
+    <link rel="next" title="tool" href="tool.html" />
+    <link rel="prev" title="feature" href="feature.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="feature" href="feature.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="tool" href="tool.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="action">
+<h1>action</h1>
+<p>An action is performed in order to (re-)generate an artefact.
+it uses either a command string (executed in a platform-specific shell), or
+a Python callable.</p>
+<div class="section" id="synopsis">
+<h2>synopsis</h2>
+<dl class="class">
+<dt id="faber.action.action">
+<em class="property">class </em><code class="descclassname">faber.action.</code><code class="descname">action</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span></dt>
+<dd><p>An action is executed in order to (re-)generate an &#8216;artefact&#8217;.</p>
+<dl class="method">
+<dt id="action.action">
+<code class="descname">action</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Construct an empty (abstract) action.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">action</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span></dt>
+<dd><p>Construct an action from the given command (string).</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">action</code><span class="sig-paren">(</span><em>name</em>, <em>command</em><span class="sig-paren">)</span></dt>
+<dd><p>Construct an action with the given name, from the given command (string).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="action.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>target</em>, <em>source</em><span class="sig-paren">)</span></dt>
+<dd><p>Call the action explicitely. Returns success.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="faber.action.action.qname">
+<code class="descname">qname</code></dt>
+<dd><p>The qualified name of this action.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="faber.action.action.tool">
+<code class="descname">tool</code></dt>
+<dd><p>The tool this action is a method of. (May be None)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># define some actions</span>
+<span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.compile&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -c -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.link&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;run_test&#39;</span><span class="p">,</span> <span class="s1">&#39;$(&gt;)&#39;</span><span class="p">)</span>
+
+<span class="c1"># this demonstrates how to compound actions</span>
+<span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">test</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;PASS&#39;</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;FAIL&#39;</span><span class="p">)</span>
+
+<span class="c1"># bind target to source using the above rules</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="nb">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+<span class="nb">bin</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">run_test</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">notfile</span><span class="o">|</span><span class="n">always</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="feature" href="feature.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="tool" href="tool.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Nov 10, 2017</p>
+    </div>
+  </body>
+</html>

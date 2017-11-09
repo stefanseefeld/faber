@@ -1,0 +1,116 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tool - Faber 0.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '0.2',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 0.2 documentation" href="../index.html" />
+    <link rel="up" title="Faber Reference" href="index.html" />
+    <link rel="next" title="rule, alias, depend" href="rule.html" />
+    <link rel="prev" title="action" href="action.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="action" href="action.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="rule, alias, depend" href="rule.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="tool">
+<h1>tool</h1>
+<p>A tool provides an (object-oriented) abstraction that encapsulates actions. In the context of a tool,
+actions become methods, with all the associated benefits.</p>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<p>Given a simple fabscript such as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.tools.cxx</span> <span class="kn">import</span> <span class="n">cxx</span>
+
+<span class="n">rule</span><span class="p">(</span><span class="n">cxx</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>it becomes possible to configure your build environment by instantiating
+different compilers:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.tools.gxx</span> <span class="kn">import</span> <span class="n">gxx</span>
+
+<span class="n">gxx</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">()</span>
+<span class="n">gxx11</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;g++11&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">cxxflags</span><span class="p">(</span><span class="s1">&#39;--std=c++11&#39;</span><span class="p">))</span>
+<span class="n">gxx03</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;g++03&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">cxxflags</span><span class="p">(</span><span class="s1">&#39;--std=c++03&#39;</span><span class="p">))</span>
+<span class="n">mingwxx</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mingw++&#39;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s1">&#39;/usr/bin/x86_64-w64-mingw32-g++&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now you can invoke a build by selecting either of these to compile <cite>hello.o</cite>:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ faber cxx.name=gxx
+</pre></div>
+</div>
+<p>will invoke <code class="code docutils literal"><span class="pre">g++</span> <span class="pre">...</span></code>,</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ faber cxx.name=g++11
+</pre></div>
+</div>
+<p>will invoke <code class="code docutils literal"><span class="pre">g++</span> <span class="pre">--std=c++11</span> <span class="pre">...</span></code>,</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ faber cxx.name=mingw++
+</pre></div>
+</div>
+<p>will invoke <code class="code docutils literal"><span class="pre">/usr/bin/x86_64-w64-mingw32-g++</span> <span class="pre">...</span></code></p>
+</div>
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="action" href="action.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="rule, alias, depend" href="rule.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Nov 10, 2017</p>
+    </div>
+  </body>
+</html>

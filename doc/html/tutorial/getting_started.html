@@ -1,0 +1,135 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started - Faber 0.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '0.2',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 0.2 documentation" href="../index.html" />
+    <link rel="up" title="Faber Tutorial" href="index.html" />
+    <link rel="next" title="Basic concepts" href="basic_concepts.html" />
+    <link rel="prev" title="Faber Tutorial" href="index.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber Tutorial" href="index.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Tutorial" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Basic concepts" href="basic_concepts.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="getting-started">
+<h1>Getting Started</h1>
+<div class="section" id="hello-world">
+<h2>Hello World !</h2>
+<p>Consider this ubiquitous C++ file:</p>
+<div class="highlight-C++"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello World !&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>which for the sake of the example we want to compile into a <cite>hello</cite> binary
+using two steps: a <cite>compile</cite> step to produce an object file, followed by a <cite>link</cite>
+step to produce the final executable. Here is the associated <cite>fabscript</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># define some actions</span>
+<span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.compile&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -c -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.link&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
+
+<span class="c1"># bind artefacts to sources using the above recipes</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="nb">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+<span class="nb">bin</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">action</span><span class="p">(</span><span class="s1">&#39;run_test&#39;</span><span class="p">,</span> <span class="s1">&#39;./$(&gt;)&#39;</span><span class="p">),</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">notfile</span><span class="o">|</span><span class="n">always</span><span class="p">)</span>
+
+<span class="n">default</span> <span class="o">=</span> <span class="nb">bin</span>
+</pre></div>
+</div>
+<p>The above defines the two <a class="reference internal" href="../glossary.html#term-action"><span class="xref std std-term">action</span></a>s <cite>compile</cite> and <cite>link</cite> and three
+<a class="reference internal" href="../glossary.html#term-artefact"><span class="xref std std-term">artefact</span></a>s <cite>obj</cite>, <cite>bin</cite>, and <cite>test</cite>, then identifies one of the artefacts
+(<cite>bin</cite>) to be built by default (i.e. if no artefact is explicitly requested).</p>
+</div>
+<div class="section" id="building-it">
+<h2>Building it</h2>
+<p>To build the <cite>hello</cite> binary, simply run <strong class="command">faber</strong> from within the
+directory containing the <cite>hello.cpp</cite> source file and the <cite>fabscript</cite>.
+This may produce output such as:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>c++.compile ./hello.o
+c++.link ./hello
+</pre></div>
+</div>
+<p>You may also want to perform the test (which in the above example simply consists
+in running the binary), by running <strong class="command">faber test</strong>.</p>
+<p>Finally, you can clean up all the generated files by executing <strong class="command">faber -c</strong>.</p>
+<p>To use a separate build directory you can use the <cite>&#8211;builddir</cite> option. Likewise,
+you may use <cite>&#8211;srcdir</cite> if the source tree isn&#8217;t in the current location.</p>
+<p>The above is a very simple example of how to use <cite>faber</cite> to build and test a binary
+from C++ source code. This example assumes that you are running in an environment
+with a C++ compiler that can be executed as <cite>c++ ...</cite>. In the next couple of chapters
+we will explore how to generalize this basic idea to a portable workflow that works
+on many platforms with different compilers. We will also see how to customize the
+build process to generate different <cite>build variants</cite>, how to scale the build logic
+by making it <cite>modular</cite>, as well as adding other common features, such as configure checks,
+tests and test report generation, and much more.</p>
+</div>
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber Tutorial" href="index.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Tutorial" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Basic concepts" href="basic_concepts.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Nov 10, 2017</p>
+    </div>
+  </body>
+</html>

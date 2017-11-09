@@ -1,0 +1,197 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview - Faber 0.2 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    './',
+          VERSION:     '0.2',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Faber 0.2 documentation" href="index.html" />
+    <link rel="next" title="Faber Tutorial" href="tutorial/index.html" />
+    <link rel="prev" title="Faber documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="index.html"><img 
+          alt="C++ Boost" src="_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber documentation" href="index.html"><img src="_static/prev.png" alt="prev"/></a>
+      <a class="next" title="Faber Tutorial" href="tutorial/index.html"><img src="_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="overview">
+<h1>Overview</h1>
+<div class="section" id="basic-usage">
+<h2>Basic usage</h2>
+<p>A <cite>Faber</cite> build process is encoded in one or more <cite>fabscripts</cite> that describe a set
+of <cite>artefacts</cite> that may be constructed using <cite>recipes</cite> from other artefacts
+(including existing input or source files). <cite>Faber</cite> will read those fabscripts to
+assemble a dependency graph and perform the actions necessary to construct either
+goals expressed as command-line arguments, or any default artefacts if no goals were
+specified. features may be specified on the command-line as options to influence
+the exact properties of the build process (e.g., <cite>cxx.name=g++</cite> may be used to
+select a particular compiler, or <cite>target.arch=x86</cite> to select a specific target
+architecture.</p>
+</div>
+<div class="section" id="command-line-interface">
+<h2>Command-line interface</h2>
+<p>Faber is a construction tool.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">faber</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">srcdir</span> <span class="n">SRCDIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">builddir</span> <span class="n">BUILDDIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">rc</span> <span class="n">RC</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">--</span><span class="n">log</span> <span class="p">{</span><span class="n">commands</span><span class="p">,</span><span class="n">features</span><span class="p">,</span><span class="n">rules</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">actions</span><span class="p">,</span><span class="n">summary</span><span class="p">,</span><span class="n">process</span><span class="p">,</span><span class="n">scheduler</span><span class="p">,</span><span class="n">test</span><span class="p">,</span><span class="n">tools</span><span class="p">}</span> <span class="o">|</span> <span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span> <span class="o">|</span> <span class="o">-</span><span class="n">s</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">j</span> <span class="n">PARALLEL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">TIMEOUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">--</span><span class="n">info</span><span class="p">]</span>
+             <span class="p">[</span><span class="n">GOAL</span> <span class="p">[</span><span class="n">GOAL</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="n">PARAMETER</span><span class="o">=</span><span class="n">VALUE</span> <span class="p">[</span><span class="n">PARAMETER</span><span class="o">=</span><span class="n">VALUE</span> <span class="o">...</span><span class="p">]]</span>
+</pre></div>
+</div>
+<div class="section" id="Positional Arguments">
+<h3>Positional Arguments</h3>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd>GOAL</kbd></td>
+<td>a goal to update</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>PARAMETER=VALUE</kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>a parameter value</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="Named Arguments">
+<h3>Named Arguments</h3>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd>&#8211;srcdir</kbd></td>
+<td><p class="first">the location of the source directory</p>
+<p class="last">Default: &#8221;.&#8221;</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>&#8211;builddir</kbd></td>
+<td><p class="first">the location of the build directory</p>
+<p class="last">Default: &#8221;.&#8221;</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>&#8211;rc</kbd></td>
+<td>the location of the rc file</td></tr>
+<tr><td class="option-group">
+<kbd>&#8211;log</kbd></td>
+<td><p class="first">Possible choices: commands, features, rules, config, actions, summary, process, scheduler, test, tools</p>
+<p class="last">add log topic</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>-l</kbd></td>
+<td>set log level (summary=1, actions=2, commands=4)</td></tr>
+<tr><td class="option-group">
+<kbd>-s, &#8211;silent</kbd></td>
+<td><p class="first">suppress all output</p>
+<p class="last">Default: False</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>-j, &#8211;parallel</kbd></td>
+<td><p class="first">set concurrency level</p>
+<p class="last">Default: 1</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>&#8211;debug</kbd></td>
+<td><p class="first">do not suppress traceback on error</p>
+<p class="last">Default: False</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>-f, &#8211;force</kbd></td>
+<td><p class="first">update goals even if they are current</p>
+<p class="last">Default: False</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>-n, &#8211;noexec</kbd></td>
+<td><p class="first">do not actually execute actions</p>
+<p class="last">Default: False</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-i, &#8211;intermediates</kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">do not remove intermediate files after build</p>
+<p class="last">Default: False</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>-c, &#8211;clean</kbd></td>
+<td>cleanup</td></tr>
+<tr><td class="option-group">
+<kbd>-t, &#8211;timeout</kbd></td>
+<td><p class="first">set timeout for individual actions</p>
+<p class="last">Default: 0</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>-p, &#8211;profile</kbd></td>
+<td><p class="first">log timing info with command</p>
+<p class="last">Default: False</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>&#8211;info</kbd></td>
+<td><p class="first">print information about the build logic</p>
+<p class="last">Default: False</p>
+</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber documentation" href="index.html"><img src="_static/prev.png" alt="prev"/></a>
+      <a class="next" title="Faber Tutorial" href="tutorial/index.html"><img src="_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Nov 10, 2017</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>feature - Faber 0.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '0.2',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 0.2 documentation" href="../index.html" />
+    <link rel="up" title="Faber Reference" href="index.html" />
+    <link rel="next" title="action" href="action.html" />
+    <link rel="prev" title="Faber Reference" href="index.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber Reference" href="index.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="action" href="action.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="feature">
+<h1>feature</h1>
+<p>A feature is a typed variable that can be used to parametrize the build process.</p>
+<div class="section" id="synopsis">
+<h2>synopsis</h2>
+<dl class="class">
+<dt id="faber.feature.feature">
+<em class="property">class </em><code class="descclassname">faber.feature.</code><code class="descname">feature</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span></dt>
+<dd><dl class="method">
+<dt id="faber.feature.feature.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span></dt>
+<dd><p>Instantiate a feature value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="faber.feature.feature.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span></dt>
+<dd><p>Create a feature. The constructor takes up to three non-keyword
+arguments (in arbitrary order):</p>
+<blockquote>
+<div><ul class="simple">
+<li>a name (string, defaults to &#8216;&#8217;)</li>
+<li>a set of valid values (set, defaults to None)</li>
+<li>attributes (int, defaults to 0)</li>
+</ul>
+</div></blockquote>
+<p>Alternatively, a composite feature may be constructed passing sub-features
+as keyword arguments:</p>
+<p>feature(name, &lt;name&gt;=feature(...), ...)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="faber.feature.value">
+<em class="property">class </em><code class="descclassname">faber.feature.</code><code class="descname">value</code><span class="sig-paren">(</span><em>type</em>, <em>v</em>, <em>condition</em>, <em>**kwds</em><span class="sig-paren">)</span></dt>
+<dd><dl class="method">
+<dt id="faber.feature.value.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>type</em>, <em>v</em>, <em>condition</em>, <em>**kwds</em><span class="sig-paren">)</span></dt>
+<dd><p>Construct a feature value.
+Arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li>type: the feature</li>
+<li>item: the value (list if this is a &#8216;multi&#8217; feature, a single value otherwise)</li>
+<li>condition: a condition in case this is a conditional feature</li>
+<li>kwds: subfeatures, if this is a composite feature value</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="faber.feature.set">
+<em class="property">class </em><code class="descclassname">faber.feature.</code><code class="descname">set</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.feature</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">include</span> <span class="o">=</span> <span class="n">feature</span><span class="p">(</span><span class="s1">&#39;include&#39;</span><span class="p">,</span> <span class="n">multi</span><span class="p">)</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">feature</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;shared&#39;</span><span class="p">,</span> <span class="s1">&#39;static&#39;</span><span class="p">))</span>
+
+<span class="n">i1</span> <span class="o">=</span> <span class="n">include</span><span class="p">(</span><span class="s1">&#39;search&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
+<span class="n">l1</span> <span class="o">=</span> <span class="n">link</span><span class="p">(</span><span class="s1">&#39;shared&#39;</span><span class="p">)</span>
+
+<span class="n">fs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i1</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">fs</span><span class="o">.</span><span class="n">include</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;search&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber Reference" href="index.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="action" href="action.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Nov 10, 2017</p>
+    </div>
+  </body>
+</html>
