@@ -6,13 +6,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Glossary - Faber 0.2 documentation</title>
+    <title>Appendix - Faber 1.0 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
           URL_ROOT:    './',
-          VERSION:     '0.2',
+          VERSION:     '1.0',
           COLLAPSE_MODINDEX: false,
           FILE_SUFFIX: '.html'
       };
@@ -22,7 +22,9 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Faber 0.2 documentation" href="index.html" /> 
+    <link rel="top" title="Faber 1.0 documentation" href="index.html" />
+    <link rel="next" title="Glossary" href="glossary.html" />
+    <link rel="prev" title="test" href="reference/test.html" /> 
   </head>
   <body>
     <div class="header">
@@ -52,155 +54,25 @@
     <div class="navbar" style="text-align:right;">
       
       
+      <a class="prev" title="test" href="reference/test.html"><img src="_static/prev.png" alt="prev"/></a>
+      <a class="next" title="Glossary" href="glossary.html"><img src="_static/next.png" alt="next"/></a>
       
     </div>
       
-  <div class="section" id="glossary">
-<h1>Glossary</h1>
-<dl class="glossary docutils">
-<dt id="term-action"><strong>action</strong></dt>
-<dd>An action is one of the basic building blocks in Boost.Faber. It is
-performed to make an artefact, typically from one or more sources.</dd>
-<dt id="term-build"><strong>build</strong></dt>
-<dd>A build is a single execution of the build instructions associated
-with a project. It typically corresponds to a single invocation of
-the build tool, with a set of either explicitly or implicitly selected
-make artefacts, as well as a set of explicitly or implicitly defined
-build parameters.</dd>
-<dt id="term-feature"><strong>feature</strong></dt>
-<dd>Features define typed variables that can be used to customize the
-build process.</dd>
-<dt id="term-module"><strong>module</strong></dt>
-<dd>A module provides the means to sub-structure build instructions into
-(somewhat) independent units. Each module uses a single conscript,
-and may reference other modules.</dd>
-<dt id="term-rule"><strong>rule</strong></dt>
-<dd><p class="first">A rule expresses how one or more artefacts can be made by virtue of an
-action.</p>
-<p class="last"><em>implicit rule*</em>
-An implicit rule is a rule template that expresses how one artefact <em>type</em>
-can be made from another artefact <em>type</em>. Implicit rules are defined by
-tools.</p>
-</dd>
-<dt id="term-source"><strong>source</strong></dt>
-<dd>Something (typically a file) from which an artefact can be made by means
-of an action.</dd>
-<dt id="term-artefact"><strong>artefact</strong></dt>
-<dd>Something (typically a file) which can be made by means of an action.</dd>
-<dt id="term-tool"><strong>tool</strong></dt>
-<dd>A tool provides one or more actions. Tools may be instantiated
-to customize their actions. Tools may be related using typical
-sub-/super-class relationships, allowing for actions to become
-polymorphic.</dd>
-</dl>
-</div>
-<div class="section" id="builtin-types">
-<h1>Builtin types</h1>
-<p>Faber provides many APIs meant to be extended. However, it contains a large
-number of builtin types ready to be used. Here are some indices of those.</p>
-<div class="section" id="tools">
-<h2>Tools</h2>
-<dl class="class">
-<dt id="faber.tools.cc.cc">
-<em class="property">class </em><code class="descclassname">faber.tools.cc.</code><code class="descname">cc</code><span class="sig-paren">(</span><em>name=''</em>, <em>version=''</em><span class="sig-paren">)</span></dt>
-<dd><p>C compiler base-class.
-As an abstract base-class it declares the actions all subclasses need to provide, without implementing them.</p>
-<p>Build scripts thus can reference <cite>cxx.compile</cite> et al., which the runtime will substitute by an appropriate
-compiler instance, if available (or fail to build).</p>
-<dl class="method">
-<dt id="cc.makedep">
-<code class="descname">makedep</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Generate a list of header filenames suitable to track dependencies</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cc.compile">
-<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Compile a source file into an object file.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cc.archive">
-<code class="descname">archive</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Build (static) libary archives from object files.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cc.link">
-<code class="descname">link</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Link binaries (executables or shared libraries).</code></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="faber.tools.cxx.cxx">
-<em class="property">class </em><code class="descclassname">faber.tools.cxx.</code><code class="descname">cxx</code><span class="sig-paren">(</span><em>name=''</em>, <em>version=''</em><span class="sig-paren">)</span></dt>
-<dd><p>C++ compiler base-class.
-As an abstract base-class it declares the actions all subclasses need to provide,
-without implementing them.</p>
-<p>Build scripts thus can reference <cite>cxx.compile</cite> et al., which the runtime will
-substitute by an appropriate compiler instance, if available (or fail to build).</p>
-<dl class="method">
-<dt id="cxx.makedep">
-<code class="descname">makedep</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Generate a list of header filenames suitable to track dependencies</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cxx.compile">
-<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Compile a source file into an object file.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cxx.archive">
-<code class="descname">archive</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Build (static) libary archives from object files.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cxx.link">
-<code class="descname">link</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dt>
-<code class="descname">Link binaries (executables or shared libraries).</code></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="faber.tools.gcc.gcc">
-<em class="property">class </em><code class="descclassname">faber.tools.gcc.</code><code class="descname">gcc</code></dt>
-<dt>
-<code class="descname">Implements `faber.tools.cc.cc`</code></dt>
-<dd></dd></dl>
-
-<dl class="class">
-<dt id="faber.tools.gxx.gxx">
-<em class="property">class </em><code class="descclassname">faber.tools.gxx.</code><code class="descname">gxx</code></dt>
-<dd><p>Implements <cite>faber.tools.cxx.cxx</cite></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="faber.tools.clang.clang">
-<em class="property">class </em><code class="descclassname">faber.tools.clang.</code><code class="descname">clang</code></dt>
-<dt>
-<code class="descname">Implements `faber.tools.cc.cc`</code></dt>
-<dd></dd></dl>
-
-<dl class="class">
-<dt id="faber.tools.clangxx.clangxx">
-<em class="property">class </em><code class="descclassname">faber.tools.clangxx.</code><code class="descname">clangxx</code><span class="sig-paren">(</span><em>name='clang++'</em>, <em>command=None</em>, <em>version=''</em>, <em>features=()</em><span class="sig-paren">)</span></dt>
-<dd><p>Implements <cite>faber.tools.cxx.cxx</cite></p>
-</dd></dl>
-
+  <div class="section" id="appendix">
+<h1>Appendix</h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command-line interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#Positional Arguments">Positional Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#Named Arguments">Named Arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/features.html">Builtin features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/tools.html">Builtin tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/actions.html">Builtin actions</a></li>
+</ul>
 </div>
 </div>
 
@@ -208,11 +80,13 @@ substitute by an appropriate compiler instance, if available (or fail to build).
     <div class="navbar" style="text-align:right;">
       
       
+      <a class="prev" title="test" href="reference/test.html"><img src="_static/prev.png" alt="prev"/></a>
+      <a class="next" title="Glossary" href="glossary.html"><img src="_static/next.png" alt="next"/></a>
       
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 10, 2017</p>
+      <p>last updated Nov 24, 2017</p>
     </div>
   </body>
 </html>

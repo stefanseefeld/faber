@@ -6,13 +6,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>tool - Faber 0.2 documentation</title>
+    <title>The tool class - Faber 1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
           URL_ROOT:    '../',
-          VERSION:     '0.2',
+          VERSION:     '1.0',
           COLLAPSE_MODINDEX: false,
           FILE_SUFFIX: '.html'
       };
@@ -22,10 +22,10 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Faber 0.2 documentation" href="../index.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
     <link rel="up" title="Faber Reference" href="index.html" />
     <link rel="next" title="rule, alias, depend" href="rule.html" />
-    <link rel="prev" title="action" href="action.html" /> 
+    <link rel="prev" title="The action class" href="action.html" /> 
   </head>
   <body>
     <div class="header">
@@ -55,16 +55,78 @@
     <div class="navbar" style="text-align:right;">
       
       
-      <a class="prev" title="action" href="action.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="prev" title="The action class" href="action.html"><img src="../_static/prev.png" alt="prev"/></a>
       <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
       <a class="next" title="rule, alias, depend" href="rule.html"><img src="../_static/next.png" alt="next"/></a>
       
     </div>
       
-  <div class="section" id="tool">
-<h1>tool</h1>
+  <div class="section" id="the-tool-class">
+<h1>The <cite>tool</cite> class</h1>
 <p>A tool provides an (object-oriented) abstraction that encapsulates actions. In the context of a tool,
-actions become methods, with all the associated benefits.</p>
+actions become methods, with all the associated benefits.
+Following idiomatic object-oriented design, abstract tools provide an interface by defining abstract
+action methods, while subclasses implement them.
+Each derived tool class registers a new <cite>feature</cite> of the same name as the tool class with two subfeatures:
+name and version. For example, consider this simple tool hierarchy:</p>
+<img src="../_images/graphviz-a2a4c9d5887f4761afe58c609a44e7136b56367a.png" alt="digraph T {
+  rankdir=&quot;LR&quot;
+  node [ fontname = &quot;Bitstream Vera Sans&quot; fontsize = 8 shape = &quot;record&quot;]
+  edge [ arrowtail = &quot;empty&quot; arrowhead = &quot;none&quot; dir= &quot;back&quot;]
+  cxx [ label = &quot;{ {cxx|cxx.name : feature\lcxx.version : feature\lcompile : action\l}}&quot;]
+  gxx [ label = &quot;{ {gxx|gxx.name : feature\lgxx.version : feature\lcompile : action\l}}&quot;]
+  &quot;tool&quot; -&gt; &quot;cxx&quot; -&gt; &quot;gxx&quot;;
+}" />
+<p>The <em>value</em> of these these feature variables will be determined by the actual instances of these classes,
+i.e. an instance of <cite>gxx</cite> will have cxx.name=gxx.name='gxx'.
+This mechanism allows for references to abstract actions such as <cite>cxx.compile</cite> to be resolved to concrete
+actions.</p>
+<div class="section" id="constructor">
+<h2>Constructor</h2>
+<dl class="method">
+<dt id="tool">
+<code class="descname">tool</code><span class="sig-paren">(</span><em>name=''</em>, <em>version=''</em><span class="sig-paren">)</span></dt>
+<dd><p>The tool name defaults to its class name.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="attributes">
+<h2>Attributes</h2>
+<dl class="attribute">
+<dt id="name">
+<code class="descname">name</code></dt>
+<dd><p>Return the tool's name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="version">
+<code class="descname">version</code></dt>
+<dd><p>Return the tool's version string (defaults to '' if no version is known).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="id">
+<code class="descname">id</code></dt>
+<dd><p>Return the tool's id (a string combining name and version).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="features">
+<code class="descname">features</code></dt>
+<dd><p>Any features defined for this tool.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="methods">
+<h2>Methods</h2>
+<dl class="classmethod">
+<dt id="instance">
+<em class="property">classmethod </em><code class="descname">instance</code><span class="sig-paren">(</span><em>cls</em>, <em>features=None</em><span class="sig-paren">)</span></dt>
+<dd><p>Find an instance of <cite>cls</cite> that meets the feature requirements. Tools can be found by their (class) name,
+as well as the names of their base class(es).</p>
+</dd></dl>
+
+</div>
 <div class="section" id="examples">
 <h2>Examples</h2>
 <p>Given a simple fabscript such as:</p>
@@ -103,14 +165,14 @@ different compilers:</p>
     <div class="navbar" style="text-align:right;">
       
       
-      <a class="prev" title="action" href="action.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="prev" title="The action class" href="action.html"><img src="../_static/prev.png" alt="prev"/></a>
       <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
       <a class="next" title="rule, alias, depend" href="rule.html"><img src="../_static/next.png" alt="next"/></a>
       
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 10, 2017</p>
+      <p>last updated Nov 24, 2017</p>
     </div>
   </body>
 </html>

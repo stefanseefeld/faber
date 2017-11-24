@@ -23,7 +23,6 @@ Faber Tutorial
 .. toctree::
    :maxdepth: 2
 
-   getting_started
    basic_concepts
    advanced_concepts
    special_topics

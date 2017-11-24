@@ -1,101 +1,11 @@
-Glossary
+Appendix
 ========
 
-.. glossary::
+.. toctree::
+   :maxdepth: 2
 
-  **action**
-    An action is one of the basic building blocks in Boost.Faber. It is
-    performed to make an artefact, typically from one or more sources.
-
-  **build**
-    A build is a single execution of the build instructions associated
-    with a project. It typically corresponds to a single invocation of
-    the build tool, with a set of either explicitly or implicitly selected
-    make artefacts, as well as a set of explicitly or implicitly defined
-    build parameters.
-
-  **feature**
-    Features define typed variables that can be used to customize the
-    build process.
-    
-  **module**
-    A module provides the means to sub-structure build instructions into
-    (somewhat) independent units. Each module uses a single conscript,
-    and may reference other modules.
-    
-  **rule**
-    A rule expresses how one or more artefacts can be made by virtue of an
-    action.
-
-   **implicit rule**
-    An implicit rule is a rule template that expresses how one artefact *type*
-    can be made from another artefact *type*. Implicit rules are defined by
-    tools.
-
-  **source**
-    Something (typically a file) from which an artefact can be made by means
-    of an action.
-
-  **artefact**
-    Something (typically a file) which can be made by means of an action.
-
-  **tool**
-    A tool provides one or more actions. Tools may be instantiated
-    to customize their actions. Tools may be related using typical
-    sub-/super-class relationships, allowing for actions to become
-    polymorphic.
-
-
-Builtin types
-=============
-
-Faber provides many APIs meant to be extended. However, it contains a large
-number of builtin types ready to be used. Here are some indices of those.
-
-Tools
------
-
-.. automodule:: faber.tools.fileutils
-   .. method:: makedep
-      Generate a list of header filenames suitable to track dependencies
-   .. method:: compile
-      Compile a source file into an object file.
-   .. method:: archive
-      Build (static) libary archives from object files.
-
-.. autoclass:: faber.tools.cc.cc
-
-   .. method:: makedep
-      Generate a list of header filenames suitable to track dependencies
-   .. method:: compile
-      Compile a source file into an object file.
-   .. method:: archive
-      Build (static) libary archives from object files.
-   .. method:: link
-      Link binaries (executables or shared libraries).
-
-.. autoclass:: faber.tools.cxx.cxx
-
-   .. method:: makedep
-      Generate a list of header filenames suitable to track dependencies
-   .. method:: compile
-      Compile a source file into an object file.
-   .. method:: archive
-      Build (static) libary archives from object files.
-   .. method:: link
-      Link binaries (executables or shared libraries).
-
-.. class:: faber.tools.gcc.gcc
-   Implements `faber.tools.cc.cc`
-
-.. class:: faber.tools.gxx.gxx
-
-   Implements `faber.tools.cxx.cxx`
-
-.. class:: faber.tools.clang.clang
-   Implements `faber.tools.cc.cc`
-
-.. autoclass:: faber.tools.clangxx.clangxx
-
-   Implements `faber.tools.cxx.cxx`
-
+   glossary
+   cli
+   Builtin features <reference/features>
+   Builtin tools <reference/tools>
+   Builtin actions <reference/actions>

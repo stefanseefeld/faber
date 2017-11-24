@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Builtin tools - Faber 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '1.0',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Appendix" href="../appendix.html" />
+    <link rel="next" title="Builtin actions" href="actions.html" />
+    <link rel="prev" title="Builtin features" href="features.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Builtin features" href="features.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Builtin actions" href="actions.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="builtin-tools">
+<h1>Builtin tools</h1>
+<p>The following tools are provided by Faber.</p>
+<dl class="tool">
+<dt>
+<code class="descname">cc</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body">faber.tools.cc</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Actions:</th><td class="field-body">makedep, compile, archive, link</td>
+</tr>
+</tbody>
+</table>
+<dd><p>Generic C compiler base class.</p>
+</dd></dl>
+
+<dl class="tool">
+<dt>
+<code class="descname">cxx</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body">faber.tools.cxx</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Actions:</th><td class="field-body">makedep, compile, archive, link</td>
+</tr>
+</tbody>
+</table>
+<dd><p>Generic C++ compiler base class.</p>
+</dd></dl>
+
+<dl class="tool">
+<dt>
+<code class="descname">gcc</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body"><p class="first"><p>faber.tools.gcc</p>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Inheritance:</th><td class="field-body"><img src="../_images/graphviz-8b8433952d8a91cabe7105bca96fd96996a958e7.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+gcc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;gcc&quot;];
+cc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;cc&quot;];
+gcc -&gt; cc;
+}" />
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Actions:</th><td class="field-body"><p class="first last"><p>makedep, compile, archive, link</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dd><p>GCC C compiler.</p>
+</dd></dl>
+
+<dl class="tool">
+<dt>
+<code class="descname">gxx</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body"><p class="first"><p>faber.tools.gxx</p>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Inheritance:</th><td class="field-body"><img src="../_images/graphviz-e108f6cb4f24d52164b67c303d4e98a3b0a5bee0.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+gxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;gxx&quot;];
+cxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;cxx&quot;];
+gxx -&gt; cxx;
+}" />
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Actions:</th><td class="field-body"><p class="first last"><p>makedep, compile, archive, link</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dd><p>GCC C++ compiler.</p>
+</dd></dl>
+
+<dl class="tool">
+<dt>
+<code class="descname">clang</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body"><p class="first"><p>faber.tools.clang</p>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Inheritance:</th><td class="field-body"><img src="../_images/graphviz-fd4318ad04b44538d322af93763467ed75e03229.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+clang [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;clang&quot;];
+cc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;cc&quot;];
+clang -&gt; cc;
+}" />
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Actions:</th><td class="field-body"><p class="first last"><p>makedep, compile, archive, link</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dd><p>CLang C compiler.</p>
+</dd></dl>
+
+<dl class="tool">
+<dt>
+<code class="descname">clangxx</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body"><p class="first"><p>faber.tools.clangxx</p>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Inheritance:</th><td class="field-body"><img src="../_images/graphviz-1f22a3ad88854a88e744d4c087cb491953e900ef.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+clangxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;clangxx&quot;];
+cxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;cxx&quot;];
+clangxx -&gt; cxx;
+}" />
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Actions:</th><td class="field-body"><p class="first last"><p>makedep, compile, archive, link</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dd><p>CLang C++ compiler.</p>
+</dd></dl>
+
+<dl class="tool">
+<dt>
+<code class="descname">msvc</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body"><p class="first"><p>faber.tools.msvc</p>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Inheritance:</th><td class="field-body"><img src="../_images/graphviz-16ace1fc2db4f436138b8fd9cbd8f83b8230c24f.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+msvc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;msvc&quot;];
+cc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot;cc&quot;];
+ cxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5)&quot;, label=&quot; cxx&quot;];
+msvc -&gt; cc;
+msvc -&gt;  cxx;
+}" />
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Actions:</th><td class="field-body"><p class="first last"><p>makedep, compile, archive, link</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dd><p>MSVC C &amp; C++ compiler.</p>
+</dd></dl>
+
+<dl class="tool">
+<dt>
+<code class="descname">python</code></dt>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Defined in:</th><td class="field-body">faber.tools.python</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Actions:</th><td class="field-body">run</td>
+</tr>
+</tbody>
+</table>
+<dd><p>A (C)Python interpreter.</p>
+</dd></dl>
+
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Builtin features" href="features.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Builtin actions" href="actions.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Nov 24, 2017</p>
+    </div>
+  </body>
+</html>

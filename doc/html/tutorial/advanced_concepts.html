@@ -6,13 +6,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced concepts - Faber 0.2 documentation</title>
+    <title>Advanced concepts - Faber 1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
           URL_ROOT:    '../',
-          VERSION:     '0.2',
+          VERSION:     '1.0',
           COLLAPSE_MODINDEX: false,
           FILE_SUFFIX: '.html'
       };
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Faber 0.2 documentation" href="../index.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
     <link rel="up" title="Faber Tutorial" href="index.html" />
     <link rel="next" title="Special Topics" href="special_topics.html" />
     <link rel="prev" title="Basic concepts" href="basic_concepts.html" /> 
@@ -70,7 +70,7 @@ tool may provide different methods to compile and link code. Concrete compilers 
 then provide implementations of that base class, and run the appropriate command for
 the respective platform. That substitution can happen during the build process, while
 the build logic encoded in the fabscript is strictly platform-agnostic.</p>
-<p>Let&#8217;s augment the original <cite>Hello World !</cite> example to illustrate this. Faber provides
+<p>Let's augment the original <cite>Hello World !</cite> example to illustrate this. Faber provides
 a few built-in tools, such as C and C++ compilers. The abstract interface may look like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">cxx</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
@@ -91,7 +91,7 @@ a few built-in tools, such as C and C++ compilers. The abstract interface may lo
 </div>
 <p>allowing the build system to later substitute <cite>gxx.compile</cite> where <cite>cxx.compile</cite> was
 requested. For each reference to an abstract tool, faber will attempt to instantiate
-a suitable concrete tool matching the currently active feature set. Thus it&#8217;s possible
+a suitable concrete tool matching the currently active feature set. Thus it's possible
 to request a specific compiler on the command line:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ faber cxx.name=gxx
 </pre></div>
@@ -120,13 +120,13 @@ gave it the name <cite>g++11</cite>. To select that from the command line, we wo
 <p>While simple build pipelines may be declared using <cite>rules</cite>, this leads to a lot
 of repitition as very similar rules would need to be declared to compile all source
 files into object files, for example. To simplify this, <cite>implicit rules</cite> can be provided
-by tools, which don&#8217;t declare how to make a specific artefact from a source (or prerequisite
+by tools, which don't declare how to make a specific artefact from a source (or prerequisite
 artefact), but rather how a certain artefact <em>type</em> (e.g., an object file) can be generated
 from a source (or artefact) type (such as a C or C++ source file).
 Higher-order artefacts such as <cite>library</cite> or <cite>binary</cite> can then request that the appropriate
 implicit rules are instantiated into ordinary rules to make a library or a binary without
 the user having to spell out all the intermediate artefacts.</p>
-<p>This is done in a tool&#8217;s constructor. For example, the <cite>gxx</cite> constructor calls:</p>
+<p>This is done in a tool's constructor. For example, the <cite>gxx</cite> constructor calls:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">cxx</span><span class="p">)</span>
 <span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">archive</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">lib</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">)</span>
 <span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">bin</span><span class="p">,</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">dso</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">lib</span><span class="p">))</span>
@@ -148,8 +148,8 @@ files, built by specific commands. While this model appeals through its simplici
 it is not very portable: Most actions depend heavily on the platforms they are to be
 executed on. Furthermore, depending on the platform / tools, different intermediate
 artefacts may need to be built.</p>
-<p>Let&#8217;s consider again the case of a binary using a library. But instead of
-referring explicitly to the library&#8217;s file name (which may differ depending on the
+<p>Let's consider again the case of a binary using a library. But instead of
+referring explicitly to the library's file name (which may differ depending on the
 platform, as well as whether or not it is compiled as a shared or a static library),
 we use a composite artefact to encapsulate those details.
 We use a new <cite>library</cite> rule to define it:</p>
@@ -159,7 +159,7 @@ We use a new <cite>library</cite> rule to define it:</p>
 </div>
 <p>The <cite>library()</cite> call looks similar to the <cite>rule()</cite> call: xxx
 <cite>artefact</cite> and a <cite>sources</cite> argument, and returns the artefact instance.
-However, the artefact&#8217;s name (<cite>greet.name</cite>) doesn&#8217;t necessarily correspond
+However, the artefact's name (<cite>greet.name</cite>) doesn't necessarily correspond
 to the filename.
 The precise build instructions are fully encapsulated inside the artefact,
 and will take into account both the (target) platform as well as the tool and
@@ -210,7 +210,7 @@ our previous version, as it now only builds the <cite>greet</cite> library:</p>
 <span class="n">default</span> <span class="o">=</span> <span class="n">hello</span>
 </pre></div>
 </div>
-<p>Notice how the call to <cite>module(&#8216;subdir&#8217;)</cite> returns the module object,
+<p>Notice how the call to <cite>module('subdir')</cite> returns the module object,
 through which we can access nested artefacts (and other variables).
 The binary rule can now directly reference the <cite>subdir.greet</cite>
 library as one of its sources, and the right thing will happen.</p>
@@ -228,7 +228,7 @@ library as one of its sources, and the right thing will happen.</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 10, 2017</p>
+      <p>last updated Nov 24, 2017</p>
     </div>
   </body>
 </html>

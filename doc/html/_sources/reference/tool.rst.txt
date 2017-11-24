@@ -1,8 +1,65 @@
-tool
-====
+The `tool` class
+================
 
 A tool provides an (object-oriented) abstraction that encapsulates actions. In the context of a tool,
 actions become methods, with all the associated benefits.
+Following idiomatic object-oriented design, abstract tools provide an interface by defining abstract
+action methods, while subclasses implement them.
+Each derived tool class registers a new `feature` of the same name as the tool class with two subfeatures:
+name and version. For example, consider this simple tool hierarchy:
+
+.. graphviz::
+   
+   digraph T {
+     rankdir="LR"
+     node [ fontname = "Bitstream Vera Sans" fontsize = 8 shape = "record"]
+     edge [ arrowtail = "empty" arrowhead = "none" dir= "back"]
+     cxx [ label = "{ {cxx|cxx.name : feature\lcxx.version : feature\lcompile : action\l}}"]
+     gxx [ label = "{ {gxx|gxx.name : feature\lgxx.version : feature\lcompile : action\l}}"]
+     "tool" -> "cxx" -> "gxx";
+   }
+
+
+The *value* of these these feature variables will be determined by the actual instances of these classes,
+i.e. an instance of `gxx` will have cxx.name=gxx.name='gxx'.
+This mechanism allows for references to abstract actions such as `cxx.compile` to be resolved to concrete
+actions.
+
+
+Constructor
+-----------
+
+.. method:: tool(name='', version='')
+
+   The tool name defaults to its class name.
+
+Attributes
+----------
+   
+.. attribute:: name
+
+   Return the tool's name
+
+.. attribute:: version
+
+   Return the tool's version string (defaults to '' if no version is known).
+
+.. attribute:: id
+
+   Return the tool's id (a string combining name and version).
+
+.. attribute:: features
+
+   Any features defined for this tool.
+
+Methods
+-------
+   
+.. classmethod:: instance(cls, features=None)
+
+   Find an instance of `cls` that meets the feature requirements. Tools can be found by their (class) name,
+   as well as the names of their base class(es).
+
 
 Examples
 --------
