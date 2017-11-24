@@ -323,6 +323,7 @@ void report_summary(int failed, int skipped, int made)
 struct exec_closure
 {
   int status;
+  int done;
   string _stdout;
   string _stderr;
 };
@@ -336,6 +337,7 @@ static void exec_callback(void * const X,
 {
   struct exec_closure *c = (struct exec_closure *)X;
   c->status = status;
+  c->done = 1;
   string_copy(&c->_stdout, _stdout ? _stdout : "");
   string_copy(&c->_stderr, _stderr ? _stderr : "");
 }
@@ -350,8 +352,10 @@ static PyObject *bjam_run(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "s", &command))
     return NULL;
   string_copy(&str, command);
+  c.done = 0;
   exec_cmd(&str, exec_callback, &c, NULL);
-  exec_wait();
+  while (!c.done)
+    exec_wait();
   result = Py_BuildValue("lss", c.status, c._stdout.value, c._stderr.value);
   string_free(&c._stderr);
   string_free(&c._stdout);
