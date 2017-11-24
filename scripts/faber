@@ -117,7 +117,9 @@ def setup_logging(args):
             for n, l in log_topics.items():
                 if args.loglevel & l:
                     logging.getLogger(n).setLevel(level=logging.INFO)
-        elif not args.silent:  # by default, enable actions logger only
+        elif not args.silent:
+            # by default, enable summary and actions logger only
+            logging.getLogger('summary').setLevel(level=logging.INFO)
             logging.getLogger('actions').setLevel(level=logging.INFO)
     if args.profile:
         h = logging.StreamHandler()
@@ -145,8 +147,9 @@ def main(argv):
         args.options = dict(with_=with_, without=without)
         unknown = [a for a in unknown
                    if not a.startswith('--with-') and not a.startswith('--without-')]
-        if unknown:
-            raise ValueError('unknown option {}'.format(unknown[0]))
+        # Parse the remainder, as there may be more positional arguments.
+        # (See https://bugs.python.org/issue14191 for context)
+        args = parser.parse_args(unknown, args)
 
         setup_logging(args)
         if args.debug:
