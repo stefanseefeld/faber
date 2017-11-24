@@ -7,7 +7,7 @@ Faber documentation
    Overview <overview>
    Tutorial <tutorial/index>
    Reference <reference/index>
-   Glossary <glossary>
+   appendix
 
 Introduction
 ------------

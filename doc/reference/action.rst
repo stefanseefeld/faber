@@ -1,32 +1,32 @@
-action
-======
+The `action` class
+==================
 
 An action is performed in order to (re-)generate an artefact.
 it uses either a command string (executed in a platform-specific shell), or
 a Python callable.
 
 
-synopsis
---------
+Constructor
+-----------
 
-.. autoclass:: faber.action.action
-   :members: qname, tool, features, path_spec
+.. method:: action()
 
-   .. method:: action()
+   Construct an empty (abstract) action. This is useful to define an abstract `tool`.
 
-      Construct an empty (abstract) action.
+.. method:: action(command)
 
-   .. method:: action(command)
+   Construct an action from the given command (string).
 
-      Construct an action from the given command (string).
+.. method:: action(name, command)
 
-   .. method:: action(name, command)
+   Construct an action with the given name, from the given command (string).
 
-      Construct an action with the given name, from the given command (string).
+Call operator
+-------------
 
-   .. method:: __call__(target, source)
-
-      Call the action explicitely. Returns success.
+.. method:: __call__(target, source)
+   
+   Call the action explicitely. Returns success.
 
 
 Examples
