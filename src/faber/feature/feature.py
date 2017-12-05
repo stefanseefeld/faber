@@ -147,7 +147,7 @@ class feature(object):
                 if base is None:
                     from ..module import module
                     base = module.current.srcdir if module.current else None
-                value = [adjust_path(a, base) for a in args]
+                value = adjust_path(args[0], base)
             else:
                 value = args[0]
         else:
