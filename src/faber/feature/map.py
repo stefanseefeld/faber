@@ -6,6 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from . import multi
 import os
 
 
@@ -39,7 +40,12 @@ class map(object):
 def translate(fv, prefix='', suffix=''):
     """Map a multi feature to a list of strings, using a prefix and suffix."""
 
-    return ['{}{}{}'.format(prefix, v, suffix) for v in fv._value] if fv else []
+    if not fv:
+        return []
+    elif fv._type.attributes & multi:
+        return ['{}{}{}'.format(prefix, v, suffix) for v in fv._value] if fv else []
+    else:
+        return ['{}{}{}'.format(prefix, fv._value, suffix)] if fv else []
 
 
 def join(fv, char=os.pathsep):

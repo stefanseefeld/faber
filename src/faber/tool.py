@@ -56,6 +56,10 @@ class tool(object):
     _instances = defaultdict(list)
     path_spec = ''
 
+    @staticmethod
+    def finish():
+        tool._instances.clear()
+
     @classmethod
     def find_version_requirement(cls, features):
         """Find (and validate) any version requirements for 'cls' in 'features'."""
@@ -74,9 +78,9 @@ class tool(object):
                         f1 = f2
         return str(f1.version) if f1 and f1.version is not None else ''
 
-    def __init__(self, name='', version=''):
+    def __init__(self, name='', version='', features=()):
         name = name or self.__class__.__name__
-        self.features = set()
+        self.features = set.instantiate(features).copy()
         # Register the tool with all base classes
         for c in self.__class__.__mro__:
             if issubclass(c, tool) and c != tool:

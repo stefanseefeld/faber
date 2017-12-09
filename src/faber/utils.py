@@ -56,7 +56,7 @@ class path_formatter(string.Formatter):
     def format_field(self, value, spec):
         """Remove path segments corresponding to undefined features."""
         if value is None:
-            return '.'
+            return ''
         else:
             return super(path_formatter, self).format_field(value, spec)
     def get_value(self, key, args, kwargs):
@@ -67,7 +67,7 @@ class path_formatter(string.Formatter):
             else:
                 return kwargs[key]
         except KeyError:
-            return '.'
+            return ''
 
     def get_field(self, field_name, args, kwargs):
         if sys.version_info < (3, 0):
@@ -87,4 +87,4 @@ class path_formatter(string.Formatter):
 
             return obj, first
         except Exception:
-            return '.', first
+            return '', first

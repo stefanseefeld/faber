@@ -57,7 +57,7 @@ class artefact(object):
             return artefact._qnames[qname]
 
     @classmethod
-    def instantiate(cls, a, module):
+    def instantiate(cls, a, module=None):
         return a if isinstance(a, artefact) else cls(a, module=module)
 
     @staticmethod
@@ -124,7 +124,8 @@ class artefact(object):
 
         import copy
         clone = copy.copy(self)
-        clone.features = self.module.features | set.instantiate(features)
+        clone.features = self.features.copy()
+        clone.features.update(set.instantiate(features))
         clone._register()
         return clone
 
@@ -152,8 +153,10 @@ class source(artefact):
 
     _instances = {}
 
-    def __new__(cls, name, module):
+    def __new__(cls, name, module=None):
         """Make sure there is only one instance per source (file)."""
+        from .module import module as M
+        module = module or M.current
         qname = module.qname(name)
         if qname not in cls._instances:
             cls._instances[qname] = object.__new__(cls)

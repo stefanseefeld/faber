@@ -15,14 +15,14 @@ def test_tool():
 
     class A(tool):
         def __init__(self, name=None, features=()):
-            tool.__init__(self, name=name)
+            tool.__init__(self, name=name, features=features)
 
     class B(A):
         pass
 
     class C(B):
         def __init__(self, name='CC', features=()):
-            B.__init__(self, name=name)
+            B.__init__(self, name=name, features=features)
 
     # just generate an A
     assert isinstance(A.instance(), A)

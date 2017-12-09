@@ -57,6 +57,9 @@ class set(object):
     def items(self):
         return self._features.items()
 
+    def get(self, name, default):
+        return self._features.get(name, default)
+
     def dependencies(self):
         return [d._value._artefact for d in self._delayed] + \
             [c._artefact for c in self._conditionals

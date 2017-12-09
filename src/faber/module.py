@@ -8,6 +8,7 @@
 
 from .feature import lazy_set
 from .artefact import artefact
+from .tool import tool
 from .utils import add_metaclass
 from .error import error_reporter
 from os.path import join, exists
@@ -59,6 +60,7 @@ class module(object):
 
     @staticmethod
     def finish():
+        tool.finish()
         artefact.finish()
         module._instances.clear()
 

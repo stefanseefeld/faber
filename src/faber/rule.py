@@ -68,7 +68,8 @@ def _rule(recipe, targets, sources, deps, attrs, features, module):
         if type(recipe) in (FunctionType, MethodType):
             recipe = action(recipe.__name__, recipe)
         elif recipe and recipe.abstract:
-            recipe = recipe.instantiate(features)
+            # look up an appropriate tool providing the action
+            recipe = recipe.instantiate(features.essentials())
         features |= recipe.features
         path_spec = recipe.path_spec
 
