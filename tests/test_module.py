@@ -42,18 +42,18 @@ l = linkpath('.', base=builddir)
 outer = module('..')
 """
 
-    with tempdir() as root:
-        subdir = os.path.join(root, 'inner')
-        os.mkdir(subdir)
-        write_fabscript(root, outer)
-        write_fabscript(subdir, inner)
-        m = module(root, builddir='build')
-        assert m.i == [root]
-        assert m.l == [os.path.join('test-build', 'build')]
-        assert m.inner.i == [subdir]
-        assert m.inner.l == [os.path.join('test-build', 'build', 'inner')]
-        assert m.inner.outer.i == [root]
-        assert m.inner.outer.l == [os.path.join('test-build', 'build')]
+    srcdir = module.current.srcdir
+    subdir = os.path.join(srcdir, 'inner')
+    os.mkdir(subdir)
+    write_fabscript(srcdir, outer)
+    write_fabscript(subdir, inner)
+    m = module(srcdir, builddir='build')
+    assert m.i == [srcdir]
+    assert m.l == [m.builddir]
+    assert m.inner.i == [subdir]
+    assert m.inner.l == [os.path.join(m.builddir, 'inner')]
+    assert m.inner.outer.i == [srcdir]
+    assert m.inner.outer.l == [m.builddir]
 
 
 @pytest.mark.usefixtures('module')

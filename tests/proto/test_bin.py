@@ -12,7 +12,6 @@ from faber.rule import rule, depend
 from faber.tools import fileutils
 from faber import scheduler
 from os.path import exists
-import os
 import pytest
 try:
     from unittest.mock import patch
@@ -34,7 +33,7 @@ def test_composite():
              attrs=intermediate, module=targets[0].module)
 
     def test(targets, sources):
-        print('testing {}'.format(sources[0]._filename))
+        print('testing {}'.format(sources[0].name))
         assert exists(sources[0]._filename)
 
     # make a dependency graph
@@ -47,5 +46,5 @@ def test_composite():
     with patch('faber.scheduler._report_recipe') as recipe:
         scheduler.update([test])
         (_, _, status, _, _, output, _), kwds = recipe.call_args_list[-1]
-        assert output == 'testing test-build' + os.sep + 'bin\n'
+        assert output == 'testing bin\n'
         assert status == 0

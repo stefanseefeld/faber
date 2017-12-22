@@ -9,7 +9,9 @@
 from __future__ import absolute_import, print_function
 from faber import scheduler
 from faber.module import module as M
-from os.path import isdir
+from os.path import join
+from os import mkdir
+import tempfile
 import shutil
 import pytest
 
@@ -27,13 +29,16 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture()
 def module():
-    builddir = 'test-build'
+
+    root = tempfile.mkdtemp()
+    srcdir = join(root, 'test-source')
+    mkdir(srcdir)
+    builddir = join(root, 'test-build')
     scheduler.init(params={}, builddir=builddir)
     M.init(goals={}, options={}, params={})
-    m = M('test', '', builddir, process=False)
+    m = M('test', srcdir, builddir, process=False)
     with m:
         yield
     M.finish()
     scheduler.finish()
-    if isdir(builddir):
-        shutil.rmtree(builddir)
+    shutil.rmtree(root)
