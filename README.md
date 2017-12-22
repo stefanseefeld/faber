@@ -1,5 +1,5 @@
-Faber
-=====
+![logo](https://github.com/stefanseefeld/faber/raw/develop/doc/_static/logo.png)
+
 
 Linux & OSX: [![TravisCI](https://travis-ci.org/stefanseefeld/faber.svg?branch=develop)](https://travis-ci.org/stefanseefeld/faber)
 Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/vci9pp0endmqcayp/branch/develop?svg=true)](https://ci.appveyor.com/project/stefanseefeld/faber/branch/develop)
