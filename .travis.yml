@@ -32,7 +32,7 @@ before_install:
        fi
 
 install:
-  - pip install -U pytest mock six flake8
+  - pip install -U pytest mock six flake8 pyyaml
 
 script:
   - python setup.py build_ext --inplace

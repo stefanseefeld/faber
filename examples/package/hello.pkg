@@ -1,0 +1,10 @@
+name: hello
+version: 0.1
+license: GPL
+summary: the summary goes here...
+
+source:
+  - include hello.pkg
+  - include greet.hpp greet.cpp
+  - include hello.cpp
+  - include fabscript

@@ -118,3 +118,13 @@ def test_test(compiler):
     with cwd(join('examples', 'test')):
         check_output(cmd)
         check_output(cmd + clean)
+
+
+def test_package(compiler):
+
+    cmd = [python, faber]
+    if compiler:
+        cmd.append(get_cxx_opt(compiler))
+    with cwd(join('examples', 'package')):
+        check_output(cmd + ['tgz', 'stgz'])
+        check_output(cmd + clean)

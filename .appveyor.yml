@@ -16,7 +16,7 @@ environment:
 
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "%CMD_IN_ENV% pip install -U pytest mock six"
+  - "%CMD_IN_ENV% pip install -U pytest mock six pyyaml"
 
 build_script:
   - "%CMD_IN_ENV% python setup.py build_ext --inplace"

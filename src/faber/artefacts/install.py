@@ -67,6 +67,10 @@ class manifest(artefact):
     create = staticmethod(create)
 
     def __init__(self, name, installed, features=()):
+        # HACK: this works around a Windows filesystem limitation
+        # TODO: Find a real solution for this, including establishing
+        #       and documenting artefact naming requirements, etc.
+        name = name.replace(':', '_')
         artefact.__init__(self, name, features=features)
         rule(manifest.create, self, installed)
 
