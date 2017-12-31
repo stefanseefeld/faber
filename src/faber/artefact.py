@@ -103,7 +103,8 @@ class artefact(object):
 
     def __init__(self, name, attrs=0, type=None, module=None,
                  features=(), use=(), condition=None,
-                 path_spec=''):
+                 path_spec='',
+                 logfile=None):
         self.name = name
         from .module import module as M
         self.module = module or M.current
@@ -117,6 +118,7 @@ class artefact(object):
         if not self.type and self.isfile:
             # just a guess, subclasses may override
             self.type = types.type.discover(self._filename)
+        self.logfile = logfile
         self._register()
 
     def __call__(self, features):

@@ -8,11 +8,10 @@
 
 from ..feature import conditional
 from ..artefact import artefact, notfile, nocare
-from ..module import module
 import sqlite3
 import hashlib
 import os
-import os.path
+from os.path import exists, join
 import logging
 
 logger = logging.getLogger('config')
@@ -20,10 +19,10 @@ logger = logging.getLogger('config')
 
 class cache(object):
 
-    def __init__(self):
-        if not os.path.exists(module.current.builddir):
-            os.makedirs(module.current.builddir)
-        self.filename = os.path.join(module.current.builddir, '.configcache')
+    def __init__(self, builddir):
+        if not exists(builddir):
+            os.makedirs(builddir)
+        self.filename = join(builddir, '.configcache')
         self.conn = sqlite3.connect(self.filename)
         # Create table if it doesn't exist yet.
         if not next(self.conn.execute('SELECT name FROM sqlite_master '
@@ -31,13 +30,15 @@ class cache(object):
             self.conn.execute('CREATE TABLE checks '
                               '(key TEXT, status INTEGER, type TEXT, value TEXT)')
 
-    def __del__(self):
-        self.conn.commit()
+    def finish(self):
+        if self.conn:
+            self.conn.commit()
+            self.conn.close()
 
     def clean(self):
         self.conn.close()
+        self.conn = None
         os.remove(self.filename)
-        del self
 
     def __contains__(self, key):
         with self.conn:
@@ -63,17 +64,37 @@ class cache(object):
         return status, value
 
 
+class logfiles(dict):
+
+    def __getitem__(self, m):
+        if m not in self:
+            self[m] = open(join(m.builddir, 'config.log'), 'a')
+        return dict.__getitem__(self, m)
+
+    def clear(self):
+        for f in self.values():
+            f.close()
+        dict.clear(self)
+
+    def clean(self):
+        for f in self.values():
+            f.close()
+            os.remove(f.name)
+
+
 class check(artefact):
     """A check is an artefact that performs some tests (typically involving compilation),
     then stores the result in a cache, so it doesn't need to be performed again,
     until the cache is explicitly cleared."""
 
-    cache = cache() if module.current else None  # to support sphinx' autoclass
+    cache = None
+    logfiles = None
 
     def __init__(self, name, features=(), if_=(), ifnot=()):
 
         self.result = None
         artefact.__init__(self, name, attrs=notfile|nocare, features=features)
+        self.logfile = check.logfiles[self.module]
         # The 'condition' here is simply the value of the check's status member.
         self.use = conditional(lambda ctx: self.status, self, if_, ifnot)
         key = str((self.name, str(self.features))).encode('utf-8')

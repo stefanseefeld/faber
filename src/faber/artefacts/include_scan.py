@@ -20,7 +20,8 @@ class scan(artefact):
 
         src = source.instantiate(src, module=module)
         name = join(splitext(src.name)[0] + '.d')
-        artefact.__init__(self, name, features=features, module=module)
+        artefact.__init__(self, name, features=features, module=module,
+                          logfile=obj.logfile)
         self._obj = obj
         if not recipe:
             c = compiler.check_instance_for_type(src.type, features)

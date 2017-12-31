@@ -11,6 +11,28 @@ from ..rule import depend
 from .. import output
 
 
+def init(builddir):
+    from .check import cache, logfiles, check
+    check.cache = cache(builddir)
+    check.logfiles = logfiles()
+
+
+def finish():
+    from .check import check
+    if check.cache:
+        check.cache.finish()
+        check.cache = None
+    check.logfiles.clear()
+
+
+def clean(level):
+    from .check import check
+    if level > 1:
+        check.logfiles.clean()
+        if check.cache:
+            check.cache.clean()
+
+
 class report(artefact):
 
     def __init__(self, name, checks):

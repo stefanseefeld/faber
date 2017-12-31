@@ -52,7 +52,7 @@ def depend(target, dependencies):
     scheduler.add_dependency(target, dependencies)
 
 
-def _rule(recipe, targets, sources, deps, attrs, features, module):
+def _rule(recipe, targets, sources, deps, attrs, features, module, logfile):
 
     targets = aslist(targets)
     sources = aslist(sources)
@@ -87,7 +87,7 @@ def _rule(recipe, targets, sources, deps, attrs, features, module):
             a.path_spec = path_spec
         else:
             a = artefact(a, attrs, features=features, path_spec=path_spec,
-                         module=module)
+                         module=module, logfile=logfile)
         return a
     targets = [instantiate(t) for t in targets]
     deps = deps + sources
@@ -101,7 +101,7 @@ def _rule(recipe, targets, sources, deps, attrs, features, module):
 
 
 def rule(recipe, targets, sources=[], dependencies=[],
-         attrs=0, features=(), module=None):
+         attrs=0, features=(), module=None, logfile=None):
     """Express how to generate `artefacts`. In the simplest case this involves a
     source and a recipe...
 
@@ -121,7 +121,7 @@ def rule(recipe, targets, sources=[], dependencies=[],
 
     from .module import module as M
     module = module or M.current
-    targets = _rule(recipe, targets, sources, dependencies, attrs, features, module)
+    targets = _rule(recipe, targets, sources, dependencies, attrs, features, module, logfile)
     return targets[0] if len(targets) == 1 else targets
 
 

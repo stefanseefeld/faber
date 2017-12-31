@@ -19,7 +19,7 @@ logger = logging.getLogger('rules')
 
 class _candidate(object):
 
-    def __init__(self, recipe, type, target, sources, features, intermediate, scan=None):
+    def __init__(self, recipe, type, target, sources, features, intermediate, scan=None, logfile=None):
         self.recipe = recipe
         self.type = type
         self.target = target
@@ -27,6 +27,7 @@ class _candidate(object):
         self.features = features
         self.intermediate = intermediate
         self.scan = scan  # this might be a recipe for include-scanning
+        self.logfile = logfile
 
     def instantiate(self, module):
         """Apply the recipe to the given artefact and source object."""
@@ -34,7 +35,7 @@ class _candidate(object):
         sources = [s.instantiate(module) for s in self.sources]
         t = explicit_rule(self.recipe, self.target, sources=sources,
                           features=self.features,
-                          attrs=intermediate if self.intermediate else 0, module=module)
+                          attrs=intermediate if self.intermediate else 0, module=module, logfile=self.logfile)
         if self.scan:
             from .artefacts.include_scan import scan
             for s in sources:
@@ -73,7 +74,7 @@ class _implicit_rule(object):
         self.source = source if isinstance(source, tuple) else (source,)
         self.features = features
 
-    def bind(self, t, source, features, intermediate):
+    def bind(self, t, source, features, intermediate, logfile):
         """Instantiate the rule by binding target and source to the recipe.
 
         Arguments:
@@ -81,6 +82,7 @@ class _implicit_rule(object):
         * source: list of candidates
         * features: a feature set
         * intermediate: boolean
+        * logfile:
         """
         # unwrap artefact and source
         target = t.name if type(t) is types.typed_name else t
@@ -95,7 +97,7 @@ class _implicit_rule(object):
         if source[0].type in (types.c, types.cxx) and t.type is types.obj:
             tool = self.recipe.tool
             scan = tool.makedep if tool else None
-        return _candidate(self.recipe, t.type, target, src, fs, intermediate, scan=scan)
+        return _candidate(self.recipe, t.type, target, src, fs, intermediate, scan=scan, logfile=logfile)
 
     def __repr__(self):
         return '<{} {} <- {}>'.format(self.recipe.qname,
@@ -109,7 +111,7 @@ _repository = defaultdict(list)
 class NoRuleError(NotImplementedError): pass
 
 
-def connect(target, source, features, intermediate=False):
+def connect(target, source, features, intermediate=False, logfile=None):
     """Create a chain of implicit rules that maps the given sources
     to the requested target."""
 
@@ -129,9 +131,9 @@ def connect(target, source, features, intermediate=False):
                     # try to generate the first expected type from the source
                     etype = e[0]
                     target = etype.typed_name(etype.synthesize_name(s.name))
-                    return connect(target, [s], f, intermediate=True)
+                    return connect(target, [s], f, intermediate=True, logfile=logfile)
             source = [recurse(r.source, s, f) for s in source]
-            return r.bind(target, source, f, intermediate)
+            return r.bind(target, source, f, intermediate, logfile=logfile)
         except NoRuleError:
             pass
     # If we didn't find a match, give up.
@@ -169,5 +171,5 @@ def rule(target, sources, features=set(), intermediate=False, module=None):
             compiler.check_instance_for_type(t)
 
     # now build the chain
-    chain = connect(target, sources, features, intermediate)
+    chain = connect(target, sources, features, intermediate, logfile=target.logfile)
     return chain.instantiate(module)

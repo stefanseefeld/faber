@@ -13,6 +13,7 @@ from .module import module
 from .cache import optioncache
 from .error import error_reporter
 from .utils import aslist
+from . import config as C
 import logging
 import warnings
 from os.path import exists
@@ -56,6 +57,7 @@ def build(goals, options, parameters, srcdir, builddir):
 
     options = optioncache(builddir, options)
     module.init(goals, options, parameters)
+    C.init(builddir)
     m = module('', srcdir, builddir)
     if goals:
         try:
@@ -87,6 +89,7 @@ def build(goals, options, parameters, srcdir, builddir):
     elif result:
         print('no goals given and no "default" artefact defined - nothing to do.')
         result = True
+    C.finish()
     module.finish()
     return result
 
@@ -96,13 +99,13 @@ def clean(level, options, parameters, srcdir, builddir):
 
     options = optioncache(builddir, options)
     module.init([], options, parameters)
+    C.init(builddir)
     m = module('', srcdir, builddir)  # noqa F841
     scheduler.clean(level)
+    C.clean(level)
     if level > 1:
-        from .config.check import check
-        if check.cache:
-            check.cache.clean()
         options.clean()
+    C.finish()
     module.finish()
     return True
 
@@ -113,6 +116,7 @@ def info(goals, options, parameters, srcdir, builddir):
 
     options = optioncache(builddir, options)
     module.init(goals, options, parameters)
+    C.init(builddir)
     m = module('', srcdir, builddir)
     print('known artefacts:')
     for a in sorted(artefact.iter(), key=lambda a: a.qname):
@@ -131,5 +135,6 @@ def info(goals, options, parameters, srcdir, builddir):
     if goals:
         scheduler.print_dependency_graph(goals)
 
+    C.finish()
     module.finish()
     return result

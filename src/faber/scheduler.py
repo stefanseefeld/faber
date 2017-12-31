@@ -62,8 +62,11 @@ def _report_artefact(name, status, failed):
     a = artefacts[name]
     if failed:
         failed = artefacts[failed]
-        summary_logger.info('...skipped {} for lack of {}...'
-                            .format(a.boundname, failed.boundname))
+        msg = '...skipped {} for lack of {}...'.format(a.boundname, failed.boundname)
+        if a.logfile:
+            a.logfile.write(msg + '\n')
+        else:
+            summary_logger.info(msg + '\n')
     a.__status__(status == 0)
 
 

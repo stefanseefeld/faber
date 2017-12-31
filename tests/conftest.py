@@ -9,6 +9,7 @@
 from __future__ import absolute_import, print_function
 from faber import scheduler
 from faber.module import module as M
+from faber import config as C
 from os.path import join
 from os import mkdir
 import tempfile
@@ -36,9 +37,11 @@ def module():
     builddir = join(root, 'test-build')
     scheduler.init(params={}, builddir=builddir)
     M.init(goals={}, options={}, params={})
+    C.init(builddir)
     m = M('test', srcdir, builddir, process=False)
     with m:
         yield
+    C.finish()
     M.finish()
     scheduler.finish()
     shutil.rmtree(root)

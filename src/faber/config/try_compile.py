@@ -27,6 +27,8 @@ class try_compile(check):
             def generate(targets, _):
                 with open(targets[0]._filename, 'w') as os:
                     os.write(source)
-            src = rule(generate, src, attrs=intermediate|always)
-            obj = object(self.name, src, attrs=intermediate, features=self.features)
+            src = rule(generate, src, attrs=intermediate|always,
+                       logfile=self.logfile)
+            obj = object(self.name, src, attrs=intermediate,
+                         features=self.features, logfile=self.logfile)
             alias(self, obj)

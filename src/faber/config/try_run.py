@@ -31,9 +31,11 @@ class try_run(check):
             def generate(targets, _):
                 with open(targets[0]._filename, 'w') as os:
                     os.write(source)
-            src = rule(generate, src, attrs=intermediate|always)
-            bin = binary(self.name, src, features=self.features, attrs=intermediate)
-            rule(self.run, self, bin)
+            src = rule(generate, src, attrs=intermediate|always,
+                       logfile=self.logfile)
+            bin = binary(self.name, src, features=self.features,
+                         attrs=intermediate, logfile=self.logfile)
+            rule(self.run, self, bin, logfile=self.logfile)
 
 
 class check_output(try_run):

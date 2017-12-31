@@ -47,5 +47,6 @@ default=t
         with pytest.raises(ScriptError) as e:
             m = module(dirpath)  # noqa F841
         assert 'no C++ compiler found' in e.value.message
-        from faber.config.check import check
-        if check.cache: del check.cache
+        # close open files so we can remove dirpath
+        from faber import config
+        config.finish()

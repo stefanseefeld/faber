@@ -169,10 +169,20 @@ class action(object):
 
     def __status__(self, targets, status, command, time, stdout, stderr):
         """Report completion of the recipe."""
+        logfile = targets[0].logfile
         targets = ' '.join([t.qname for t in targets])
-        action_logger.info(output.coloured('{} {}'.format(self.qname, targets), attrs=['bold']))
-        command_logger.info(command, extra={'time': time})
-        if stdout:
-            print(stdout)
-        if stderr:
-            print(stderr)
+        alog = output.coloured('{} {}'.format(self.qname, targets), attrs=['bold'])
+        if logfile:
+            logfile.write(alog + '\n')
+            logfile.write(command + '\n')
+            if stdout:
+                logfile.write(stdout)
+            if stderr:
+                logfile.write(stderr)
+        else:
+            action_logger.info(alog)
+            command_logger.info(command, extra={'time': time})
+            if stdout:
+                print(stdout)
+            if stderr:
+                print(stderr)
