@@ -15,7 +15,7 @@ from .cache import filecache
 from .utils import aslist
 from types import FunctionType, MethodType
 from os import makedirs, remove, rmdir
-from os.path import dirname, exists
+from os.path import dirname, lexists
 import logging
 
 logger = logging.getLogger('scheduler')
@@ -93,7 +93,7 @@ def _prepare(recipe, target):
     if not t.attrs & notfile:
         bind_filename(t)
         d = dirname(t._filename) or '.'
-        if not exists(d):
+        if not lexists(d):
             makedirs(d)
     vars = r.map(t.features)
     if vars:
@@ -165,7 +165,10 @@ def clean(level=1):
     dirs = []
     # remove file artefacts...
     for f in files:
-        if exists(f):
+        # We may encounter symbolic links during the cleanup
+        # which no longer refer to existing files. To be able
+        # to detect them we need to use `lexists`...
+        if lexists(f):
             dirs.append(dirname(f))
             remove(f)
     files.clear()
@@ -186,7 +189,7 @@ def finish():
     # Remove intermediate files
     if not keep_intermediates:
         for i in intermediates:
-            if exists(i):
+            if lexists(i):
                 remove(i)
 
     artefacts.clear()
@@ -225,7 +228,7 @@ def define_target(a):
 def bind_filename(a):
     logger.info('bind filename {} {}'.format(a.id, a._filename))
     boundnames[a._filename] = a
-    return bjam.bind_filename(a.id, a._filename, exists(a._filename))
+    return bjam.bind_filename(a.id, a._filename, lexists(a._filename))
 
 
 def add_dependency(a, deps):

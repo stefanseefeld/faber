@@ -52,7 +52,7 @@ def depend(target, dependencies):
     scheduler.add_dependency(target, dependencies)
 
 
-def _rule(recipe, targets, sources, deps, attrs, features, module, logfile):
+def _rule(recipe, targets, sources, deps, attrs, features, module, path_spec, logfile):
 
     targets = aslist(targets)
     sources = aslist(sources)
@@ -62,7 +62,6 @@ def _rule(recipe, targets, sources, deps, attrs, features, module, logfile):
     else:
         features = module.features | set.instantiate(features)
 
-    path_spec = ''
     if recipe:
         # instantiate recipe
         if type(recipe) in (FunctionType, MethodType):
@@ -71,7 +70,7 @@ def _rule(recipe, targets, sources, deps, attrs, features, module, logfile):
             # look up an appropriate tool providing the action
             recipe = recipe.instantiate(features.essentials())
         features |= recipe.features
-        path_spec = recipe.path_spec
+        path_spec = recipe.path_spec if not path_spec else path_spec
 
     deps = aslist(deps)
     # instantiate artefacts for sources and dependencies
@@ -84,7 +83,7 @@ def _rule(recipe, targets, sources, deps, attrs, features, module, logfile):
             a.attrs |= attrs
             a.features |= features
             a.features |= artefact.combine_use(sources)
-            a.path_spec = path_spec
+            a.path_spec = path_spec if path_spec else a.path_spec
         else:
             a = artefact(a, attrs, features=features, path_spec=path_spec,
                          module=module, logfile=logfile)
@@ -101,7 +100,7 @@ def _rule(recipe, targets, sources, deps, attrs, features, module, logfile):
 
 
 def rule(recipe, targets, sources=[], dependencies=[],
-         attrs=0, features=(), module=None, logfile=None):
+         attrs=0, features=(), module=None, path_spec='', logfile=None):
     """Express how to generate `artefacts`. In the simplest case this involves a
     source and a recipe...
 
@@ -121,7 +120,8 @@ def rule(recipe, targets, sources=[], dependencies=[],
 
     from .module import module as M
     module = module or M.current
-    targets = _rule(recipe, targets, sources, dependencies, attrs, features, module, logfile)
+    targets = _rule(recipe, targets, sources, dependencies, attrs, features, module,
+                    path_spec, logfile)
     return targets[0] if len(targets) == 1 else targets
 
 

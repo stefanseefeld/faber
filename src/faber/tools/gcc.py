@@ -9,6 +9,7 @@
 from ..action import action
 from ..feature import set, map, translate, select_if
 from .. import types
+from .. import platform
 from ..assembly import implicit_rule as irule
 from . import compiler
 from .cc import *
@@ -125,6 +126,10 @@ class link(action):
     ldflags = map(compiler.ldflags)
     ldflags += map(compiler.linkpath, translate, prefix='-L')
     ldflags += map(compiler.link, select_if, 'shared', '-shared')
+    if platform.os == 'Darwin':
+        ldflags += map(compiler.soname, translate, prefix='-Wl,-install_name -Wl,')
+    else:
+        ldflags += map(compiler.soname, translate, prefix='-Wl,-soname -Wl,')
     libs = map(compiler.libs, translate, prefix='-l')
 
     def submit(self, targets, sources):

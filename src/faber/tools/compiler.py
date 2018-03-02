@@ -29,6 +29,7 @@ linkpath = feature('linkpath', attributes=multi|path|incidental)
 libs = feature('libs', attributes=multi|incidental)
 target = feature('target', os=feature(), arch=feature())
 runpath = feature('runpath', attributes=multi|path|incidental)
+soname = feature('soname', attributes=incidental)
 
 
 class compiler(tool):

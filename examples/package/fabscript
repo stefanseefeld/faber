@@ -14,7 +14,7 @@ from faber.package.archive import archive
 from faber.tools.compiler import *
 from faber import scheduler
 
-greet = library('greet', 'greet.cpp', features=define('GREET_EXPORTS'))
+greet = library('greet', 'greet.cpp', version=(1, 0, 2), features=define('GREET_EXPORTS'))
 hello = binary('hello', ['hello.cpp', greet], features=define('GREET_IMPORTS'))
 
 ins = installation('install', [installed(greet, 'lib'),

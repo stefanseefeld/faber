@@ -17,10 +17,10 @@ if platform.os == 'Windows':
     default_prefix = prefix(r'C:/Program Files')
 
 
-class installed(artefact):
+class _installed(artefact):
     """An installed artefact has a filename outside the build directory."""
 
-    def __init__(self, a, subdir=None, features=()):
+    def __init__(self, a, subdir, features):
         """Create an installed artefact."""
         a = source.instantiate(a)
         self.a = a
@@ -29,11 +29,11 @@ class installed(artefact):
         # set a default installation prefix
         if 'prefix' not in self.features:
             self.features += default_prefix
-        rule(installer.install, self, self.a)
+        self._define_rule()
 
     def __call__(self, features):
         clone = artefact.__call__(self, features)
-        rule(installer.install, clone, clone.a)
+        clone._define_rule()
         return clone
 
     @property
@@ -52,6 +52,20 @@ class installed(artefact):
         # use the name of the upstream artefact, combined with
         # our relpath
         return normpath(join(self.relpath, self.a.name))
+
+    def _define_rule(self):
+        rule(installer.install, self, self.a)
+
+
+def installed(artefact, subdir=None, features=()):
+    """Make an installed copy of the given artefact."""
+
+    from . import library
+    # TODO: Find an extensible mechanism to make this polymorphic
+    if isinstance(artefact, library.library):
+        return library.installed(artefact, subdir, features)
+    else:
+        return _installed(artefact, subdir, features)
 
 
 class manifest(artefact):
