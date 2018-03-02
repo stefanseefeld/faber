@@ -23,3 +23,8 @@ class platform(object):
     @property
     def architecture(self):
         return P.machine()
+
+
+if __name__ == '__main__':
+
+    print('Platform: os={}, architecture={}'.format(os, architecture))
