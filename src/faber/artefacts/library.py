@@ -15,7 +15,7 @@ from ..rule import rule
 from .. import platform
 from ..tools.installer import installer
 from .install import _installed
-from os.path import dirname, normpath, join, split
+from os.path import dirname, basename, normpath, join
 
 
 class library(composite):
@@ -39,15 +39,16 @@ class library(composite):
         if (self.version and self.features.link == 'shared'):
             target = str(self.features.target.os) if 'target' in self.features else platform.os
             if target not in ('Windows'):
+                base = basename(self._filename)
                 # a versioned shared library allows multiple versions to coexist.
                 # set SONAME if there is a bugfix version included
                 if len(self.version) == 3:
-                    self.features += soname('{}.{}.{}'.format(self._libname, self.version[0], self.version[1]))
-                a = artefact(self._libname + '.' + '.'.join(self.version),
+                    self.features += soname('{}.{}.{}'.format(base, self.version[0], self.version[1]))
+                a = artefact(base + '.' + '.'.join(self.version),
                              type=self.type, features=self.features, path_spec=self.path_spec, module=self.module)
                 self._versioned = assembly.rule(a, self.sources, features=self.features, module=self.module)
                 suffixes = list(reversed(['.'.join(self.version[:i]) for i in range(len(self.version))]))
-                links = [join(a.relpath, '{}.{}'.format(self._libname, suffixes[i])) for i in range(len(suffixes) - 1)]
+                links = [join(a.relpath, '{}.{}'.format(base, suffixes[i])) for i in range(len(suffixes) - 1)]
                 self.path_spec = a.path_spec
                 self.features = a.features
                 links.append(self)
@@ -57,15 +58,15 @@ class library(composite):
         assembly.rule(self, self.sources, self.features, module=self.module)
 
     @property
-    def _libname(self):
-        dir, base = split(self.name)
-        host = str(self.features.target.os) if 'target' in self.features else ''
-        return join(dir, self.type.synthesize_name(base, host))
+    def libname(self):
+        return basename(self.name)
 
     @property
     def _filename(self):
-        # This is always the unversioned name, since that is what downstream depends on
-        return normpath(join(self.module.builddir, self.relpath, self._libname))
+        dir, base = dirname(self.name), self.libname
+        host = str(self.features.target.os) if 'target' in self.features else ''
+        libname = join(dir, self.type.synthesize_name(base, host))
+        return normpath(join(self.module.builddir, self.relpath, libname))
 
     @delayed_property
     def path(self):
@@ -73,18 +74,22 @@ class library(composite):
 
 
 class installed(_installed):
-    # installing a library may require special care, if the library is versioned
+    # installing a library may require creating symbolic links, if the library is versioned
 
     @property
     def _filename(self):
         # use the name of the upstream artefact, combined with our relpath
-        return normpath(join(self.relpath, self.a._libname))
+        dir, base = dirname(self.a.name), self.a.libname
+        host = str(self.a.features.target.os) if 'target' in self.a.features else ''
+        libname = join(dir, self.a.type.synthesize_name(base, host))
+        return normpath(join(self.relpath, libname))
 
     def _define_rule(self):
         if self.a._versioned:
             v = _installed(self.a._versioned, self.subdir, self.features)
+            base = basename(self._filename)
             suffixes = list(reversed(['.'.join(self.a.version[:i]) for i in range(len(self.a.version))]))
-            links = [join(self.relpath, '{}.{}'.format(self.a._libname, suffixes[i])) for i in range(len(suffixes) - 1)]
+            links = [join(self.relpath, '{}.{}'.format(base, suffixes[i])) for i in range(len(suffixes) - 1)]
             for l in links:
                 v = rule(library.symlink, l, v)
             rule(library.symlink, self, v)

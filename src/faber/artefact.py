@@ -169,6 +169,7 @@ class source(artefact):
         from . import scheduler
         artefact._qnames[self.qname].append(self)
         scheduler.define_target(self)
+        scheduler.bind_filename(self)
 
     @property
     def _filename(self):

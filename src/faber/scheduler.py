@@ -216,13 +216,11 @@ def define_action(a):
 
 
 def define_target(a):
-    logger.info('define target {} {}'.format(a.id, a.boundname))
+    logger.info('define target {}'.format(a.id))
     artefacts[a.id] = a
+    if a.attrs & notfile:
+        boundnames[a.id] = a
     bjam.define_target(a.id, a.attrs)
-    if not a.attrs & notfile:
-        bind_filename(a)
-    else:
-        boundnames[a.id] = a  # bjam by default uses the target name
 
 
 def bind_filename(a):

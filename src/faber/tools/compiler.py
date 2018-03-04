@@ -45,7 +45,7 @@ class compiler(tool):
         linkpath = set()
         for s in sources:
             if isinstance(s, library):
-                libs.append(basename(s.name))
+                libs.append(basename(s.libname))
                 linkpath.add(s.path)
             elif isinstance(s, artefact):
                 src.append(s)
