@@ -126,6 +126,9 @@ class action(object):
     def __call__(self, targets, sources=[], **kwds):
         """Explicitly call the action with the given artefacts."""
 
+        # Make sure this action is instantiated.
+        self = self.instantiate()
+
         tnames = [t.boundname for t in aslist(targets)]
         snames = [s.boundname for s in aslist(sources)]
         if not self.command:
