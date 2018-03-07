@@ -4541,6 +4541,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_ACTIONS);
             break;
         }
+#endif
 
         /*
          * Variable expansion
@@ -4548,9 +4549,9 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_APPLY_MODIFIERS:
         {
-            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_MODIFIERS);
             int n;
             int i;
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_MODIFIERS);
             l = stack_pop( s );
             n = expand_modifiers( s, code->arg );
             stack_push( s, l );
@@ -4563,7 +4564,6 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_MODIFIERS);
             break;
         }
-#endif
         case INSTR_APPLY_INDEX:
         {
             PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_INDEX);
