@@ -89,6 +89,8 @@ def make_parser(prog='faber'):
                         help='log timing info with command')
     parser.add_argument('--info', action='store_true',
                         help='print information about the build logic')
+    parser.add_argument('--shell', action='store_true',
+                        help='run interactive shell')
     return parser
 
 
@@ -168,6 +170,9 @@ def main(argv):
         if args.info:
             result = project.info(args.goals, args.options, args.parameters,
                                   args.srcdir, args.builddir)
+        elif args.shell:
+            result = project.shell(args.goals, args.options, args.parameters,
+                                   args.srcdir, args.builddir)
         elif args.clean:
             result = project.clean(args.clean, args.options, args.parameters,
                                    args.srcdir, args.builddir)

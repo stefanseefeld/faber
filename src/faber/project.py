@@ -138,3 +138,18 @@ def info(goals, options, parameters, srcdir, builddir):
     C.finish()
     module.finish()
     return result
+
+
+def shell(goals, options, parameters, srcdir, builddir):
+    """load module in srcdir but rather than updating any goals,
+    simply drop into an interactive shell."""
+
+    options = optioncache(builddir, options)
+    module.init(goals, options, parameters)
+    C.init(builddir)
+    m = module('', srcdir, builddir)
+    import code
+    code.interact('Faber interactive shell', local=m._env)
+    C.finish()
+    module.finish()
+    return True
