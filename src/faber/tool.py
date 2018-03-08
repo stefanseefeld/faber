@@ -122,8 +122,8 @@ class tool(object):
             return any([t for t in tool._instances[cls] if t.features.matches(fs)])
 
     @classmethod
-    def instance(cls, fs=None):
-        """Find an instance of cls that meets the feature requirements."""
+    def instances(cls, fs=None):
+        """Find instances of cls that meet the feature requirements."""
 
         fs = set.instantiate(fs)
         if not cls.instantiated(fs):
@@ -136,7 +136,13 @@ class tool(object):
                 if debug:
                     import traceback
                     traceback.print_exc()
-        tools = [t for t in tool._instances[cls] if t.features.matches(fs)]
+        return [t for t in tool._instances[cls] if t.features.matches(fs)]
+
+    @classmethod
+    def instance(cls, fs=None):
+        """Find an instance of cls that meets the feature requirements."""
+
+        tools = cls.instances(fs)
         if tools:
             return tools[0]
         else:

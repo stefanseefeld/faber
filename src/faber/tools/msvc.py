@@ -12,8 +12,8 @@ from ..artefact import artefact
 from .. import types
 from ..assembly import implicit_rule as irule
 from . import compiler
-from .cc import *
-from .cxx import *
+from .cc import cc
+from .cxx import cxx
 from ..artefacts.library import library
 from os.path import basename, splitext, join, normpath, pathsep, exists, isabs, relpath
 try:

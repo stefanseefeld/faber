@@ -7,6 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from . import compiler
+from ..feature import set
 from ..action import action
 import logging
 
@@ -30,9 +31,10 @@ class cc(compiler.compiler):
     link = action()
 
     @classmethod
-    def instance(cls, fs=None):
-        """Try to find a compiler instance for the current platform."""
+    def instances(cls, fs=None):
+        """Try to find compiler instances for the current platform."""
 
+        fs = set.instantiate(fs)
         if cls is cc and not cls.instantiated(fs):
             # we can't instantiate this class directly, so try to find
             # a subclass...
@@ -42,8 +44,17 @@ class cc(compiler.compiler):
                 cls.try_instantiate('msvc', fs)
             cls.try_instantiate('gcc', fs)
             cls.try_instantiate('clang', fs)
-            if not cls.instantiated(fs):
-                msg = 'no C compiler found'
-                msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
-                raise RuntimeError(msg)
-        return super(cc, cls).instance(fs)
+            return [c for c in cls._instances[cls] if c.features.matches(fs)]
+        else:
+            return super(cc, cls).instances(fs)
+
+    @classmethod
+    def instance(cls, fs=None):
+        """Try to find a compiler instance for the current platform."""
+
+        compilers = cls.instances(fs)
+        if not compilers:
+            msg = 'no C compiler found'
+            msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
+            raise RuntimeError(msg)
+        return compilers[0]
