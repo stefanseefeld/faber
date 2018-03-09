@@ -185,6 +185,31 @@ class msvc(cc, cxx):
     @classmethod
     def discover(cls):
 
+        # start with versions reported by `vswhere`
+        try:
+            vswhere = ['vswhere',
+                       '-products', '*',
+                       '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+                       '-property', 'installationPath']
+            output = check_output(vswhere).decode()
+            paths = [join(line, 'VC\\Auxiliary\\Build') for line in output.splitlines()]
+            for p in paths:
+                version = open(join(p, 'Microsoft.VCToolsVersion.default.txt')).read().strip()
+                cls._toolchains[version] = OrderedDict()
+                for arch in msvc.known_archs:
+                    product_dir, path = p, None
+                    try:
+                        path = cls.find_path(p, msvc.win_archs[arch])
+                    except Exception:
+                        pass
+                    if path:
+                        cls._toolchains[version][arch] = (normpath(product_dir), normpath(path))
+                if not cls._toolchains[version]:
+                    # remove empty entries
+                    del cls._toolchains[version]
+        except Exception:
+            pass
+
         # Known toolset versions, in order of preference.
         known_versions = ['15.0',
                           '14.0',
