@@ -26,6 +26,7 @@ before_install:
            export PATH="/usr/local/opt/python@2/libexec/bin:$PATH"
          else
            brew upgrade python  # upgrade to Python 3
+           export PATH="/usr/local/opt/python/libexec/bin:$PATH"
          fi
        fi
 
