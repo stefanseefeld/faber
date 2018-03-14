@@ -137,18 +137,3 @@ class value(object):
             return (clone,)
         else:
             return ()
-
-
-class delayed(value):
-
-    def __init__(self, type, v, validate, condition=None):
-        value.__init__(self, type, v, condition=condition)
-        self._validate = validate
-        self._condition = condition
-
-    def eval(self, set):
-        if self._condition is None or self._condition(set):
-            return (value(self._type, self._validate(self._value.eval()),
-                          None),)
-        else:
-            return ()

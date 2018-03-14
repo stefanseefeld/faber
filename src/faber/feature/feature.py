@@ -76,13 +76,13 @@ class feature(object):
 
     def __call__(self, *args, **kwds):
         """Instantiate a feature value."""
-        from .value import value, delayed as dvalue
+        from .value import value
         from ..delayed import delayed
         cond = kwds.pop('condition', None)
         # HACK: we need to define what argument types to allow
         if args and isinstance(args[0], delayed):
-            # validate later during eval, for now ignore all other args...
-            return dvalue(self, args[0], validate=partial(self._validate, **kwds))
+            # simply resubmit the value in the delayed's `eval`
+            return args[0].apply(partial(self.__call__, **kwds))
         else:
             return value(self, self._validate(*args, **kwds), cond)
 

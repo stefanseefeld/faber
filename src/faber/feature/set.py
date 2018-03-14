@@ -9,8 +9,9 @@
 from ..utils import add_metaclass
 from . import incidental
 from .feature import feature
-from .value import value, delayed
+from .value import value
 from .condition import value as expr
+from ..delayed import delayed
 from ..error import ScriptError
 from operator import iadd, ior
 from functools import reduce
@@ -40,7 +41,7 @@ class set(object):
 
         # if only one argument is provided and it's not a feature-value,
         # assume it's a container of values.
-        if len(args) == 1 and not isinstance(args[0], value):
+        if len(args) == 1 and not isinstance(args[0], (value, delayed)):
             args = args[0]
 
         self._features = {}
@@ -61,7 +62,7 @@ class set(object):
         return self._features.get(name, default)
 
     def dependencies(self):
-        return [d._value._artefact for d in self._delayed] + \
+        return [d._artefact for d in self._delayed] + \
             [c._artefact for c in self._conditionals
              if hasattr(c, '_artefact')]  # yuck !!
 
@@ -92,7 +93,8 @@ class set(object):
 
     def eval(self):
         # compute any delayed values
-        self |= set(*[v for d in self._delayed for v in d.eval(self)])
+        #self |= set(*[v for d in self._delayed for v in d.eval(self)])
+        self |= set(*[d.eval() for d in self._delayed])
         self._delayed[:] = []
         if not self._conditionals:
             return self
