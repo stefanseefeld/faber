@@ -93,7 +93,6 @@ class set(object):
 
     def eval(self):
         # compute any delayed values
-        #self |= set(*[v for d in self._delayed for v in d.eval(self)])
         self |= set(*[d.eval() for d in self._delayed])
         self._delayed[:] = []
         if not self._conditionals:
@@ -169,8 +168,6 @@ class set(object):
                     self._features[other._name] = other.copy()
                 else:
                     op(self._features[other._name], other)
-        elif isinstance(other, conditional):
-            self._conditionals.append(other)
         elif isinstance(other, set):
             for k, v in other._features.items():
                 if k not in self._features:
@@ -202,21 +199,6 @@ class set(object):
     def __repr__(self):
         cln = self.__class__.__name__
         return '<{} {}>'.format(cln, self._features)
-
-
-class conditional(object):
-    """A conditional feature set: depending on a condition, different (sets of) feature values are enabled."""
-
-    def __init__(self, condition, a, if_=(), ifnot=()):
-
-        self._condition = condition
-        self._artefact = a
-        self._if = (if_,) if type(if_) == value else if_
-        self._ifnot = (ifnot,) if type(ifnot) == value else ifnot
-
-    def eval(self, fs):
-
-        return self._if if self._condition(fs) else self._ifnot
 
 
 def def_lazy_set():

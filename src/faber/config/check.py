@@ -6,8 +6,9 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..feature import conditional
+from ..feature import set
 from ..artefact import artefact, notfile, nocare
+from ..delayed import delayed
 import sqlite3
 import hashlib
 import os
@@ -96,7 +97,7 @@ class check(artefact):
         artefact.__init__(self, name, attrs=notfile|nocare, features=features)
         self.logfile = check.logfiles[self.module]
         # The 'condition' here is simply the value of the check's status member.
-        self.use = conditional(lambda ctx: self.status, self, if_, ifnot)
+        self.use = delayed(lambda: set.instantiate(if_) if self.status else set.instantiate(ifnot), self)
         key = str((self.name, str(self.features))).encode('utf-8')
         self._cache_key = hashlib.md5(key).hexdigest()
         self.cached = self._cache_key in check.cache

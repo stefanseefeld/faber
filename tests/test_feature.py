@@ -220,7 +220,7 @@ def test_mapping():
     assert libs(fs) == '-lfoo.lib -lbar.lib'
 
 
-def test_conditional():
+def test_delayed():
 
     tool = feature('tool', name=feature(), version=feature())
     define = feature('define', attributes=multi)
@@ -265,7 +265,7 @@ def test_conditional():
     fs += define('CLANGXX', condition=set.tool.name == 'clang++')
     fs += define('CXX', condition=((set.tool.name == 'clang++') |
                                    (set.tool.name == 'g++')))
-    fs += conditional(set.tool.name == 'g++', None, include('/some/path'))
+    fs += include('/some/path', condition=set.tool.name == 'g++')
     assert fs.define == ('MACRO',)
     fs.eval()
     assert fs.define == ('MACRO', 'SHARED', 'GXX', 'CXX')
