@@ -93,7 +93,7 @@ class set(object):
 
     def eval(self):
         # compute any delayed values
-        self |= set(*[d.eval() for d in self._delayed])
+        self |= set(*[d.result() for d in self._delayed])
         self._delayed[:] = []
         if not self._conditionals:
             return self

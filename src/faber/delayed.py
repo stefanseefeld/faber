@@ -24,10 +24,10 @@ class delayed(object):
         self._artefact = a  # the artefact on which the value depends
 
     def apply(self, f):
-        """Create a new delayed object representing the value `f(self.eval())`"""
+        """Create a new delayed object representing the value `f(self.result())`"""
         return delayed(lambda: f(self._func()), self._artefact)
 
-    def eval(self):
+    def result(self):
         if self._artefact.status is None:
             raise InvalidState(self._artefact)
         return self._func()

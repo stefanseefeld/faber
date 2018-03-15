@@ -46,5 +46,5 @@ class check_output(try_run):
 
     def run(self, _, source):
         """run the binary in a subprocess, then post-process the output."""
-        output = subprocess.check_output([source[0].filename.eval()]).decode().strip()
+        output = subprocess.check_output([source[0].filename.result()]).decode().strip()
         self.post_process(output)
