@@ -61,7 +61,7 @@ def test_recipe():
 def test_variables():
     """Check that an action's variables are properly substituted."""
 
-    variable = feature('variable', incidental)
+    variable = feature('variable', attributes=incidental)
 
     class A(action):
 

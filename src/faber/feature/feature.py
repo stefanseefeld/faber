@@ -28,10 +28,9 @@ class feature(object):
         else:
             return value(self, v, None)
 
-    @staticmethod
-    def register(f):
-        feature._registry[f.name] = f
-        logger.info('defining feature "{}"'.format(f.name))
+    def _register(self):
+        feature._registry[self.name] = self
+        logger.info('defining feature "{}"'.format(self.name))
 
     @staticmethod
     def lookup(name):
@@ -39,40 +38,20 @@ class feature(object):
 
     def __new__(cls, *args, **kwds):
         # if any of the keyword arguments are features, construct a compound-feature
-        composite = any([isinstance(a, feature) for a in kwds.values()])
+        composite = any([isinstance(a, feature) for a in args])
         if composite:
             cls = composite_feature
         inst = object.__new__(cls)
         return inst
 
-    def __init__(self, *args, **kwds):
-        """Create a feature. The constructor takes up to three non-keyword
-        arguments (in arbitrary order):
+    def __init__(self, name, values=None, attributes=0, sub=False):
+        """Create a feature."""
 
-         * a name (string, defaults to '')
-         * a set of valid values (set, defaults to None)
-         * attributes (int, defaults to 0)
-
-        Alternatively, a composite feature may be constructed passing sub-features
-        as keyword arguments:
-
-        feature(name, <name>=feature(...), ...)"""
-        # First identify and assign the non-keyword arguments,...
-        sig = {str: None, tuple: None, int: None}
-        for a in args:
-            sig[type(a)] = a
-
-        def pop(kwds, n, t, v):
-            if n in kwds and type(kwds[n]) == t:
-                sig[t] = kwds.pop(n)
-            return sig[t] or v
-        self.name = pop(kwds, 'name', str, '')
-        self.values = pop(kwds, 'values', tuple, None)
-        self.attributes = pop(kwds, 'attributes', int, 0)
-        self.subfeatures = {}
-
-        if self.name:
-            feature.register(self)
+        self.name = name
+        self.values = values
+        self.attributes = attributes
+        if not sub:
+            self._register()
 
     def __call__(self, *args, **kwds):
         """Instantiate a feature value."""
@@ -103,13 +82,16 @@ class feature(object):
             raise ValueError('cannot assign values from different features "{}" and "{}"'
                              .format(self.name, t2.name))
         v2 = v2._value if isinstance(v2, value) else v2
-        if self.attributes & multi:
-            if op is iadd:
-                v1._value += v2
+        if v2 is not None:
+            if self.attributes & multi:
+                if op is iadd:
+                    v1._value += v2
+                else:
+                    v1._value += tuple(v for v in v2 if v not in v1._value)
             else:
-                v1._value += tuple(v for v in v2 if v not in v1._value)
-        else:
-            v1._value = v2
+                if v1._value is not None and v1._value != v2:
+                    raise ValueError('can not override {} by {}'.format(v1._value, v2))
+                v1._value = v2
         return v1
 
     def _validate(self, *args, **kwds):
@@ -157,52 +139,36 @@ class feature(object):
 
 class composite_feature(feature):
 
-    def __init__(self, *args, **kwds):
-        """Create a feature. The constructor takes up to three non-keyword
-        arguments (in arbitrary order):
+    def __init__(self, name, *args, **kwds):
+        """Create a composite feature."""
 
-         * a name (string, defaults to '')
-         * a set of valid values (set, defaults to None)
-         * attributes (int, defaults to 0)
-
-        Alternatively, a composite feature may be constructed passing sub-features
-        as keyword arguments:
-
-        feature(name, <name>=feature(...), ...)"""
-        # First identify and assign the non-keyword arguments,...
-        sig = {str: None, tuple: None, int: None}
-        for a in args:
-            sig[type(a)] = a
-
-        def pop(kwds, n, t, v):
-            if n in kwds and type(kwds[n]) == t:
-                sig[t] = kwds.pop(n)
-            return sig[t] or v
-        self.name = pop(kwds, 'name', str, '')
-        self.values = pop(kwds, 'values', tuple, None)
-        self.attributes = pop(kwds, 'attributes', int, 0)
-        self.subfeatures = {}
+        sub = kwds.pop('sub', False)
+        assert not kwds
+        self.name = name
+        self.subfeatures = []
         # ...then handle the keyword arguments as subfeatures.
-        for k, v in kwds.items():
-            assert type(v) == feature
-            v.name = k
-            self.subfeatures[k] = v
-
-        if self.name:
-            feature.register(self)
+        for s in args:
+            assert isinstance(s, feature)
+            self.subfeatures.append(s)
+        if not sub:
+            self._register()
 
     def __call__(self, *args, **kwds):
         """Instantiate a feature value."""
-        from .value import value
-        values = {k: None for k in self.subfeatures}
-        values.update({k: self.subfeatures[k]._constr(kwds.get(k))
-                       for k in self.subfeatures})
-        return value(self, None, None, **values)
+        from .value import composite_value
+        if args:
+            assert len(args) == 1 and not kwds
+            sf = args[0].split('-')
+            values = {s.name: sf[i] for i, s in enumerate(self.subfeatures)}
+        else:
+            values = {s.name: None for s in self.subfeatures}
+            values.update({s.name: s._constr(kwds.get(s.name)) for s in self.subfeatures})
+        return composite_value(self, **values)
 
     def _join(self, values):
         # create a new value by joining the given arguments
-        return self(**{k: self.subfeatures[k]._join([getattr(v, k) for v in values])
-                       for k in self.subfeatures})
+        return self(**{s.name: s._join([getattr(v, s.name) for v in values])
+                       for s in self.subfeatures})
 
     def _cassign(self, op, v1, v2):
 
@@ -213,6 +179,6 @@ class composite_feature(feature):
             raise ValueError('cannot join values from different features "{}" and "{}"'
                              .format(self.name, t2.name))
         assert isinstance(v2, value)
-        for k, f in self.subfeatures.items():
-            f._cassign(op, getattr(v1, k), getattr(v2, k))
+        for s in self.subfeatures:
+            s._cassign(op, getattr(v1, s.name), getattr(v2, s.name))
         return v1

@@ -36,7 +36,7 @@ def test_include():
 
 def test_composite():
 
-    tool = feature('tool', name=feature(), version=feature())
+    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
     t1 = tool(name='g++')
     t2 = tool(name='g++', version='6.3')
     assert t1 != t2
@@ -49,7 +49,7 @@ def test_composite():
     assert t1.name != t3.name
     assert not t1.matches(t3)
 
-    some = feature('some', include=feature(attributes=multi))
+    some = feature('some', feature('include', sub=True, attributes=multi))
     s1 = some(include=('a', 'b'))
     include = feature('include', attributes=multi)
     i1 = include('a', 'b')
@@ -60,9 +60,9 @@ def test_composite():
     assert s1.include == ('a', 'b', 'a', 'c')
 
 
-def test_lazy_set():
+def test_parsing():
 
-    tool = feature('tool', name=feature(), version=feature())
+    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
     include = feature('include', attributes=multi)
     define = feature('define', attributes=multi)
     gxx = tool(name='g++', version='6.3')
@@ -96,14 +96,29 @@ def test_lazy_set():
     assert 'define' in lazy
     assert lazy.define == ('C', 'A', 'B')
     assert 'new_tool' not in lazy
-    tool = feature('new_tool', name=feature(), version=feature())
+    tool = feature('new_tool', feature('name', sub=True), feature('version', sub=True))
     assert 'new_tool' in lazy
     assert lazy.new_tool.name == 'g++'
+
+    o6 = {'tool': 'g++-7'}
+    fs = lazy_set(o6)
+    assert fs.tool.name == 'g++' and fs.tool.version == '7'
+
+
+def test_parsing_conflict():
+
+    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))  # noqa F841
+
+    o1 = {'tool': 'g++-2', 'tool.version': '1'}
+    fs = lazy_set(o1)
+    with pytest.raises(ValueError):
+        # trying to instantiate the values should fail
+        fs.tool.name == 'g++' and fs.tool.version == 2
 
 
 def test_serialize():
 
-    tool = feature('tool', name=feature(), version=feature())  # noqa F841
+    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))  # noqa F841
     variant = feature('variant', ('release', 'debug'))  # noqa F841
     o = {'tool.name': 'clang++', 'tool.version': '3.9', 'variant': 'release'}
     fs = lazy_set(o)
@@ -128,8 +143,8 @@ def test_mix():
 
 def test_feature_set():
 
-    tool = feature('tool', name=feature(), version=feature())
-    target = feature('target', arch=feature())
+    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
+    target = feature('target', feature('arch', sub=True))
     link = feature('link', ('shared', 'static'))
     include = feature('include', attributes=multi|incidental)
     linkpath = feature('linkpath', attributes=multi|incidental)
@@ -138,7 +153,6 @@ def test_feature_set():
     fs += set(include('c'), linkpath('d'))
     fs += tool(name='g++', version='6.3')
     fs += target(arch='A')
-    fs += link('shared')
 
     assert 'link' in fs
     assert 'define' not in fs
@@ -148,7 +162,7 @@ def test_feature_set():
     assert fs.include == ('a', 'b', 'c')
     assert fs.linkpath == ('d',)
 
-    fs |= set(link('static'))
+    fs.update(link('static'))
     assert fs.link == 'static'
 
     assert len(fs) == 5
@@ -222,7 +236,7 @@ def test_mapping():
 
 def test_delayed():
 
-    tool = feature('tool', name=feature(), version=feature())
+    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
     define = feature('define', attributes=multi)
     include = feature('include', attributes=multi)
     link = feature('link', ['shared', 'static'])

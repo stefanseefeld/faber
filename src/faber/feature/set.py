@@ -9,7 +9,7 @@
 from ..utils import add_metaclass
 from . import incidental
 from .feature import feature
-from .value import value
+from .value import value, composite_value
 from .condition import value as expr
 from ..delayed import delayed
 from ..error import ScriptError
@@ -74,7 +74,7 @@ class set(object):
         """Create a copy of this set containing only the essential
         (i.e., non-incidental) features."""
         return set(*[v for v in self._features.values()
-                     if not v._type.attributes & incidental])
+                     if isinstance(v, composite_value) or not v._type.attributes & incidental])
 
     def update(self, other):
         """Add new features from `other`, replacing existing ones."""
@@ -127,11 +127,8 @@ class set(object):
         return name in self._features
 
     def matches(self, other):
-        from . import incidental
         assert isinstance(other, set)
-        # make sure non-incidental features match
-        for k, v in [(k, v) for k, v in self.items()
-                     if not v._type.attributes & incidental]:
+        for k, v in [(k, v) for k, v in self.items()]:
             if k in other and not other[k].matches(v):
                 return False
         return True
@@ -211,8 +208,8 @@ def def_lazy_set():
     def copy(self):
         return type(self)(self._params, *list(self._features.values()) + self._delayed + self._conditionals)
 
-    def _convert(self):
-        """Convert a dictionary of (command-line) parameters into
+    def _parse(self):
+        """Parse a dictionary of (command-line) parameters into
         a set of feature values."""
         converted = []
         for k, v in self._params.items():
@@ -238,7 +235,7 @@ def def_lazy_set():
 
     def decorator(f):
         def wrapper(self, *args, **kwds):
-            _convert(self)
+            _parse(self)
             return f(self, *args, **kwds)
         return wrapper
 

@@ -27,7 +27,7 @@ ldflags = feature('ldflags', attributes=multi|incidental)
 link = feature('link', ['static', 'shared'])
 linkpath = feature('linkpath', attributes=multi|path|incidental)
 libs = feature('libs', attributes=multi|incidental)
-target = feature('target', os=feature(), arch=feature())
+target = feature('target', feature(name='os', sub=True), feature(name='arch', sub=True))
 runpath = feature('runpath', attributes=multi|path|incidental)
 soname = feature('soname', attributes=incidental)
 

@@ -26,7 +26,7 @@ class tool_type(type):
         with 'compiler=gcc', we can substitute 'gcc.link' for 'compiler.link'.
         """
 
-        cls.tool = feature(name, name=feature(), version=feature())
+        cls.tool = feature(name, feature('name', sub=True), feature('version', sub=True))
 
         for k, v in dict.items():
             if isinstance(v, action):
@@ -81,10 +81,9 @@ class tool(object):
     def __init__(self, name='', version='', features=()):
         name = name or self.__class__.__name__
         self.features = set.instantiate(features).copy()
-        # Register the tool with all base classes
+        # Set built-in features
         for c in self.__class__.__mro__:
             if issubclass(c, tool) and c != tool:
-                tool._instances[c].append(self)
                 self.features += c.tool(name=name, version=version)
 
         # Clone all actions, so tool instances can fine-tune them individually.
@@ -95,6 +94,12 @@ class tool(object):
                 o._cls = self.__class__
                 o._tool = self
                 setattr(self, a, o)
+
+        # Register the tool with all base classes
+        for c in self.__class__.__mro__:
+            if issubclass(c, tool) and c != tool:
+                tool._instances[c].append(self)
+
         logger.info('instantiate {} (name={}, version={})'
                     .format(self.__class__.__name__, name, version))
 
