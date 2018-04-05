@@ -16,6 +16,7 @@ from .utils import aslist
 from types import FunctionType, MethodType
 from os import makedirs, remove, rmdir
 from os.path import dirname, lexists
+from collections import defaultdict
 import logging
 
 logger = logging.getLogger('scheduler')
@@ -37,8 +38,10 @@ intermediates = []
 keep_intermediates = False
 noexec = False
 
+summary = defaultdict(int)
 
-def _format_count(msg, number):
+def _format_count(msg, what):
+    number = summary[what]
     if number:
         summary_logger.info(msg.format(number, 's' if number > 1 else ''))
 
@@ -66,16 +69,16 @@ def _report_artefact(name, status, failed):
         if a.logfile:
             a.logfile.write(msg + '\n')
         else:
-            summary_logger.info(msg + '\n')
+            summary_logger.info(msg)
     a.__status__(status == 0)
 
 
 def _report(what, *args):
     if what == '__summary__':
         failed, skipped, made = args
-        _format_count('...failed updating {} artefact{}...', failed)
-        _format_count('...skipped {} artefact{}...', skipped)
-        _format_count('...made {} artefact{}...', made)
+        summary['failed'] += failed
+        summary['skipped'] += skipped
+        summary['made'] += made
     elif what == '__recipe__':
         _report_recipe(*args)
     elif what == '__artefact__':
@@ -191,6 +194,11 @@ def finish():
         for i in intermediates:
             if lexists(i):
                 remove(i)
+
+    # print cumulative summary
+    _format_count('...failed updating {} artefact{}...', 'failed')
+    _format_count('...skipped {} artefact{}...', 'skipped')
+    _format_count('...made {} artefact{}...', 'made')
 
     artefacts.clear()
     boundnames.clear()
