@@ -40,6 +40,7 @@ noexec = False
 
 summary = defaultdict(int)
 
+
 def _format_count(msg, what):
     number = summary[what]
     if number:
@@ -149,12 +150,12 @@ def _pyaction(name, func):
     return wrapper
 
 
-def init(params, builddir, **options):
+def init(params, builddir, readonly=False, **options):
     global noexec, files, keep_intermediates
     # enable DEBUG_MAKEPROG and DEBUG_FATE if 'process' flag is set.
     log = (1 << 3) + (1 << 13) if options.get('log', 0) else 0
     noexec = options.get('noexec', False)
-    files = filecache(builddir, params)
+    files = filecache(builddir, params) if not readonly else ()
     keep_intermediates = options.get('intermediates', False)
     bjam.init(_prepare, _report,
               log,
@@ -174,7 +175,8 @@ def clean(level=1):
         if lexists(f):
             dirs.append(dirname(f))
             remove(f)
-    files.clear()
+    if files:
+        files.clear()
     # ...then clean up empty build directories
     dirs = sorted(set(dirs), reverse=True)
     root = '' if files.root == '.' else files.root

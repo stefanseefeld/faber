@@ -56,7 +56,7 @@ class filecache(object):
 class optioncache(object):
     """Remember command-line options for convenience."""
 
-    def __init__(self, builddir, options):
+    def __init__(self, builddir, options, readonly=False):
 
         self.filename = os.path.join(builddir, '.optioncache')
         self.options = dict(with_={}, without=[])
@@ -67,9 +67,10 @@ class optioncache(object):
             if self.options['with_'] or self.options['without']:
                 warnings.warn('Overriding saved options with command-line options')
             self.options.update(options)
-        with open(self.filename, 'w') as opts:
-            opts.write('with_={}\n'.format(repr(self.options['with_'])))
-            opts.write('without={}\n'.format(repr(self.options['without'])))
+        if not readonly:
+            with open(self.filename, 'w') as opts:
+                opts.write('with_={}\n'.format(repr(self.options['with_'])))
+                opts.write('without={}\n'.format(repr(self.options['without'])))
 
     def clean(self):
         os.remove(self.filename)

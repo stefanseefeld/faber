@@ -7,6 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from . import scheduler
+from .feature import lazy_set
 from .feature.condition import expr as fexpr
 from .artefact import artefact
 from .module import module
@@ -110,32 +111,34 @@ def clean(level, options, parameters, srcdir, builddir):
     return True
 
 
-def info(goals, options, parameters, srcdir, builddir):
+def info(what, items, options, parameters, srcdir, builddir):
     """print project information, rather than performing a build.
     Parameters are the same as for the `build` function."""
 
-    options = optioncache(builddir, options)
-    module.init(goals, options, parameters)
-    C.init(builddir)
-    m = module('', srcdir, builddir)
-    print('known artefacts:')
-    for a in sorted(artefact.iter(), key=lambda a: a.qname):
-        print('  {}'.format(a.qname))
-    if goals:
-        try:
-            goals = [a for g in goals for a in artefact.lookup(g)]
-            result = True
-        except KeyError as e:
-            print('don\'t know how to make {}'.format(e))
-            goals = []
-            result = False
-    else:
-        goals = aslist(m.default)
-        result = True
-    if goals:
-        scheduler.print_dependency_graph(goals)
-
-    C.finish()
+    options = optioncache(builddir, options, readonly=True)
+    module.init([], options, parameters)
+    result = True
+    if what == 'goals':
+        m = module('', srcdir, builddir)
+        print('known artefacts:')
+        for a in sorted(artefact.iter(), key=lambda a: a.qname):
+            print('  {}'.format(a.qname))
+        if items:
+            try:
+                goals = [a for i in items for a in artefact.lookup(i)]
+            except KeyError as e:
+                print('don\'t know how to make {}'.format(e))
+                goals = []
+                result = False
+        else:
+            goals = aslist(m.default)
+        if goals:
+            scheduler.print_dependency_graph(goals)
+    elif what == 'tools':
+        from . import tool
+        features = lazy_set(module.params.copy())
+        for i in items:
+            tool.info(i, features)
     module.finish()
     return result
 

@@ -152,3 +152,27 @@ class tool(object):
             return tools[0]
         else:
             raise ValueError('No matching tool "{}" found'.format(cls.__name__))
+
+
+def info(name, fs=()):
+
+    from importlib import import_module
+    tools = []
+    try:
+        mod = import_module('.{}'.format(name), 'faber.tools')
+        tool = getattr(mod, name)
+        tools += tool.instances(fs)
+    except Exception:
+        pass
+    if not tools:
+        msg = 'no tools of type {} found'.format(name)
+        msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
+        print(msg)
+        return
+    table = [['tool', 'name', 'version']]
+    for t in tools:
+        table.append([t.__class__.__name__, t.name, t.version])
+    width = map(max, zip(*[map(len, t) for t in table]))
+    format = '{{:{}}}\t{{:{}}}\t{{:{}}}'.format(*width)
+    for t in table:
+        print(format.format(*t))

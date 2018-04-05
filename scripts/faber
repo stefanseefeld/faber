@@ -87,7 +87,7 @@ def make_parser(prog='faber'):
                         help='set timeout for individual actions')
     parser.add_argument('-p', '--profile', action='store_true',
                         help='log timing info with command')
-    parser.add_argument('--info', action='store_true',
+    parser.add_argument('--info', choices=['goals', 'tools'], nargs='?', metavar='WHAT', const='goals',
                         help='print information about the build logic')
     parser.add_argument('--shell', action='store_true',
                         help='run interactive shell')
@@ -156,7 +156,7 @@ def main(argv):
         setup_logging(args)
         if args.debug:
             faber.debug = True
-        scheduler.init(args.parameters, args.builddir,
+        scheduler.init(args.parameters, args.builddir, readonly=args.info=='tools',
                        log=args.log and 'process' in args.log,
                        jobs=args.parallel,
                        force=args.force,
@@ -168,7 +168,8 @@ def main(argv):
         elif os.path.exists(os.path.expanduser('~/.faber')):
             project.config(os.path.expanduser('~/.faber'))
         if args.info:
-            result = project.info(args.goals, args.options, args.parameters,
+            result = project.info(args.info,
+                                  args.goals, args.options, args.parameters,
                                   args.srcdir, args.builddir)
         elif args.shell:
             result = project.shell(args.goals, args.options, args.parameters,
