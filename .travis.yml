@@ -41,5 +41,6 @@ script:
      if [ "$flake8" = true ]; then
        flake8 src/faber tests scripts/faber
      else
+       PYTHONPATH=`pwd`/src scripts/faber --info=tools cxx
        PYTHONPATH=`pwd`/src py.test tests --compiler=native -v
      fi

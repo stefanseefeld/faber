@@ -29,4 +29,5 @@ build_script:
 test_script:
   - set PYTHONPATH=%cd%\\src
   - "%CMD_IN_ENV% python -m faber.tools.msvc"
+  - "%CMD_IN_ENV% python scripts\\faber --info=tools cxx"
   - "%CMD_IN_ENV% py.test tests --compiler=native -v"
