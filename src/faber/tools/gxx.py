@@ -31,6 +31,7 @@ class compile(action):
     cppflags += map(compiler.define, translate, prefix='-D')
     cppflags += map(compiler.include, translate, prefix='-I')
     cxxflags = map(compiler.cxxflags)
+    cxxflags += map(cxxstd, translate, prefix='-std=c++')
     cxxflags += map(compiler.link, select_if, 'shared', '-fPIC')
 
 

@@ -6,6 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from ..feature import feature, incidental
 from . import compiler
 from ..feature import set
 from ..action import action
@@ -13,6 +14,8 @@ import logging
 import sys
 
 logger = logging.getLogger('tools')
+
+cxxstd = feature('cxxstd', ['98', '03', '11', '14', '17'], attributes=incidental)
 
 
 class cxx(compiler.compiler):

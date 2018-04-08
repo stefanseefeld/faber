@@ -13,7 +13,7 @@ from .. import types
 from ..assembly import implicit_rule as irule
 from . import compiler
 from .cc import cc
-from .cxx import cxx
+from .cxx import cxx, cxxstd
 from ..artefacts.library import library
 from os.path import basename, splitext, join, normpath, pathsep, exists, isabs, relpath
 try:
@@ -71,6 +71,7 @@ class compile(action):
     cppflags += map(compiler.include, translate, prefix='/I"', suffix='"')
     cflags = map(compiler.cflags)
     cxxflags = map(compiler.cxxflags)
+    cxxflags += map(cxxstd, translate, prefix='/std:c++')
 
 
 class link(action):
