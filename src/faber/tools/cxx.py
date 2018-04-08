@@ -10,6 +10,7 @@ from . import compiler
 from ..feature import set
 from ..action import action
 import logging
+import sys
 
 logger = logging.getLogger('tools')
 
@@ -33,29 +34,29 @@ class cxx(compiler.compiler):
 
     @classmethod
     def instances(cls, fs=None):
-        """Try to find compiler instances for the current platform."""
+        """Return all known C++ compiler instances for the current platform."""
 
-        fs = set.instantiate(fs)
-        if cls is cxx and not cls.instantiated(fs):
-            # we can't instantiate this class directly, so try to find
-            # a subclass...
-            logger.info('trying to instantiate a default C++ compiler')
-            import sys
+        if cls is cxx:
             if sys.platform == 'win32':
-                cls.try_instantiate('msvc', fs)
-            cls.try_instantiate('gxx', fs)
-            cls.try_instantiate('clangxx', fs)
-            return [c for c in cls._instances[cls] if c.features.matches(fs)]
-        else:
-            return super(cxx, cls).instances(fs)
+                from .msvc import msvc
+                msvc.instances(fs)
+        return super(cxx, cls).instances(fs)
 
     @classmethod
     def instance(cls, fs=None):
         """Try to find a compiler instance for the current platform."""
 
-        compilers = cls.instances(fs)
-        if not compilers:
-            msg = 'no C++ compiler found'
-            msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
-            raise RuntimeError(msg)
-        return compilers[0]
+        fs = set.instantiate(fs)
+        if cls is cxx and not cxx.instantiated(fs):
+            # we can't instantiate this class directly, so try to find
+            # a subclass...
+            logger.info('trying to instantiate a default C++ compiler')
+            if sys.platform == 'win32':
+                cxx.try_instantiate('msvc', fs)
+            cxx.try_instantiate('gxx', fs)
+            cxx.try_instantiate('clangxx', fs)
+            if not cxx.instantiated(fs):
+                msg = 'no C++ compiler found'
+                msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
+                raise RuntimeError(msg)
+        return super(cxx, cls).instance(fs)

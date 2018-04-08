@@ -261,14 +261,16 @@ class msvc(cc, cxx):
                 # remove empty entries
                 del cls._toolchains[version]
 
+    @classmethod
+    def instances(cls, fs=None):
+        """Return all known MSVC instances."""
+
+        if not msvc.instantiated():
+            for v in msvc._toolchains:
+                for a, _ in msvc._toolchains[v].items():
+                    msvc(version=v, features=compiler.target(arch=a))
+        return super(cc, cls).instances(fs)
+
 
 # If this module is imported, assume we are running inside Windows
 msvc.discover()
-
-
-if __name__ == '__main__':
-
-    print('found MSVC toolchains:')
-    for v in msvc._toolchains:
-        for a, p in msvc._toolchains[v].items():
-            print('  version {} ({}) in {}'.format(v, a, p[1]))

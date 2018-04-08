@@ -128,7 +128,18 @@ class tool(object):
 
     @classmethod
     def instances(cls, fs=None):
-        """Find instances of cls that meet the feature requirements."""
+        """Return all known instances of cls that meet the feature requirements."""
+
+        fs = set.instantiate(fs)
+        try:  # Lookup failure is not an error
+            cls.instance(fs)
+        except Exception:
+            pass
+        return [t for t in tool._instances[cls] if t.features.matches(fs)]
+
+    @classmethod
+    def instance(cls, fs=None):
+        """Find an instance of cls that meets the feature requirements."""
 
         fs = set.instantiate(fs)
         if not cls.instantiated(fs):
@@ -141,13 +152,7 @@ class tool(object):
                 if debug:
                     import traceback
                     traceback.print_exc()
-        return [t for t in tool._instances[cls] if t.features.matches(fs)]
-
-    @classmethod
-    def instance(cls, fs=None):
-        """Find an instance of cls that meets the feature requirements."""
-
-        tools = cls.instances(fs)
+        tools = [t for t in tool._instances[cls] if t.features.matches(fs)]
         if tools:
             return tools[0]
         else:
@@ -159,6 +164,7 @@ def info(name, fs=()):
     from importlib import import_module
     tools = []
     try:
+        import faber.tools  # noqa F401
         mod = import_module('.{}'.format(name), 'faber.tools')
         tool = getattr(mod, name)
         tools += tool.instances(fs)

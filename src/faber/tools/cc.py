@@ -10,6 +10,7 @@ from . import compiler
 from ..feature import set
 from ..action import action
 import logging
+import sys
 
 logger = logging.getLogger('tools')
 
@@ -32,29 +33,28 @@ class cc(compiler.compiler):
 
     @classmethod
     def instances(cls, fs=None):
-        """Try to find compiler instances for the current platform."""
-
-        fs = set.instantiate(fs)
-        if cls is cc and not cls.instantiated(fs):
-            # we can't instantiate this class directly, so try to find
-            # a subclass...
-            logger.info('trying to instantiate a default C compiler')
-            import sys
+        """Return all known C compiler instances for the current platform."""
+        if cls is cc:
             if sys.platform == 'win32':
-                cls.try_instantiate('msvc', fs)
-            cls.try_instantiate('gcc', fs)
-            cls.try_instantiate('clang', fs)
-            return [c for c in cls._instances[cls] if c.features.matches(fs)]
-        else:
-            return super(cc, cls).instances(fs)
+                from .msvc import msvc
+                msvc.instances(fs)
+        return super(cc, cls).instances(fs)
 
     @classmethod
     def instance(cls, fs=None):
         """Try to find a compiler instance for the current platform."""
 
-        compilers = cls.instances(fs)
-        if not compilers:
-            msg = 'no C compiler found'
-            msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
-            raise RuntimeError(msg)
-        return compilers[0]
+        fs = set.instantiate(fs)
+        if cls is cc and not cc.instantiated(fs):
+            # we can't instantiate this class directly, so try to find
+            # a subclass...
+            logger.info('trying to instantiate a default C compiler')
+            if sys.platform == 'win32':
+                cc.try_instantiate('msvc', fs)
+            cc.try_instantiate('gcc', fs)
+            cc.try_instantiate('clang', fs)
+            if not cc.instantiated(fs):
+                msg = 'no C compiler found'
+                msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
+                raise RuntimeError(msg)
+        return super(cc, cls).instance(fs)
