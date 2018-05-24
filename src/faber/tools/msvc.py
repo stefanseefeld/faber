@@ -230,7 +230,7 @@ class msvc(cc, cxx):
         discovered_toolchains = {}
         for line in output.splitlines():
             build_helper_dir = join(line, 'VC', 'Auxiliary', 'Build')
-            version_file = join(line, 'Microsoft.VCToolsVersion.default.txt')
+            version_file = join(build_helper_dir, 'Microsoft.VCToolsVersion.default.txt')
 
             try:
                 version = open(version_file, 'r').read().strip()
