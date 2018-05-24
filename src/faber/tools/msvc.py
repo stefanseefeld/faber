@@ -275,7 +275,7 @@ class msvc(cc, cxx):
                     try:
                         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                                             'SOFTWARE\\{}Microsoft\\{}'
-                                                    .format(x64elt, reg_keys[version])) as key:
+                                            .format(x64elt, reg_keys[version])) as key:
                             product_dir = winreg.QueryValueEx(key, "ProductDir")[0]
                             path = cls.find_path(product_dir, msvc.win_archs[arch])
                     except Exception:
