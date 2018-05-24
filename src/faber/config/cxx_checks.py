@@ -12,9 +12,21 @@ from .. import types
 
 class has_cxx11(try_compile):
 
-    src = r"""#if __cplusplus < 201103L
+    src = r"""
+#ifdef _MSC_VER
+
+#if _MSC_VER < 1900
 #error no C++11
-#endif"""
+#endif
+
+#else
+
+#if __cplusplus < 201103L
+#error no C++11
+#endif
+
+#endif
+"""
 
     def __init__(self, features=(), if_=(), ifnot=()):
         try_compile.__init__(self, 'has_cxx11', has_cxx11.src, types.cxx, features,
@@ -23,9 +35,21 @@ class has_cxx11(try_compile):
 
 class has_cxx14(try_compile):
 
-    src = r"""#if __cplusplus < 201402L
+    src = r"""
+#ifdef _MSC_VER
+
+#if _MSC_VER < 1910
 #error no C++14
-#endif"""
+#endif
+
+#else
+
+#if __cplusplus < 201402L
+#error no C++14
+#endif
+
+#endif
+"""
 
     def __init__(self, features=(), if_=(), ifnot=()):
         try_compile.__init__(self, 'has_cxx14', has_cxx14.src, types.cxx, features,
