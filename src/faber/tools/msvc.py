@@ -22,6 +22,19 @@ except ImportError:  # python 2
     import _winreg as winreg
 from collections import OrderedDict
 from subprocess import *
+from sys import stdout
+
+
+def check_output_decoded(*args, **kwargs):
+    """Try to decode output with system default."""
+
+    try:
+        # get encoding via power shell
+        encoding = check_output(['powershell.exe', '[System.Text.Encoding]::Default.BodyName']).decode().splitlines()[0]
+    except (OSError, SubprocessError):
+        encoding = stdout.encoding
+
+    return check_output(*args, **kwargs).decode(encoding)
 
 
 class makedep(action):
