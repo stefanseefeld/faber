@@ -22,7 +22,7 @@
 #include "object.h"
 #include "rules.h"
 
-void compile_builtins();
+void compile_builtins(void);
 
 LIST * evaluate_rule( RULE * rule, OBJECT * rulename, FRAME * );
 LIST * call_rule( OBJECT * rulename, FRAME * caller_frame, ... );

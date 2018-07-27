@@ -23,8 +23,8 @@ void out_action(
     int const exit_reason
 );
 
-void out_flush();
-void err_flush();
+void out_flush(void);
+void err_flush(void);
 void out_puts(char const * const s);
 void err_puts(char const * const s);
 void out_putc(const char c);

@@ -83,7 +83,7 @@ int    list_in( LIST *, OBJECT * value );
 LIST * list_reverse( LIST * );
 int    list_cmp( LIST * lhs, LIST * rhs );
 int    list_is_sublist( LIST * sub, LIST * l );
-void   list_done();
+void   list_done(void);
 
 LISTITER list_begin( LIST * );
 LISTITER list_end( LIST * );

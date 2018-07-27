@@ -8,6 +8,7 @@
  */
 
 #include "graph.h"
+#include "make.h"
 
 void cleanup_depth(TARGET *t)
 {
@@ -121,7 +122,7 @@ void set_flags(LIST *const targets, int flags)
     bindtarget(list_item(i))->flags |= flags;
 }
 
-int update(LIST *const targets)
+int update_targets(LIST *const targets)
 {
   return make(targets);
 }

@@ -46,8 +46,8 @@ profile_frame * profile_init( OBJECT * rulename, profile_frame * );
 void profile_enter( OBJECT * rulename, profile_frame * );
 void profile_memory( long mem );
 void profile_exit( profile_frame * );
-void profile_dump();
-double profile_clock();
+void profile_dump(void);
+double profile_clock(void);
 
 #define PROFILE_ENTER( scope ) profile_frame PROF_ ## scope, *PROF_ ## scope ## _p = profile_init( constant_ ## scope, &PROF_ ## scope )
 #define PROFILE_EXIT( scope ) profile_exit( PROF_ ## scope ## _p )

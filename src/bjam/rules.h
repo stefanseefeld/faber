@@ -254,7 +254,7 @@ RULE * new_rule_actions( module_t *, OBJECT * rulename, FUNCTION * command, LIST
 void   rule_free       ( RULE * );
 
 /* Target related functions. */
-void      bind_explicitly_located_targets();
+void      bind_explicitly_located_targets(void);
 TARGET  * bindtarget                     ( OBJECT * const );
 void      freetargets                    ( TARGETS * );
 TARGETS * targetchain                    ( TARGETS *, TARGETS * );
@@ -268,6 +268,6 @@ void      touch_target                   ( OBJECT * const );
 TARGET  * target_scc                     ( TARGET * );
 
 /* Final module cleanup. */
-void rules_done();
+void rules_done(void);
 
 #endif

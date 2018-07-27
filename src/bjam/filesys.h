@@ -103,6 +103,6 @@ file_info_t * filelist_back(  FILELIST * list );
 /* Internal utility worker functions. */
 void file_query_posix_( file_info_t * const );
 
-void file_done();
+void file_done(void);
 
 #endif

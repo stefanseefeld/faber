@@ -23,6 +23,6 @@ int add_dependency(char const *target, LIST *const sources);
 /* set the target's flags */
 void set_flags(LIST *const targets, int flags);
 /* update the given targets */
-int update(LIST *const targets);
+int update_targets(LIST *const targets);
 
 #endif

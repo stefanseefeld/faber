@@ -119,7 +119,7 @@ static PyObject *bjam_update(PyObject *self, PyObject *args)
       !PySequence_Check(targets))
     return NULL;
 
-  status = update(list_from_sequence(targets));
+  status = update_targets(list_from_sequence(targets));
   /* check for exceptions from any of the callbacks... */
   if (PyErr_Occurred()) return NULL;
   else return PyLong_FromLong(status);
@@ -242,7 +242,7 @@ static PyObject *bjam_define_action(PyObject *self, PyObject *args)
 static PyObject *target_callback;
 static PyObject *report_callback;
 
-static void check_errors()
+static void check_errors(void)
 {
   if (PyErr_Occurred())
   {
@@ -256,7 +256,7 @@ static void check_errors()
 
 void bind_target(TARGET *target)
 {
-  PyObject *vars;
+  PyObject *vars = 0;
   int flag = 0; /* set, rather than append */
   PyObject *key, *value;
   Py_ssize_t pos = 0;
@@ -443,9 +443,9 @@ static struct PyModuleDef moduledef =
   0  /* free     */
 };
 
-PyMODINIT_FUNC PyInit_bjam()
+PyMODINIT_FUNC PyInit_bjam(void)
 #else
-void initbjam()
+void initbjam(void)
 #endif
 {
   PyObject *module;

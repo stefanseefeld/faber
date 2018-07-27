@@ -59,7 +59,7 @@
  */
 
 /* find a free slot in the running commands table */
-static int get_free_cmdtab_slot();
+static int get_free_cmdtab_slot(void);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -129,7 +129,7 @@ int exec_check
 
 static LIST * default_shell;
 
-void exec_done()
+void exec_done(void)
 {
   default_shell = 0;
 }
@@ -148,7 +148,6 @@ void exec_cmd
     int const slot = get_free_cmdtab_slot();
     int out[ 2 ];
     int err[ 2 ];
-    int len;
     char const * argv[ MAXARGC + 1 ];  /* +1 for NULL */
 
     /* Initialize default shell. */
@@ -429,7 +428,7 @@ static int populate_file_descriptors( fd_set * const fds )
  * at least one has been registered.
  */
 
-void exec_wait()
+void exec_wait(void)
 {
     int finished = 0;
 
@@ -579,7 +578,7 @@ void exec_wait()
  * Find a free slot in the running commands table.
  */
 
-static int get_free_cmdtab_slot()
+static int get_free_cmdtab_slot(void)
 {
     int slot;
     for ( slot = 0; slot < MAXJOBS; ++slot )

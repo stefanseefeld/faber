@@ -112,7 +112,6 @@ LIST * list_new( OBJECT * value )
 LIST * list_push_back( LIST * head, OBJECT * value )
 {
     unsigned int size = list_length( head );
-    unsigned int i;
 
     if ( DEBUG_LISTS )
         out_printf( "list > %s <\n", object_str( value ) );
@@ -199,7 +198,6 @@ static int str_ptr_compare( void const * va, void const * vb )
 LIST * list_sort( LIST * l )
 {
     int len;
-    int ii;
     LIST * result;
 
     if ( !l )

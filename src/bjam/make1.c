@@ -65,6 +65,7 @@
 #include "variable.h"
 #include "output.h"
 #include "filesys.h"
+#include "graph.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -160,7 +161,7 @@ static state * state_freelist = NULL;
 static int cmdsrunning;
 
 
-static state * alloc_state()
+static state * alloc_state(void)
 {
     if ( state_freelist )
     {
@@ -180,7 +181,7 @@ static void free_state( state * const pState )
 }
 
 
-static void clear_state_freelist()
+static void clear_state_freelist(void)
 {
     while ( state_freelist )
     {
@@ -235,7 +236,7 @@ static void push_stack_on_stack( stack * const pDest, stack * const pSrc )
     }
 }
 
-static void print_stack()
+static void print_stack(void)
 {
   state *s = state_stack.stack;
   int i = 0;
@@ -243,7 +244,7 @@ static void print_stack()
   while (s)
   {
     printf("%d %s (%s) %s (%d)\n", i,
-	   object_str(s->t->boundname), target_progress[s->t->progress],
+	   object_str(s->t->boundname), target_progress[(int)s->t->progress],
 	   state_name[s->curstate], s->t->asynccnt);
     s = s->prev;
     ++i;
@@ -258,7 +259,7 @@ static void assert_all_children(char progress, TARGET *t)
     {
       printf("Error !! %s cannot proceed while %s is not %s\n",
 	     object_str(t->name), object_str(c->target->name),
-	     target_progress[progress]);
+	     target_progress[(int)progress]);
       abort();
     }
 }
@@ -767,10 +768,11 @@ static void run_cmd( state const * const pState )
         {
             TARGETS * c;
             stack temp_stack = { NULL };
+#if 0
             TARGET * additional_includes = NULL;
+#endif
 #define IS_TEMPORARY(t) (t->flags & T_FLAG_TEMP && t->parents && t->binding != T_BIND_EXISTS)
 	    int next = IS_TEMPORARY(t) ? T_STATE_UPDATE : T_STATE_BIND;
-	    char *nnext = IS_TEMPORARY(t) ? "update" : "bind";
 #undef IS_TEMPORARY
             t->progress = globs.noexec ? T_MAKE_NOEXEC_DONE : T_MAKE_DONE;
 
@@ -1180,7 +1182,7 @@ static void swap_settings
 static CMD * make1cmds( TARGET * t )
 {
     CMD * cmds = 0;
-    CMD * last_cmd;
+    CMD * last_cmd = 0;
     LIST * shell = L0;
     module_t * settings_module = 0;
     TARGET * settings_target = 0;
@@ -1413,7 +1415,6 @@ static CMD * make1cmds( TARGET * t )
                 TARGET * sem = targets_iter->target->semaphore;
                 if ( sem )
                 {
-                    TARGETS * semiter;
                     if ( ! targets_contains( semaphores, sem ) )
                         semaphores = targetentry( semaphores, sem );
                 }

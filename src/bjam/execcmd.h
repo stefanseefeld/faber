@@ -65,8 +65,8 @@ void exec_cmd
     LIST * shell
 );
 
-void exec_wait();
-void exec_done();
+void exec_wait(void);
+void exec_done(void);
 
 
 /******************************************************************************

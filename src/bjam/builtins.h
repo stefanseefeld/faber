@@ -13,7 +13,7 @@
  * builtins.h - compile parsed jam statements
  */
 
-void load_builtins();
+void load_builtins(void);
 
 LIST *builtin_calc( FRAME * frame, int flags );
 LIST *builtin_depends( FRAME * frame, int flags );

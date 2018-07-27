@@ -41,7 +41,7 @@ char const * timestamp_timestr( timestamp const * const );
 void timestamp_from_filetime( timestamp * const, FILETIME const * const );
 #endif
 
-void timestamp_done();
+void timestamp_done(void);
 double timestamp_delta_seconds( timestamp const * const, timestamp const * const );
 
 #endif

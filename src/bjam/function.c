@@ -30,9 +30,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* *
+/*
 #define FUNCTION_DEBUG_PROFILE
-/* */
+*/
 
 #ifndef FUNCTION_DEBUG_PROFILE
 #undef PROFILE_ENTER_LOCAL
@@ -319,45 +319,45 @@ static LIST * function_get_variable( JAM_FUNCTION * function, FRAME * frame,
     return list_copy( var_get( frame->module, function->constants[ idx ] ) );
 }
 
-static void function_set_variable( JAM_FUNCTION * function, FRAME * frame,
-    int idx, LIST * value )
-{
-    var_set( frame->module, function->constants[ idx ], value, VAR_SET );
-}
+/* static void function_set_variable( JAM_FUNCTION * function, FRAME * frame, */
+/*     int idx, LIST * value ) */
+/* { */
+/*     var_set( frame->module, function->constants[ idx ], value, VAR_SET ); */
+/* } */
 
-static LIST * function_swap_variable( JAM_FUNCTION * function, FRAME * frame,
-    int idx, LIST * value )
-{
-    return var_swap( frame->module, function->constants[ idx ], value );
-}
+/* static LIST * function_swap_variable( JAM_FUNCTION * function, FRAME * frame, */
+/*     int idx, LIST * value ) */
+/* { */
+/*     return var_swap( frame->module, function->constants[ idx ], value ); */
+/* } */
 
-static void function_append_variable( JAM_FUNCTION * function, FRAME * frame,
-    int idx, LIST * value )
-{
-    var_set( frame->module, function->constants[ idx ], value, VAR_APPEND );
-}
+/* static void function_append_variable( JAM_FUNCTION * function, FRAME * frame, */
+/*     int idx, LIST * value ) */
+/* { */
+/*     var_set( frame->module, function->constants[ idx ], value, VAR_APPEND ); */
+/* } */
 
-static void function_default_variable( JAM_FUNCTION * function, FRAME * frame,
-    int idx, LIST * value )
-{
-    var_set( frame->module, function->constants[ idx ], value, VAR_DEFAULT );
-}
+/* static void function_default_variable( JAM_FUNCTION * function, FRAME * frame, */
+/*     int idx, LIST * value ) */
+/* { */
+/*     var_set( frame->module, function->constants[ idx ], value, VAR_DEFAULT ); */
+/* } */
 
-static void function_set_rule( JAM_FUNCTION * function, FRAME * frame,
-    STACK * s, int idx )
-{
-    SUBFUNCTION * sub = function->functions + idx;
-    new_rule_body( frame->module, sub->name, sub->code, !sub->local );
-}
+/* static void function_set_rule( JAM_FUNCTION * function, FRAME * frame, */
+/*     STACK * s, int idx ) */
+/* { */
+/*     SUBFUNCTION * sub = function->functions + idx; */
+/*     new_rule_body( frame->module, sub->name, sub->code, !sub->local ); */
+/* } */
 
-static void function_set_actions( JAM_FUNCTION * function, FRAME * frame,
-    STACK * s, int idx )
-{
-    SUBACTION * sub = function->actions + idx;
-    LIST * bindlist = stack_pop( s );
-    new_rule_actions( frame->module, sub->name, sub->command, bindlist,
-        sub->flags );
-}
+/* static void function_set_actions( JAM_FUNCTION * function, FRAME * frame, */
+/*     STACK * s, int idx ) */
+/* { */
+/*     SUBACTION * sub = function->actions + idx; */
+/*     LIST * bindlist = stack_pop( s ); */
+/*     new_rule_actions( frame->module, sub->name, sub->command, bindlist, */
+/*         sub->flags ); */
+/* } */
 
 
 /*
@@ -409,6 +409,7 @@ static int get_argument_index( char const * s )
     return -1;
 }
 
+#if 0
 static LIST * function_get_named_variable( JAM_FUNCTION * function,
     FRAME * frame, OBJECT * name )
 {
@@ -442,7 +443,6 @@ static void function_default_named_variable( JAM_FUNCTION * function,
     var_set( frame->module, name, value, VAR_DEFAULT );
 }
 
-#if 0
 static LIST * function_call_rule( JAM_FUNCTION * function, FRAME * frame,
     STACK * s, int n_args, char const * unexpanded, OBJECT * file, int line )
 {
@@ -761,6 +761,7 @@ static void var_edit_file( char const * in, string * out, VAR_EDITS * edits )
         string_append( out, in );
 }
 
+#if defined( OS_CYGWIN ) || defined( OS_VMS )
 
 /*
  * var_edit_translate_path() - translate path to os native format.
@@ -785,7 +786,7 @@ static void var_edit_translate_path( string * out, size_t pos, VAR_EDITS * edits
         string_free( result );
     }
 }
-
+#endif
 
 /*
  * var_edit_shift() - do upshift/downshift & other mods.
@@ -1076,6 +1077,7 @@ static LIST * apply_modifiers_impl( LIST * result, string * buf,
         : apply_modifiers_non_empty( result, buf, edits, n, iter, end );
 }
 
+#if 0
 static LIST * apply_subscript_and_modifiers( STACK * s, int n )
 {
     LIST * const value = stack_top( s );
@@ -1100,7 +1102,7 @@ static LIST * apply_subscript_and_modifiers( STACK * s, int n )
     string_free( buf );
     return result;
 }
-
+#endif
 
 /*
  * expand() - expands a list of concatenated strings and variable refereces
@@ -1608,7 +1610,7 @@ static void var_parse_free( VAR_PARSE * );
  * VAR_PARSE_GROUP
  */
 
-static VAR_PARSE_GROUP * var_parse_group_new()
+static VAR_PARSE_GROUP * var_parse_group_new(void)
 {
     VAR_PARSE_GROUP * const result = BJAM_MALLOC( sizeof( VAR_PARSE_GROUP ) );
     dynamic_array_init( result->elems );
@@ -1662,7 +1664,7 @@ VAR_PARSE_STRING * var_parse_group_as_literal( VAR_PARSE_GROUP * group )
  * VAR_PARSE_ACTIONS
  */
 
-static VAR_PARSE_ACTIONS * var_parse_actions_new()
+static VAR_PARSE_ACTIONS * var_parse_actions_new(void)
 {
     VAR_PARSE_ACTIONS * const result = (VAR_PARSE_ACTIONS *)BJAM_MALLOC(
         sizeof(VAR_PARSE_ACTIONS) );
@@ -1685,7 +1687,7 @@ static void var_parse_actions_free( VAR_PARSE_ACTIONS * actions )
  * VAR_PARSE_VAR
  */
 
-static VAR_PARSE_VAR * var_parse_var_new()
+static VAR_PARSE_VAR * var_parse_var_new(void)
 {
     VAR_PARSE_VAR * result = BJAM_MALLOC( sizeof( VAR_PARSE_VAR ) );
     result->base.type = VAR_PARSE_TYPE_VAR;
@@ -2409,6 +2411,7 @@ static void adjust_result( compiler * c, int actual_location,
         assert( !"invalid result location" );
 }
 
+#if 0
 static char const * parse_type( PARSE * parse )
 {
     switch ( parse->type )
@@ -2419,6 +2422,7 @@ static char const * parse_type( PARSE * parse )
         default: return "unknown";
     }
 }
+#endif
 
 static void compile_append_chain( PARSE * parse, compiler * c )
 {
@@ -3105,7 +3109,7 @@ void argument_list_check( struct arg_list * formal, int formal_count,
         for ( j = 0; j < formal[ i ].size; ++j )
         {
             struct argument * formal_arg = &formal[ i ].args[ j ];
-            LIST * value;
+            LIST * value = 0;
 
             switch ( formal_arg->flags )
             {
@@ -3173,7 +3177,7 @@ void argument_list_push( struct arg_list * formal, int formal_count,
         for ( j = 0; j < formal[ i ].size; ++j )
         {
             struct argument * formal_arg = &formal[ i ].args[ j ];
-            LIST * value;
+            LIST * value = 0;
 
             switch ( formal_arg->flags )
             {
@@ -3754,11 +3758,11 @@ struct align_expansion_item
     expansion_item e;
 };
 
-static char check_align_var_edits[ sizeof(struct align_var_edits) <= sizeof(VAR_EDITS) + sizeof(void *) ? 1 : -1 ];
-static char check_align_expansion_item[ sizeof(struct align_expansion_item) <= sizeof(expansion_item) + sizeof(void *) ? 1 : -1 ];
+/* static char check_align_var_edits[ sizeof(struct align_var_edits) <= sizeof(VAR_EDITS) + sizeof(void *) ? 1 : -1 ]; */
+/* static char check_align_expansion_item[ sizeof(struct align_expansion_item) <= sizeof(expansion_item) + sizeof(void *) ? 1 : -1 ]; */
 
-static char check_ptr_size1[ sizeof(LIST *) <= sizeof(void *) ? 1 : -1 ];
-static char check_ptr_size2[ sizeof(char *) <= sizeof(void *) ? 1 : -1 ];
+/* static char check_ptr_size1[ sizeof(LIST *) <= sizeof(void *) ? 1 : -1 ]; */
+/* static char check_ptr_size2[ sizeof(char *) <= sizeof(void *) ? 1 : -1 ]; */
 
 void function_run_actions( FUNCTION * function, FRAME * frame, STACK * s,
     string * out )
@@ -3778,9 +3782,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
     JAM_FUNCTION * function;
     instruction * code;
     LIST * l;
-    LIST * r;
     LIST * result = L0;
-    void * saved_stack = s->data;
 
     PROFILE_ENTER_LOCAL(function_run);
 
@@ -5033,7 +5035,7 @@ static void argument_list_to_python( struct arg_list * formal, int formal_count,
         for ( j = 0; j < formal[ i ].size; ++j )
         {
             struct argument * formal_arg = &formal[ i ].args[ j ];
-            PyObject * value;
+            PyObject * value = 0;
             LIST * l;
 
             switch ( formal_arg->flags )
@@ -5103,7 +5105,6 @@ int python_call_status;
 
 static LIST *call_python_function(PYTHON_FUNCTION *function, FRAME *frame)
 {
-  LIST *result = 0;
   PyObject *arguments = 0;
   PyObject *kw = NULL;
   int i;

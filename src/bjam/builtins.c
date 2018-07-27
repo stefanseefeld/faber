@@ -661,14 +661,13 @@ struct globbing
     LIST * case_insensitive;
 };
 
-
+#if 0
 static void downcase_inplace( char * p )
 {
     for ( ; *p; ++p )
         *p = tolower( *p );
 }
 
-#if 0
 static void builtin_glob_back( void * closure, OBJECT * file, int status,
     timestamp const * const time )
 {
@@ -721,6 +720,7 @@ static void builtin_glob_back( void * closure, OBJECT * file, int status,
 }
 #endif
 
+#if 0
 static LIST * downcase_list( LIST * in )
 {
     LIST * result = L0;
@@ -742,7 +742,6 @@ static LIST * downcase_list( LIST * in )
     return result;
 }
 
-#if 0
 LIST * builtin_glob( FRAME * frame, int flags )
 {
     LIST * const l = lol_get( frame->args, 0 );
@@ -777,11 +776,11 @@ LIST * builtin_glob( FRAME * frame, int flags )
 }
 #endif
 
+#if 0
 static int has_wildcards( char const * const str )
 {
     return str[ strcspn( str, "[]*?" ) ] ? 1 : 0;
 }
-
 
 /*
  * append_if_exists() - if file exists, append it to the list
@@ -823,6 +822,7 @@ LIST * glob1( OBJECT * dirname, OBJECT * pattern )
 
     return globbing.results;
 }
+#endif
 
 
 LIST * glob_recursive( char const * pattern )
@@ -1201,7 +1201,7 @@ LIST * builtin_import( FRAME * frame, int flags )
           source_iter = list_next( source_iter ),
           target_iter = list_next( target_iter ) )
     {
-        RULE * r;
+        RULE * r = 0;
         RULE * imported;
 
         if ( !source_module->rules || !(r = (RULE *)hash_find(
@@ -1255,7 +1255,7 @@ LIST * builtin_export( FRAME * frame, int flags )
     LISTITER const end = list_end( rules );
     for ( ; iter != end; iter = list_next( iter ) )
     {
-        RULE * r;
+        RULE * r = 0;
         if ( !m->rules || !( r = (RULE *)hash_find( m->rules, list_item( iter )
             ) ) )
             unknown_rule( frame, "EXPORT", m, list_item( iter ) );

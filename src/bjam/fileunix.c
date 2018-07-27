@@ -246,7 +246,6 @@ void file_archscan( char const * arch, scanback func, void * closure )
         for ( ; iter != end ; iter = filelist_next( iter ) )
         {
             file_info_t * member_file = filelist_item( iter );
-            LIST * symbols = member_file->files;
 
             /* Construct member path: 'archive-path(member-name)'
              */

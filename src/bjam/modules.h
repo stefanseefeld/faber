@@ -25,7 +25,7 @@ struct module_t
 };
 
 module_t * bindmodule( OBJECT * name );
-module_t * root_module();
+module_t * root_module(void);
 void delete_module( module_t * );
 
 void import_module( LIST * module_names, module_t * target_module );
@@ -47,6 +47,6 @@ void module_set_fixed_variables( module_t *, int n );
  */
 int module_get_fixed_var( module_t *, OBJECT * name );
 
-void modules_done();
+void modules_done(void);
 
 #endif

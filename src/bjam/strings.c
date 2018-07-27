@@ -99,19 +99,6 @@ void string_reserve( string * self, size_t capacity )
 }
 
 
-static void extend_full( string * self, char const * start, char const * finish )
-{
-    size_t new_size = self->capacity + ( finish - start );
-    size_t new_capacity = self->capacity;
-    size_t old_size = self->capacity;
-    while ( new_capacity < new_size + 1)
-        new_capacity <<= 1;
-    string_reserve_internal( self, new_capacity );
-    memcpy( self->value + old_size, start, new_size - old_size );
-    self->value[ new_size ] = 0;
-    self->size = new_size;
-}
-
 static void maybe_reserve( string * self, size_t new_size )
 {
     size_t capacity = self->capacity;

@@ -31,6 +31,6 @@ void string_reserve( string *, size_t );
 void string_truncate( string *, size_t );
 void string_pop_back( string * );
 char string_back( string * );
-void string_unit_test();
+void string_unit_test(void);
 
 #endif
