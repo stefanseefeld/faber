@@ -24,7 +24,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
     <link rel="up" title="Faber Reference" href="index.html" />
-    <link rel="next" title="config" href="config.html" />
+    <link rel="next" title="The config module" href="config.html" />
     <link rel="prev" title="rule, alias, depend" href="rule.html" /> 
   </head>
   <body>
@@ -57,7 +57,7 @@
       
       <a class="prev" title="rule, alias, depend" href="rule.html"><img src="../_static/prev.png" alt="prev"/></a>
       <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
-      <a class="next" title="config" href="config.html"><img src="../_static/next.png" alt="next"/></a>
+      <a class="next" title="The config module" href="config.html"><img src="../_static/next.png" alt="next"/></a>
       
     </div>
       
@@ -72,20 +72,20 @@ how it reports its update) or to allow it to have additional internal state
 <span id="a-attributes"></span><h2>attributes</h2>
 <dl class="data">
 <dt id="faber.artefact.intermediate">
-<code class="descclassname">faber.artefact.</code><code class="descname">intermediate</code></dt>
+<code class="descname">intermediate</code></dt>
 <dd></dd></dl>
 
 <dl class="data">
 <dt id="faber.artefact.notfile">
-<code class="descclassname">faber.artefact.</code><code class="descname">notfile</code></dt>
+<code class="descname">notfile</code></dt>
 <dd><p><cite>notfile</cite> artefacts do not have corresponding files in the file system,
 thus whether or not they require being updated cannot be determined from
-a file's timestamp.</p>
+a file&#8217;s timestamp.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="faber.artefact.always">
-<code class="descclassname">faber.artefact.</code><code class="descname">always</code></dt>
+<code class="descname">always</code></dt>
 <dd><p>Never consider this artefact up to date.</p>
 </dd></dl>
 
@@ -94,18 +94,18 @@ a file's timestamp.</p>
 <h2>Constructor</h2>
 <dl class="method">
 <dt id="faber.artefact.artefact">
-<code class="descclassname">faber.artefact.</code><code class="descname">artefact</code><span class="sig-paren">(</span><em>name</em>, <em>attrs=0</em>, <em>features=()</em>, <em>use=()</em>, <em>condition=None</em><span class="sig-paren">)</span></dt>
+<code class="descname">artefact</code><span class="sig-paren">(</span><em>name</em>, <em>attrs=0</em>, <em>features=()</em>, <em>use=()</em>, <em>condition=None</em><span class="sig-paren">)</span></dt>
 <dd><p>Construct an artefact.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>string</em>) -- the artefact's name</li>
-<li><strong>attrs</strong> (<em>int</em>) -- <a class="reference internal" href="#a-attributes"><span class="std std-ref">attributes</span></a></li>
-<li><strong>features</strong> -- Set of artefact-specific features to add.</li>
-<li><strong>use</strong> -- Set of features to be exported to other artefacts using this as a source.</li>
-<li><strong>condition</strong> -- Condition in case this artefact is conditional.</li>
+<li><strong>name</strong> (<em>string</em>) &#8211; the artefact&#8217;s name</li>
+<li><strong>attrs</strong> (<em>int</em>) &#8211; <a class="reference internal" href="#a-attributes"><span>attributes</span></a></li>
+<li><strong>features</strong> &#8211; Set of artefact-specific features to add.</li>
+<li><strong>use</strong> &#8211; Set of features to be exported to other artefacts using this as a source.</li>
+<li><strong>condition</strong> &#8211; Condition in case this artefact is conditional.</li>
 </ul>
 </td>
 </tr>
@@ -127,20 +127,20 @@ a file's timestamp.</p>
 <h2>Attributes</h2>
 <dl class="attribute">
 <dt id="faber.artefact.name">
-<code class="descclassname">faber.artefact.</code><code class="descname">name</code></dt>
-<dd><p>The artefact's name, as set in the constructor.</p>
+<code class="descname">name</code></dt>
+<dd><p>The artefact&#8217;s name, as set in the constructor.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="faber.artefact.qname">
-<code class="descclassname">faber.artefact.</code><code class="descname">qname</code></dt>
-<dd><p>The artefact's qualified name, i.e. the name prefixed with the (qualified) name of the module it was defined in.</p>
+<code class="descname">qname</code></dt>
+<dd><p>The artefact&#8217;s qualified name, i.e. the name prefixed with the (qualified) name of the module it was defined in.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="faber.artefact.filename">
-<code class="descclassname">faber.artefact.</code><code class="descname">filename</code></dt>
-<dd><p>The artefact's filename, if the artefact is a file.</p>
+<code class="descname">filename</code></dt>
+<dd><p>The artefact&#8217;s filename, if the artefact is a file.</p>
 </dd></dl>
 
 </div>
@@ -154,7 +154,7 @@ a file's timestamp.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples</h2>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">recipe</span><span class="o">=</span><span class="n">fileutils</span><span class="o">.</span><span class="n">touch</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">recipe</span><span class="o">=</span><span class="n">fileutils</span><span class="o">.</span><span class="n">touch</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -166,12 +166,12 @@ a file's timestamp.</p>
       
       <a class="prev" title="rule, alias, depend" href="rule.html"><img src="../_static/prev.png" alt="prev"/></a>
       <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
-      <a class="next" title="config" href="config.html"><img src="../_static/next.png" alt="next"/></a>
+      <a class="next" title="The config module" href="config.html"><img src="../_static/next.png" alt="next"/></a>
       
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 24, 2017</p>
+      <p>last updated Aug 02, 2018</p>
     </div>
   </body>
 </html>

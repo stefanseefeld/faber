@@ -69,7 +69,7 @@ a Python callable.</p>
 <div class="section" id="constructor">
 <h2>Constructor</h2>
 <dl class="method">
-<dt id="action">
+<dt id="faber.action.action">
 <code class="descname">action</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Construct an empty (abstract) action. This is useful to define an abstract <cite>tool</cite>.</p>
 </dd></dl>
@@ -90,7 +90,7 @@ a Python callable.</p>
 <div class="section" id="call-operator">
 <h2>Call operator</h2>
 <dl class="method">
-<dt id="__call__">
+<dt id="faber.action.__call__">
 <code class="descname">__call__</code><span class="sig-paren">(</span><em>target</em>, <em>source</em><span class="sig-paren">)</span></dt>
 <dd><p>Call the action explicitely. Returns success.</p>
 </dd></dl>
@@ -98,7 +98,7 @@ a Python callable.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples</h2>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># define some actions</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># define some actions</span>
 <span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.compile&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -c -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
 <span class="n">link</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.link&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
 <span class="n">test</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;run_test&#39;</span><span class="p">,</span> <span class="s1">&#39;$(&gt;)&#39;</span><span class="p">)</span>
@@ -130,7 +130,7 @@ a Python callable.</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 24, 2017</p>
+      <p>last updated Aug 02, 2018</p>
     </div>
   </body>
 </html>

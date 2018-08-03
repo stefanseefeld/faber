@@ -72,31 +72,31 @@ be interpreted as a path.</p>
 <span id="id1"></span><h2>attributes</h2>
 <p>Attribute flags are used to indicate how to interpret feature values.</p>
 <dl class="data">
-<dt id="multi">
+<dt id="faber.feature.multi">
 <code class="descname">multi</code></dt>
 <dd><p>The feature may take multiple values.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="path">
+<dt id="faber.feature.path">
 <code class="descname">path</code></dt>
 <dd><p>Values are interpreted as a path. By default, this is taken to be
 relative to the directory containing the issuing fabscript.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="incidental">
+<dt id="faber.feature.incidental">
 <code class="descname">incidental</code></dt>
 <dd><p>Incidental values are not considered when matching two feature values.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="the-feature-class">
-<h2>The feature class</h2>
+<h2>The <cite>feature</cite> class</h2>
 <div class="section" id="constructor">
 <h3>Constructor</h3>
 <dl class="method">
-<dt id="feature">
+<dt id="faber.feature.feature">
 <code class="descname">feature</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dt>
 <code class="descname">feature</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span></dt>
@@ -114,10 +114,10 @@ relative to the directory containing the issuing fabscript.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>string</em>) -- the feature's name</li>
-<li><strong>values</strong> (<em>list</em>) -- list of valid values</li>
-<li><strong>attributes</strong> (<em>int</em>) -- <a class="reference internal" href="#attributes"><span class="std std-ref">attributes</span></a></li>
-<li><strong>subfeatures</strong> (<a class="reference internal" href="tool.html#features" title="features"><em>features</em></a>) -- subfeatures</li>
+<li><strong>name</strong> (<em>string</em>) &#8211; the feature&#8217;s name</li>
+<li><strong>values</strong> (<em>list</em>) &#8211; list of valid values</li>
+<li><strong>attributes</strong> (<em>int</em>) &#8211; <a class="reference internal" href="#attributes"><span>attributes</span></a></li>
+<li><strong>subfeatures</strong> (<a class="reference internal" href="tool.html#faber.tool.features" title="faber.tool.features"><em>features</em></a>) &#8211; subfeatures</li>
 </ul>
 </td>
 </tr>
@@ -125,14 +125,14 @@ relative to the directory containing the issuing fabscript.</p>
 </table>
 <p>A feature normally takes a name, optional attributes,
 as well as a possible set of valid values. If no <cite>values</cite> are
-given, the feature's range of values is unrestricted.</p>
+given, the feature&#8217;s range of values is unrestricted.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="call-operator">
 <h3>Call operator</h3>
 <dl class="method">
-<dt id="__call__">
+<dt id="faber.feature.__call__">
 <code class="descname">__call__</code><span class="sig-paren">(</span><em>*values</em><span class="sig-paren">)</span></dt>
 <dd><p>Create a feature variable with the given values. (These need
 to match the values the feature was constructed with.)</p>
@@ -140,7 +140,7 @@ to match the values the feature was constructed with.)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> -- initial values of the feature variable</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> &#8211; initial values of the feature variable</td>
 </tr>
 </tbody>
 </table>
@@ -149,13 +149,13 @@ to match the values the feature was constructed with.)</p>
 </div>
 </div>
 <div class="section" id="the-value-class">
-<h2>The value class</h2>
+<h2>The <cite>value</cite> class</h2>
 <div class="section" id="operators">
 <h3>Operators</h3>
 <dl class="method">
-<dt id="__ior__">
+<dt id="faber.feature.__ior__">
 <code class="descname">__ior__</code><span class="sig-paren">(</span><em>self</em>, <em>value</em><span class="sig-paren">)</span></dt>
-<dd><p>Add the given value to this variable (if it isn't already present).
+<dd><p>Add the given value to this variable (if it isn&#8217;t already present).
 In addition to the above rules for constructing a new feature variable,
 this is only valid if the <cite>multi</cite> attribute is set for this feature.
 Trying to add a value to a feature variable without it will result in
@@ -163,7 +163,7 @@ an error.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="__eq__">
+<dt id="faber.feature.__eq__">
 <code class="descname">__eq__</code><span class="sig-paren">(</span><em>self</em>, <em>other</em><span class="sig-paren">)</span></dt>
 <dd><p>Return <cite>True</cite> if <cite>other</cite> has or is the same value as self.</p>
 </dd></dl>
@@ -171,11 +171,11 @@ an error.</p>
 </div>
 </div>
 <div class="section" id="the-set-class">
-<h2>The set class</h2>
+<h2>The <cite>set</cite> class</h2>
 <div class="section" id="class-methods">
 <h3>Class methods</h3>
 <dl class="method">
-<dt id="__getattr__">
+<dt id="faber.feature.__getattr__">
 <code class="descname">__getattr__</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span></dt>
 <dd><p>Return a condition expression that</p>
 </dd></dl>
@@ -184,7 +184,7 @@ an error.</p>
 <div class="section" id="id2">
 <h3>Constructor</h3>
 <dl class="method">
-<dt id="set">
+<dt id="faber.feature.set">
 <code class="descname">set</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dt>
 <code class="descname">set</code><span class="sig-paren">(</span><em>*values</em><span class="sig-paren">)</span></dt>
@@ -197,17 +197,17 @@ an error.</p>
 <blockquote>
 <div>A set is a dictionary-like type and provides a similar interface:</div></blockquote>
 <dl class="method">
-<dt id="keys">
+<dt id="faber.feature.keys">
 <code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="values">
+<dt id="faber.feature.values">
 <code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="items">
+<dt id="faber.feature.items">
 <code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
@@ -218,18 +218,20 @@ an error.</p>
 <dt>
 <code class="descname">__getattr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>For convenience, variables in a set can be accessed using simple attribute access syntax. If feature <cite>include</cite> is present in set <cite>s</cite>,
-<cite>s['include']</cite> and <cite>s.include</cite> give access to it.</p>
+<cite>s[&#8216;include&#8217;]</cite> and <cite>s.include</cite> give access to it.</p>
 </dd></dl>
 
 </div>
 </div>
 <div class="section" id="the-condition-expr-classes">
-<h2>The condition.expr classes</h2>
+<h2>The <cite>condition.expr</cite> classes</h2>
 <dl class="class">
-<dt id="expr">
+<dt id="faber.feature.expr">
 <em class="property">class </em><code class="descname">expr</code></dt>
 <dd><p>Base class to construct condition expressions.</p>
-<img src="../_images/inheritance-58a57f3176d2fce155711ce4697e3efeebe06eb2.png" alt="Inheritance diagram of faber.feature.condition.true, faber.feature.condition.false, faber.feature.condition.unary, faber.feature.condition.binary, faber.feature.condition.sub, faber.feature.condition.value" class="inheritance"/>
+<p class="graphviz">
+<img src="../_images/inheritance-e7ffcc47e5d9bcb30da78da3f0760c03a7aa06bf.png" alt="Inheritance diagram of faber.feature.condition.true, faber.feature.condition.false, faber.feature.condition.unary, faber.feature.condition.binary, faber.feature.condition.sub, faber.feature.condition.value" class="inheritance"/>
+</p>
 <p>All relational operators are supported, and will result in compound expressions.</p>
 </dd></dl>
 
@@ -237,7 +239,7 @@ an error.</p>
 <div class="section" id="examples">
 <h2>Examples</h2>
 <p>Assuming the following features are defined:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.feature</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.feature</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">include</span> <span class="o">=</span> <span class="n">feature</span><span class="p">(</span><span class="s1">&#39;include&#39;</span><span class="p">,</span> <span class="n">multi</span><span class="o">|</span><span class="n">path</span><span class="o">|</span><span class="n">incidental</span><span class="p">)</span>
 <span class="n">link</span> <span class="o">=</span> <span class="n">feature</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;shared&#39;</span><span class="p">,</span> <span class="s1">&#39;static&#39;</span><span class="p">))</span>
@@ -245,16 +247,16 @@ an error.</p>
 </pre></div>
 </div>
 <p>it is possible to define values for them globally per command-line arguments:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>faber include=search include=path link=shared target.os=Linux
+<div class="highlight-none"><div class="highlight"><pre>faber include=search include=path link=shared target.os=Linux
 </pre></div>
 </div>
 <p>These feature values are added to all artefact feature sets by default (but
 may be overwritten or added to by artefact-specific values:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">link</span><span class="p">(</span><span class="s1">&#39;static&#39;</span><span class="p">))</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">link</span><span class="p">(</span><span class="s1">&#39;static&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Artefacts may be conditionalized using condition expressions:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="nb">set</span><span class="o">.</span><span class="n">define</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;HAS_FEATURE&#39;</span><span class="p">))</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="nb">set</span><span class="o">.</span><span class="n">define</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;HAS_FEATURE&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -271,7 +273,7 @@ may be overwritten or added to by artefact-specific values:</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 24, 2017</p>
+      <p>last updated Aug 02, 2018</p>
     </div>
   </body>
 </html>

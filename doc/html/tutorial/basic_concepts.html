@@ -70,10 +70,10 @@ and look at a few more basic building blocks out of which such higher-level cons
 are composed.
 The central concepts in <cite>faber</cite> are <em>artefacts</em>, which are generated using <em>actions</em>.
 In the simplest case, artefacts are declared using <em>rules</em>, which instruct faber how
-to generate artefacts, possibly from other (&quot;source&quot;) artefacts.</p>
-<p>So to appreciate this mechanism, let's rebuild the previous example from these
+to generate artefacts, possibly from other (&#8220;source&#8221;) artefacts.</p>
+<p>So to appreciate this mechanism, let&#8217;s rebuild the previous example from these
 foundational building blocks. Consider this <cite>fabscript</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># define some actions</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># define some actions</span>
 <span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.compile&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -c -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
 <span class="n">link</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.link&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
 
@@ -90,11 +90,11 @@ items, before we then move on to higher level abstractions.</p>
 <div class="section" id="actions-and-recipes">
 <h2>Actions and recipes</h2>
 <p>The following line defines a very simple action called <cite>c++.compile</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.compile&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -c -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;c++.compile&#39;</span><span class="p">,</span> <span class="s1">&#39;c++ -c -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It can be used as a recipe in a rule to compile an object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="nb">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="nb">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The action has a name, which will be reported as the build process progresses, as well
@@ -103,11 +103,11 @@ use variables (<cite>$(...)</cite>) which are substituted when the action is bou
 targets and sources, that is, when it is instantiated into a <cite>recipe</cite>.
 In the above case the two variables <cite>&lt;</cite> and <cite>&gt;</cite> are being substituted
 for target and source respectively, so the command will actually be:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>c++ -c -o hello.o hello.cpp
+<div class="highlight-none"><div class="highlight"><pre>c++ -c -o hello.o hello.cpp
 </pre></div>
 </div>
 <p>It is also possible to use Python functions as actions, with the following calling convention:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">do_something</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="p">[]):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">do_something</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="p">[]):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
@@ -116,11 +116,11 @@ artefacts (which this function should generate or update), as well as an optiona
 of source artefacts, serving as input.</p>
 <p>Actions may also be called explicitly from inside functions. Consider the example from the
 previous chapter where we defined a <cite>run_test</cite> action to update a <cite>test</cite> artefact:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">action</span><span class="p">(</span><span class="s1">&#39;run_test&#39;</span><span class="p">,</span> <span class="s1">&#39;./$(&gt;)&#39;</span><span class="p">),</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">notfile</span><span class="o">|</span><span class="n">always</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">test</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">action</span><span class="p">(</span><span class="s1">&#39;run_test&#39;</span><span class="p">,</span> <span class="s1">&#39;./$(&gt;)&#39;</span><span class="p">),</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">notfile</span><span class="o">|</span><span class="n">always</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We could adorn this action with some output to indicate whether the test passed or failed:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">run</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="s1">&#39;./$(&gt;)&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">run</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="s1">&#39;./$(&gt;)&#39;</span><span class="p">)</span>
 
 <span class="c1"># python functions may be actions, too</span>
 <span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
@@ -147,7 +147,7 @@ one). We will cover the <a class="reference internal" href="../glossary.html#ter
 <p>As mentioned before, <a class="reference internal" href="../glossary.html#term-rule"><span class="xref std std-term">rule</span></a>s are used to declare how to make (or update) target
 artefacts from sources. In the simplest case a rule is called with two arguments: the action
 to perform, and the target to generate or update. It will return an <cite>artefact</cite> instance:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">build</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">output</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">build</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As we have already seen, the action argument may either be an action instance, or a Python
@@ -170,11 +170,11 @@ to the reference manual. Here we describe the most common ones:</p>
 </ul>
 <p>In addition to the <cite>rule</cite> function that declares how to update a target artefact
 using a recipe, it may be desirable to merely declare a dependency:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">depend</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>  <span class="c1"># make sure b is up to date before a is updated</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">depend</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>  <span class="c1"># make sure b is up to date before a is updated</span>
 </pre></div>
 </div>
-<p>or to define an 'alias' for one or more other artefacts:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">alias</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">])</span>  <span class="c1"># update a, b, and c whenever `faber all` is called</span>
+<p>or to define an &#8216;alias&#8217; for one or more other artefacts:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">alias</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">])</span>  <span class="c1"># update a, b, and c whenever `faber all` is called</span>
 </pre></div>
 </div>
 </div>
@@ -184,33 +184,33 @@ using a recipe, it may be desirable to merely declare a dependency:</p>
 actions, as well as into the logic that is used to decide which artefacts to
 generate or update.</p>
 <p>Values may be defined globally, for example as command-line options:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ faber variant=release target.os=w64
+<div class="highlight-none"><div class="highlight"><pre>$ faber variant=release target.os=w64
 </pre></div>
 </div>
 <p>or per artefact:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">lib</span><span class="o">=</span><span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">link</span><span class="p">(</span><span class="s1">&#39;shared&#39;</span><span class="p">))</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">lib</span><span class="o">=</span><span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">link</span><span class="p">(</span><span class="s1">&#39;shared&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>An individual feature corresponds to a variable (e.g. 'variant', 'target.os',
-or 'link', in the above examples), which may hold different values (e.g.
-'release', 'w64', 'shared').
-Features are typically defined in a domain-specific context. &quot;define&quot;, &quot;include&quot;,
-and &quot;link&quot; are features defined in the context of C/C++ compilation, while
-&quot;target.os&quot; is a feature more generally useful to describe the system binary
+<p>An individual feature corresponds to a variable (e.g. &#8216;variant&#8217;, &#8216;target.os&#8217;,
+or &#8216;link&#8217;, in the above examples), which may hold different values (e.g.
+&#8216;release&#8217;, &#8216;w64&#8217;, &#8216;shared&#8217;).
+Features are typically defined in a domain-specific context. &#8220;define&#8221;, &#8220;include&#8221;,
+and &#8220;link&#8221; are features defined in the context of C/C++ compilation, while
+&#8220;target.os&#8221; is a feature more generally useful to describe the system binary
 artefacts will run on).</p>
 <p>As different commands will use different flags based on their values, these
 values are <cite>mapped</cite> to command-specific variables as recipes are instantiated
 for a given target artefact. Consider the <cite>compile</cite> action we already encountered,
 now augmented by a flag to set an include path. A somewhat more advanced version
 suitable to be used with <cite>g++</cite> on Linux may look somewhat like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">compile</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">compile</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
 
     <span class="n">command</span> <span class="o">=</span> <span class="s1">&#39;g++ $(cppflags) -c -o $(&lt;) $(&gt;)&#39;</span>
     <span class="n">cppflags</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">compiler</span><span class="o">.</span><span class="n">include</span><span class="p">,</span> <span class="n">translate</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;-I&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>i.e. a <cite>cppflags</cite> variable (referenced in the action command) is generated from
-a platform-agnostic <cite>compiler.include</cite> feature by prefixing all values with '-I'.</p>
+a platform-agnostic <cite>compiler.include</cite> feature by prefixing all values with &#8216;-I&#8217;.</p>
 <p>This powerful mechanism allows complex build logic to be separated into a generic
 part that maps platform-agnostic features to platform-specific tools and commands,
 and an application-specific part that is focused on the semantics of their build
@@ -253,7 +253,7 @@ All of those will be discussed in detail in later chapters.</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 24, 2017</p>
+      <p>last updated Aug 02, 2018</p>
     </div>
   </body>
 </html>

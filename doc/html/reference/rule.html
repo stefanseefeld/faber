@@ -72,7 +72,7 @@ or more other artefacts.</p>
 <h2>synopsis</h2>
 <dl class="function">
 <dt id="faber.rule.rule">
-<code class="descclassname">faber.rule.</code><code class="descname">rule</code><span class="sig-paren">(</span><em>recipe</em>, <em>targets</em>, <em>sources=[]</em>, <em>dependencies=[]</em>, <em>attrs=0</em>, <em>features=()</em>, <em>module=None</em><span class="sig-paren">)</span></dt>
+<code class="descname">rule</code><span class="sig-paren">(</span><em>recipe</em>, <em>targets</em>, <em>sources=[]</em>, <em>dependencies=[]</em>, <em>attrs=0</em>, <em>features=()</em>, <em>module=None</em>, <em>path_spec=''</em>, <em>logfile=None</em><span class="sig-paren">)</span></dt>
 <dd><p>Express how to generate <cite>artefacts</cite>. In the simplest case this involves a
 source and a recipe...</p>
 <dl class="docutils">
@@ -101,21 +101,21 @@ artefacts (or a mix thereof).</dd>
 
 <dl class="function">
 <dt id="faber.rule.alias">
-<code class="descclassname">faber.rule.</code><code class="descname">alias</code><span class="sig-paren">(</span><em>target</em>, <em>source</em>, <em>attrs=4</em>, <em>module=None</em><span class="sig-paren">)</span></dt>
+<code class="descname">alias</code><span class="sig-paren">(</span><em>target</em>, <em>source</em>, <em>attrs=4</em>, <em>module=None</em><span class="sig-paren">)</span></dt>
 <dd><p>Declare <cite>target</cite> to be an alias for <cite>source</cite>, i.e., update <cite>source</cite> whenever
 updating <cite>target</cite> is requested.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="faber.rule.depend">
-<code class="descclassname">faber.rule.</code><code class="descname">depend</code><span class="sig-paren">(</span><em>target</em>, <em>dependencies</em><span class="sig-paren">)</span></dt>
+<code class="descname">depend</code><span class="sig-paren">(</span><em>target</em>, <em>dependencies</em><span class="sig-paren">)</span></dt>
 <dd><p>Declare <cite>target</cite> to depend on <cite>dependencies</cite>.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="examples">
 <h2>Examples</h2>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># bind target to source using the above rules</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># bind target to source using the above rules</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="nb">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
 <span class="nb">bin</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
 <span class="c1"># force obj to be updated whenever header.h is newer.</span>
@@ -139,7 +139,7 @@ updating <cite>target</cite> is requested.</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 24, 2017</p>
+      <p>last updated Aug 02, 2018</p>
     </div>
   </body>
 </html>

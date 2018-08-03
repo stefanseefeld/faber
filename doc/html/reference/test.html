@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>test - Faber 1.0 documentation</title>
+    <title>The test module - Faber 1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
@@ -25,7 +25,7 @@
     <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
     <link rel="up" title="Faber Reference" href="index.html" />
     <link rel="next" title="Appendix" href="../appendix.html" />
-    <link rel="prev" title="config" href="config.html" /> 
+    <link rel="prev" title="The config module" href="config.html" /> 
   </head>
   <body>
     <div class="header">
@@ -55,40 +55,34 @@
     <div class="navbar" style="text-align:right;">
       
       
-      <a class="prev" title="config" href="config.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="prev" title="The config module" href="config.html"><img src="../_static/prev.png" alt="prev"/></a>
       <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
       <a class="next" title="Appendix" href="../appendix.html"><img src="../_static/next.png" alt="next"/></a>
       
     </div>
       
-  <div class="section" id="test">
-<h1>test</h1>
+  <div class="section" id="the-test-module">
+<h1>The <cite>test</cite> module</h1>
 <p>The test classes can be used to define and run tests, and generate test reports.</p>
 <div class="section" id="synopsis">
 <h2>synopsis</h2>
 <dl class="class">
 <dt id="faber.test.test">
-<em class="property">class </em><code class="descclassname">faber.test.</code><code class="descname">test</code><span class="sig-paren">(</span><em>name</em>, <em>sources</em>, <em>run=False</em>, <em>dependencies=[]</em>, <em>features=()</em>, <em>condition=None</em>, <em>expected=1</em><span class="sig-paren">)</span></dt>
+<em class="property">class </em><code class="descname">test</code><span class="sig-paren">(</span><em>name</em>, <em>sources</em>, <em>run=False</em>, <em>dependencies=[]</em>, <em>features=()</em>, <em>condition=None</em>, <em>expected=1</em><span class="sig-paren">)</span></dt>
 <dd><p>A test is an artefact that is typically performed as part of a test suite, with
 special support to collect and report the test outcome.</p>
 <dl class="method">
 <dt id="faber.test.test.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>sources</em>, <em>run=False</em>, <em>dependencies=[]</em>, <em>features=()</em>, <em>condition=None</em>, <em>expected=1</em><span class="sig-paren">)</span></dt>
 <dd><p>Create a test.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><p class="first"><cite>name</cite>: the test's name</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd><ul class="first last">
+<li><p class="first">name: the test&#8217;s name</p>
 </li>
-<li><p class="first"><cite>sources</cite>: artefact(s) to be tested</p>
+<li><p class="first">sources: artefact(s) to be tested</p>
 </li>
-<li><p class="first"><cite>run</cite>: Specify what to do. Possible values:</p>
+<li><p class="first">run: Specify what to do. Possible values:</p>
 <blockquote>
 <div><ul class="simple">
 <li><cite>False</cite> (default): do nothing (but report whether source was updated successfully)</li>
@@ -97,22 +91,24 @@ special support to collect and report the test outcome.</p>
 </ul>
 </div></blockquote>
 </li>
-<li><p class="first"><cite>depends</cite>: any prerequisite artefacts that have to be completed</p>
+<li><p class="first">depends: any prerequisite artefacts that have to be completed</p>
 </li>
-<li><p class="first"><cite>features</cite>: additional features needed to perform this test</p>
+<li><p class="first">features: additional features needed to perform this test</p>
 </li>
-<li><p class="first"><cite>condition</cite>: either a boolean or a feature condition to indicate if this test is to be performed or skipped.</p>
+<li><p class="first">condition: either a boolean or a feature condition to indicate if this test is to be performed or skipped.</p>
 </li>
-<li><p class="first"><cite>expected</cite>: the expected outcome</p>
+<li><p class="first">expected: the expected outcome</p>
 </li>
 </ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="faber.test.report">
-<em class="property">class </em><code class="descclassname">faber.test.</code><code class="descname">report</code><span class="sig-paren">(</span><em>name</em>, <em>tests</em>, <em>fail_on_failures=False</em><span class="sig-paren">)</span></dt>
+<em class="property">class </em><code class="descname">report</code><span class="sig-paren">(</span><em>name</em>, <em>tests</em>, <em>fail_on_failures=False</em><span class="sig-paren">)</span></dt>
 <dd><p>A test report runs a set of tests and reports a summary.</p>
 <dl class="method">
 <dt id="faber.test.report.__init__">
@@ -131,7 +127,7 @@ special support to collect and report the test outcome.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples</h2>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="n">binary</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="n">binary</span>
 <span class="kn">from</span> <span class="nn">faber.test</span> <span class="kn">import</span> <span class="n">test</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">fail</span>
 
 <span class="n">passing</span> <span class="o">=</span> <span class="n">binary</span><span class="p">(</span><span class="s1">&#39;passing&#39;</span><span class="p">,</span> <span class="s1">&#39;passing.cpp&#39;</span><span class="p">)</span>
@@ -146,9 +142,9 @@ special support to collect and report the test outcome.</p>
 </pre></div>
 </div>
 <p>Running <cite>faber test-report</cite> will perform the tests, print
-out individual results (e.g., 'PASS', 'FAIL', etc.), then print
+out individual results (e.g., &#8216;PASS&#8217;, &#8216;FAIL&#8217;, etc.), then print
 out a summary, such as:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>test summary: 1 pass, 1 failure, 1 expected failure, 1 skipped
+<div class="highlight-none"><div class="highlight"><pre>test summary: 1 pass, 1 failure, 1 expected failure, 1 skipped
 </pre></div>
 </div>
 </div>
@@ -158,14 +154,14 @@ out a summary, such as:</p>
     <div class="navbar" style="text-align:right;">
       
       
-      <a class="prev" title="config" href="config.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="prev" title="The config module" href="config.html"><img src="../_static/prev.png" alt="prev"/></a>
       <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
       <a class="next" title="Appendix" href="../appendix.html"><img src="../_static/next.png" alt="next"/></a>
       
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 24, 2017</p>
+      <p>last updated Aug 02, 2018</p>
     </div>
   </body>
 </html>

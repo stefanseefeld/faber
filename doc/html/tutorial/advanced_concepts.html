@@ -70,48 +70,48 @@ tool may provide different methods to compile and link code. Concrete compilers 
 then provide implementations of that base class, and run the appropriate command for
 the respective platform. That substitution can happen during the build process, while
 the build logic encoded in the fabscript is strictly platform-agnostic.</p>
-<p>Let's augment the original <cite>Hello World !</cite> example to illustrate this. Faber provides
+<p>Let&#8217;s augment the original <cite>Hello World !</cite> example to illustrate this. Faber provides
 a few built-in tools, such as C and C++ compilers. The abstract interface may look like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">cxx</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">cxx</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">()</span>
     <span class="n">link</span> <span class="o">=</span> <span class="n">action</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>which allows fabscripts to reference <cite>cxx.compile</cite> when defining rules:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">cxx</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">cxx</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><cite>faber</cite> also provides specific compilers implementing the above interface, for example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">gxx</span><span class="p">(</span><span class="n">cxx</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">gxx</span><span class="p">(</span><span class="n">cxx</span><span class="p">):</span>
 
     <span class="nb">compile</span> <span class="o">=</span> <span class="n">action</span><span class="p">(</span><span class="s1">&#39;g++ -c -o $(&lt;) $(&gt;)&#39;</span><span class="p">)</span>
-  <span class="o">...</span>
+    <span class="o">...</span>
 </pre></div>
 </div>
 <p>allowing the build system to later substitute <cite>gxx.compile</cite> where <cite>cxx.compile</cite> was
 requested. For each reference to an abstract tool, faber will attempt to instantiate
-a suitable concrete tool matching the currently active feature set. Thus it's possible
+a suitable concrete tool matching the currently active feature set. Thus it&#8217;s possible
 to request a specific compiler on the command line:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ faber cxx.name=gxx
+<div class="highlight-none"><div class="highlight"><pre>$ faber cxx.name=gxx
 </pre></div>
 </div>
 <p>Tools may also be instantiated explicitly in a config file, allowing for additional
 configuration (such as specific paths or flags):</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">gxx11</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;g++11&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">cxxflags</span><span class="p">(</span><span class="s1">&#39;--std=c++11&#39;</span><span class="p">))</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">gxx11</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;g++11&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">cxxflags</span><span class="p">(</span><span class="s1">&#39;--std=c++11&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Here, we defined a new <cite>gxx</cite> instance using an additional flag <cite>==std=c++11</cite>, and
 gave it the name <cite>g++11</cite>. To select that from the command line, we would invoke:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ faber cxx.name=g++11
+<div class="highlight-none"><div class="highlight"><pre>$ faber cxx.name=g++11
 </pre></div>
 </div>
 <p>You may also want to set up a <cite>gxx</cite> instance to configure a cross-compiler:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mingwxx</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mingw++&#39;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="sb">`/usr/bin/x86_64-w64-mingw32-g++`</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre>mingwxx = gxx(name=&#39;mingw++&#39;, command=`/usr/bin/x86_64-w64-mingw32-g++`)
 </pre></div>
 </div>
 <p>and then cross-compile by invoking:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ faber cxx.name=mingw++
+<div class="highlight-none"><div class="highlight"><pre>$ faber cxx.name=mingw++
 </pre></div>
 </div>
 </div>
@@ -120,14 +120,14 @@ gave it the name <cite>g++11</cite>. To select that from the command line, we wo
 <p>While simple build pipelines may be declared using <cite>rules</cite>, this leads to a lot
 of repitition as very similar rules would need to be declared to compile all source
 files into object files, for example. To simplify this, <cite>implicit rules</cite> can be provided
-by tools, which don't declare how to make a specific artefact from a source (or prerequisite
+by tools, which don&#8217;t declare how to make a specific artefact from a source (or prerequisite
 artefact), but rather how a certain artefact <em>type</em> (e.g., an object file) can be generated
 from a source (or artefact) type (such as a C or C++ source file).
 Higher-order artefacts such as <cite>library</cite> or <cite>binary</cite> can then request that the appropriate
 implicit rules are instantiated into ordinary rules to make a library or a binary without
 the user having to spell out all the intermediate artefacts.</p>
-<p>This is done in a tool's constructor. For example, the <cite>gxx</cite> constructor calls:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">cxx</span><span class="p">)</span>
+<p>This is done in a tool&#8217;s constructor. For example, the <cite>gxx</cite> constructor calls:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">cxx</span><span class="p">)</span>
 <span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">archive</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">lib</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">)</span>
 <span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">bin</span><span class="p">,</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">dso</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">lib</span><span class="p">))</span>
 <span class="n">implicit_rule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">dso</span><span class="p">,</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">dso</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">lib</span><span class="p">))</span>
@@ -148,18 +148,18 @@ files, built by specific commands. While this model appeals through its simplici
 it is not very portable: Most actions depend heavily on the platforms they are to be
 executed on. Furthermore, depending on the platform / tools, different intermediate
 artefacts may need to be built.</p>
-<p>Let's consider again the case of a binary using a library. But instead of
-referring explicitly to the library's file name (which may differ depending on the
+<p>Let&#8217;s consider again the case of a binary using a library. But instead of
+referring explicitly to the library&#8217;s file name (which may differ depending on the
 platform, as well as whether or not it is compiled as a shared or a static library),
 we use a composite artefact to encapsulate those details.
 We use a new <cite>library</cite> rule to define it:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.artefacts.library</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.artefacts.library</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <cite>library()</cite> call looks similar to the <cite>rule()</cite> call: xxx
 <cite>artefact</cite> and a <cite>sources</cite> argument, and returns the artefact instance.
-However, the artefact's name (<cite>greet.name</cite>) doesn't necessarily correspond
+However, the artefact&#8217;s name (<cite>greet.name</cite>) doesn&#8217;t necessarily correspond
 to the filename.
 The precise build instructions are fully encapsulated inside the artefact,
 and will take into account both the (target) platform as well as the tool and
@@ -167,7 +167,7 @@ features selected when the build was started.</p>
 <p>Similarly, to use the library, you can pass <cite>greet</cite> as source to any dependent
 rule or artefact, and the build logic will determine the precise action sequence
 to use it:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="n">hello</span> <span class="o">=</span> <span class="n">binary</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;hello.cpp&#39;</span><span class="p">,</span> <span class="n">greet</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -181,17 +181,17 @@ Windows), call <cite>faber link=shared</cite>. To build this as a static library
 well as the build instructions. Consider a case where we want to build a
 library as well as a binary that is using that library. Both live in
 separate directories:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">.../</span><span class="n">project</span><span class="o">/</span>
-            <span class="n">subdir</span><span class="o">/</span>
-                   <span class="n">greet</span><span class="o">.</span><span class="n">cpp</span>
-                   <span class="n">fabscript</span>
-            <span class="n">hello</span><span class="o">.</span><span class="n">cpp</span>
-            <span class="n">fabscript</span>
+<div class="highlight-python"><div class="highlight"><pre>.../project/
+            subdir/
+                   greet.cpp
+                   fabscript
+            hello.cpp
+            fabscript
 </pre></div>
 </div>
 <p>The fabscript for the subproject is simply a stripped-down version of
 our previous version, as it now only builds the <cite>greet</cite> library:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.artefacts.library</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.artefacts.library</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">)</span>
 
@@ -199,7 +199,7 @@ our previous version, as it now only builds the <cite>greet</cite> library:</p>
 </pre></div>
 </div>
 <p>The toplevel fabscript now includes that sub-project by virtue of a <a class="reference internal" href="../glossary.html#term-module"><span class="xref std std-term">module</span></a>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="n">binary</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="n">binary</span>
 
 <span class="n">subdir</span> <span class="o">=</span> <span class="n">module</span><span class="p">(</span><span class="s1">&#39;subdir&#39;</span><span class="p">)</span>
 
@@ -210,7 +210,7 @@ our previous version, as it now only builds the <cite>greet</cite> library:</p>
 <span class="n">default</span> <span class="o">=</span> <span class="n">hello</span>
 </pre></div>
 </div>
-<p>Notice how the call to <cite>module('subdir')</cite> returns the module object,
+<p>Notice how the call to <cite>module(&#8216;subdir&#8217;)</cite> returns the module object,
 through which we can access nested artefacts (and other variables).
 The binary rule can now directly reference the <cite>subdir.greet</cite>
 library as one of its sources, and the right thing will happen.</p>
@@ -228,7 +228,7 @@ library as one of its sources, and the right thing will happen.</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Nov 24, 2017</p>
+      <p>last updated Aug 02, 2018</p>
     </div>
   </body>
 </html>
