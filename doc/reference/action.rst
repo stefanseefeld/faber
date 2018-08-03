@@ -1,6 +1,8 @@
 The `action` class
 ==================
 
+.. py:currentmodule:: faber.action
+
 An action is performed in order to (re-)generate an artefact.
 it uses either a command string (executed in a platform-specific shell), or
 a Python callable.

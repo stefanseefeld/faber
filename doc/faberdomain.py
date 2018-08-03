@@ -80,10 +80,11 @@ class InheritanceField(Field):
             t = directive.arguments[0]
             # node attributes
             node_attrs = ', '.join(['shape="box"',
-                                   'fontsize="10"',
-                                   'height="0.25"',
-                                   'fontname="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans"',
-                                   'style="setlinewidth(0.5)"'])
+                                    'fontsize="10"',
+                                    'height="0.25"',
+                                    'fontname="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans"',
+                                    'style="setlinewidth(0.5) filled"',
+                                    'fillcolor="khaki3:khaki1"'])
             code += ['%s [%s, label="%s"];'%(t, node_attrs, t)]
             code += ['%s [%s, label="%s"];'%(b, node_attrs, b) for b in bases]
             code += ['%s -> %s;'%(t, b) for b in bases]
@@ -111,6 +112,13 @@ class FaberDirective(ObjectDescription):
                 fields += field
         # Insert option fields right after signature
         content.insert(1, fields)
+
+        name = self.arguments[0]
+        module = self.options.get('module', None)
+        qname = '{}.{}'.format(module, name) if module else name
+        classname = self.name[4:] if self.name.startswith('fab:') else self.name
+        indextext = '{} ({} in {})'.format(name, classname, module)
+        index = addnodes.index(entries=[('single', indextext, name, None)])
         return [index, content]
 
 

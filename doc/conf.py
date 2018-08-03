@@ -26,6 +26,9 @@ extensions = ['sphinx.ext.autodoc', 'sphinxarg.ext',
               'sphinx.ext.graphviz', 'sphinx.ext.inheritance_diagram',
               'faberdomain']
 
+inheritance_node_attrs = dict(style='filled', fillcolor='"khaki3:khaki1"')
+
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -73,7 +76,7 @@ exclude_patterns = ['_build']
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+add_module_names = False
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.

@@ -1,6 +1,8 @@
 rule, alias, depend
 ===================
 
+.. py:currentmodule:: faber.rule
+
 A rule describes how to update an artefact using a recipe.
 An alias defines a means to reference one or more artefacts
 with a single name / object.

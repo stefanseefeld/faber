@@ -1,6 +1,9 @@
 The `feature` module
 ====================
 
+.. py:currentmodule:: faber.feature
+
+
 A feature is a typed variable that can be used to parametrize the
 build process. A given feature variable may hold one or multiple
 values. It may be restricted to a pre-defined set of possible values,
@@ -27,8 +30,8 @@ Attribute flags are used to indicate how to interpret feature values.
 
    Incidental values are not considered when matching two feature values.
 
-The feature class
------------------
+The `feature` class
+-------------------
 
 Constructor
 ~~~~~~~~~~~
@@ -61,8 +64,8 @@ Call operator
 		
    :parameter values: initial values of the feature variable
 	       
-The value class
----------------
+The `value` class
+-----------------
 
 Operators
 ~~~~~~~~~
@@ -79,8 +82,8 @@ Operators
 
    Return `True` if `other` has or is the same value as self.
 	     
-The set class
--------------
+The `set` class
+---------------
 
 Class methods
 ~~~~~~~~~~~~~
@@ -107,8 +110,6 @@ Methods
 .. method:: values()
 .. method:: items()
 
-	  
-   
 
 Operators
 ~~~~~~~~~
@@ -119,8 +120,8 @@ Operators
    `s['include']` and `s.include` give access to it.
 
 
-The condition.expr classes
---------------------------
+The `condition.expr` classes
+----------------------------
 
 .. class:: expr
 
@@ -133,7 +134,7 @@ The condition.expr classes
 			    faber.feature.condition.sub
 			    faber.feature.condition.value
       :parts: 1
-	   
+
    All relational operators are supported, and will result in compound expressions.
 
    

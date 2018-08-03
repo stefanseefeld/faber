@@ -37,19 +37,19 @@ $(>)"""
                  condition=None, expected=pass_):
         """Create a test.
 
-        :Arguments:
-        - `name`: the test's name
-        - `sources`: artefact(s) to be tested
-        - `run`: Specify what to do. Possible values:
+        Arguments:
+          * name: the test's name
+          * sources: artefact(s) to be tested
+          * run: Specify what to do. Possible values:
 
-           - `False` (default): do nothing (but report whether source was updated successfully)
-           - `True`: Run sources
-           - an action: Perform action
+             - `False` (default): do nothing (but report whether source was updated successfully)
+             - `True`: Run sources
+             - an action: Perform action
 
-        - `depends`: any prerequisite artefacts that have to be completed
-        - `features`: additional features needed to perform this test
-        - `condition`: either a boolean or a feature condition to indicate if this test is to be performed or skipped.
-        - `expected`: the expected outcome"""
+          * depends: any prerequisite artefacts that have to be completed
+          * features: additional features needed to perform this test
+          * condition: either a boolean or a feature condition to indicate if this test is to be performed or skipped.
+          * expected: the expected outcome"""
 
         artefact.__init__(self, name, attrs=notfile|nocare|always, features=features, condition=condition)
         sources = aslist(sources)
