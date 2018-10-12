@@ -30,6 +30,12 @@ def pytest_configure(config):
     logging.setup(log=config.getoption('faber_log'))
 
 
+collect_ignore = []
+if scheduler.__backend__ == 'bjam':
+    # These tests require the asyncio backend
+    collect_ignore.append('scheduler')
+
+
 def pytest_generate_tests(metafunc):
     if 'compiler' in metafunc.fixturenames:
         compilers = metafunc.config.option.compiler or ['']

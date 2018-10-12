@@ -155,7 +155,7 @@ def test_intermediate():
 
     a = rule(fileutils.touch, 'a', attrs=intermediate)
     b = rule(fileutils.touch, 'b', a, attrs=intermediate)
-    c = rule(pyecho, 'c', b, attrs=notfile)
+    c = rule(pyecho, 'c', b, attrs=notfile|always)
     assert c.update()
     assert exists(a._filename)
     assert exists(b._filename)

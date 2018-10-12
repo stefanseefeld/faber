@@ -13,8 +13,8 @@ global-exclude *.so
 # python modules
 recursive-include   src/faber *.py
 
-# engine sources
-recursive-include   src/engine *
+# bjam sources
+recursive-include   src/bjam *
 
 #documentation
 recursive-include   doc *

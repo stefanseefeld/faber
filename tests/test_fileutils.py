@@ -6,7 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.artefact import notfile
+from faber.artefact import notfile, always
 from faber.rule import rule
 from faber.tools import fileutils
 from os.path import exists
@@ -43,7 +43,7 @@ def test_remove():
     """Check that 'touch' and 'rm' actions work across platforms."""
 
     a = rule(fileutils.touch, 'empty-file')
-    b = rule(fileutils.remove, 'cleanup', a, attrs=notfile)
+    b = rule(fileutils.remove, 'cleanup', a, attrs=notfile|always)
     with patch('faber.action.action.__status__'):
         assert a.update()
         assert exists(a._filename)

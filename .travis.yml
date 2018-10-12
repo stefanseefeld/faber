@@ -3,12 +3,14 @@ language: python
 matrix:
   include:
     - os: linux
-      python: "2.7"
+      python: "3.6"
       env: flake8=true
     - os: linux
       python: "2.7"
+      env: PYTHON=2
     - os: linux
       python: "3.6"
+      env: PYTHON=3
     - os: osx
       language: generic
       env: PYTHON=2
@@ -32,15 +34,16 @@ before_install:
 
 install:
   - pip install -U pytest mock six flake8 pyyaml
+  - if [ "$PYTHON" = "3" ]; then pip install -U pytest-asyncio; fi
 
 script:
   - python --version
-  - python setup.py build_ext --inplace
+  - if [ "$PYTHON" = "2" ]; then python setup.py build_ext --inplace; fi
   - PYTHONPATH=`pwd`/src python -m faber.platform
   - |
      if [ "$flake8" = true ]; then
        flake8 src/faber tests scripts/faber
      else
        PYTHONPATH=`pwd`/src scripts/faber --info=tools cxx
-       PYTHONPATH=`pwd`/src py.test tests --compiler=native -v
+       PYTHONPATH=`pwd`/src py.test --compiler=native -v
      fi

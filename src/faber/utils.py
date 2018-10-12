@@ -29,8 +29,8 @@ def capture_output():
 
         class TextIO(StringIO):
             def write(self, data):
-                if not isinstance(data, unicode):
-                    data = unicode(data, getattr(self, '_encoding', 'utf-8'), 'replace')
+                if not isinstance(data, unicode):  # noqa F821
+                    data = unicode(data, getattr(self, '_encoding', 'utf-8'), 'replace')  # noqa F821
                 StringIO.write(self, data)
     else:
         from io import StringIO as TextIO

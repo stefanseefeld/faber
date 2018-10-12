@@ -5,10 +5,6 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\.ci\\run_with_env.cmd"
   matrix:
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "32"
-
     - PYTHON: "C:\\Python36-x64"
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "64"
@@ -21,12 +17,14 @@ environment:
 install:
   - curl -LfsS -o vswhere.exe https://github.com/Microsoft/vswhere/releases/download/2.3.7/vswhere.exe
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "%CMD_IN_ENV% pip install -U pytest mock six pyyaml"
+  - "%CMD_IN_ENV% pip install -U pytest pytest-asyncio mock six pyyaml"
 
-build_script:
-  - "%CMD_IN_ENV% python setup.py build_ext --inplace"
+# At this point we are only building and testing the asyncio-based scheduler on Windows.
+build: off
+#build_script:
+#  - "%CMD_IN_ENV% python setup.py build_ext --inplace"
 
 test_script:
   - set PYTHONPATH=%cd%\\src
   - "%CMD_IN_ENV% python scripts\\faber --info=tools cxx"
-  - "%CMD_IN_ENV% py.test tests --compiler=native -v"
+  - "%CMD_IN_ENV% py.test --compiler=native -v"
