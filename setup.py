@@ -37,7 +37,7 @@ if sys.platform == 'win32':
 else:
     sources+=['execunix.c', 'pathunix.c', 'fileunix.c']
 
-bjam = Extension(name='faber.bjam',
+bjam = Extension(name='faber.scheduler._bjam',
                  sources=prefix('src/bjam/', sources),
                  define_macros=[('HAVE_PYTHON', None),
                                 ('OPT_SEMAPHORE', None),

@@ -172,8 +172,7 @@ class source(artefact):
         # don't depend on anything
         from . import scheduler
         artefact._qnames[self.qname].append(self)
-        scheduler.define_target(self)
-        scheduler.bind_filename(self)
+        scheduler.define_target(self, bind=True)
 
     @property
     def _filename(self):

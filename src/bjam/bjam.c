@@ -433,7 +433,7 @@ static PyMethodDef bjam_methods[] =
 static struct PyModuleDef moduledef =
 {
   PyModuleDef_HEAD_INIT,
-  "bjam",
+  "_bjam",
   0, /* doc      */
   -1, //sizeof(struct module_state),
   bjam_methods,
@@ -443,20 +443,20 @@ static struct PyModuleDef moduledef =
   0  /* free     */
 };
 
-PyMODINIT_FUNC PyInit_bjam(void)
+PyMODINIT_FUNC PyInit__bjam(void)
 #else
-void initbjam(void)
+void init_bjam(void)
 #endif
 {
   PyObject *module;
-  DependencyError = PyErr_NewException("bjam.DependencyError", NULL, NULL);
+  DependencyError = PyErr_NewException("_bjam.DependencyError", NULL, NULL);
   Py_INCREF(DependencyError);
 #if PY_MAJOR_VERSION >= 3
   module = PyModule_Create(&moduledef);
   PyModule_AddObject(module, "DependencyError", DependencyError);
   return module;
 #else
-  module = Py_InitModule("bjam", bjam_methods);
+  module = Py_InitModule("_bjam", bjam_methods);
   PyModule_AddObject(module, "DependencyError", DependencyError);
 #endif
 }

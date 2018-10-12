@@ -7,17 +7,21 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from __future__ import absolute_import
-from . import bjam
-from .bjam import DependencyError  # noqa F401
-from .utils import capture_output
-from .artefact import notfile, intermediate
-from .cache import filecache
-from .utils import aslist
+from . import _bjam
+from ._bjam import DependencyError  # noqa F401
+from ..utils import capture_output
+from ..artefact import notfile, intermediate
+from ..cache import filecache
+from ..utils import aslist
 from types import FunctionType, MethodType
 from os import makedirs, remove, rmdir
 from os.path import dirname, lexists
 from collections import defaultdict
 import logging
+
+__all__ = ['init', 'clean', 'finish',
+           'variables', 'define_action', 'define_target', 'add_dependency', 'define_recipe',
+           'run', 'update', 'DependencyError']
 
 logger = logging.getLogger('scheduler')
 summary_logger = logging.getLogger('summary')
@@ -110,7 +114,7 @@ def _pyaction(name, func):
     Python callables are executed differently, so we wrap them here
     to be able to capture and report their status."""
 
-    from .action import action, CallError
+    from ..action import action, CallError
 
     def wrapper(target, source, **kwds):
         tt = [boundnames[t] for t in target]
@@ -127,7 +131,7 @@ def _pyaction(name, func):
                     # let users indicate failure by explicitly returning 'False'
                     if status is not False:
                         status = True
-                except bjam.DependencyError:
+                except _bjam.DependencyError:
                     # dependency errors are fatal - there is no point
                     # in carrying on...
                     raise
@@ -157,12 +161,12 @@ def init(params, builddir, readonly=False, **options):
     noexec = options.get('noexec', False)
     files = filecache(builddir, params) if not readonly else ()
     keep_intermediates = options.get('intermediates', False)
-    bjam.init(_prepare, _report,
-              log,
-              noexec,
-              options.get('jobs', 1),
-              options.get('timeout', 0),
-              options.get('force', False))
+    _bjam.init(_prepare, _report,
+               log,
+               noexec,
+               options.get('jobs', 1),
+               options.get('timeout', 0),
+               options.get('force', False))
 
 
 def clean(level=1):
@@ -207,12 +211,12 @@ def finish():
     actions.clear()
     del files
     del recipes[:]
-    bjam.finish()
+    _bjam.finish()
 
 
 def variables(a):
     logger.info('getting variables for {}'.format(a.id))
-    return bjam.get_target_variables(a.id)
+    return _bjam.get_target_variables(a.id)
 
 
 def define_action(a):
@@ -222,28 +226,30 @@ def define_action(a):
         func = a.command
         if type(func) in (FunctionType, MethodType):
             func = _pyaction(a.id, func)
-        bjam.define_action(a.id, func, [])
+        _bjam.define_action(a.id, func, [])
 
 
-def define_target(a):
+def define_target(a, bind=False):
     logger.info('define target {}'.format(a.id))
     artefacts[a.id] = a
     if a.attrs & notfile:
         boundnames[a.id] = a
-    bjam.define_target(a.id, a.attrs)
+    _bjam.define_target(a.id, a.attrs)
+    if bind:
+        bind_filename(a)
 
 
 def bind_filename(a):
     logger.info('bind filename {} {}'.format(a.id, a._filename))
     boundnames[a._filename] = a
-    return bjam.bind_filename(a.id, a._filename, lexists(a._filename))
+    return _bjam.bind_filename(a.id, a._filename, lexists(a._filename))
 
 
 def add_dependency(a, deps):
     deps = [d.id for d in aslist(deps)]
     logger.info('declare dependencies {} -> {}'
                 .format(a.id, deps))
-    return bjam.add_dependency(a.id, deps)
+    return _bjam.add_dependency(a.id, deps)
 
 
 def define_recipe(a, targets, sources=[]):
@@ -253,18 +259,18 @@ def define_recipe(a, targets, sources=[]):
         sources = [s.id for s in sources]
         logger.info('define recipe {}({}, {})'
                     .format(a.id, targets, sources))
-        return bjam.define_recipe(a.id, targets, sources)
+        return _bjam.define_recipe(a.id, targets, sources)
 
 
 def run(command):
     logger.info('run {}'.format(command))
-    status, stdout, stderr = bjam.run(command)
+    status, stdout, stderr = _bjam.run(command)
     return status == 0, stdout, stderr
 
 
 def update(artefacts=[]):
-    return bjam.update([a.id for a in aslist(artefacts)]) == 0
+    return _bjam.update([a.id for a in aslist(artefacts)]) == 0
 
 
 def print_dependency_graph(artefacts=[]):
-    return bjam.print_dependency_graph([a.id for a in aslist(artefacts)])
+    return _bjam.print_dependency_graph([a.id for a in aslist(artefacts)])
