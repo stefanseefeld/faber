@@ -10,9 +10,9 @@
 import faber
 from faber import scheduler
 from faber import project
+from faber import logging
 import os.path
 import argparse
-import logging
 
 
 class PosArgsParser(argparse.Action):
@@ -37,16 +37,6 @@ class PosArgsParser(argparse.Action):
                 namespace.goals.append(v)
 
 
-log_topics = dict(summary=1, actions=2, commands=4,
-                  process=0,    # scheduler backend
-                  scheduler=0,  # interaction with scheduler
-                  tools=0,      # instantiation of tools
-                  features=0,   # creation and manipulation of features
-                  rules=0,      # declaration of rules (including implicit ones)
-                  config=0,     # any config-related activity
-                  test=0)       # any testing-related activity
-
-
 def make_parser(prog='faber'):
 
     parser = argparse.ArgumentParser(prog=prog,
@@ -63,14 +53,14 @@ def make_parser(prog='faber'):
                         help='the location of the build directory')
     parser.add_argument('--rc', default=None,
                         help='the location of the rc file')
-    logging = parser.add_mutually_exclusive_group()
-    logging.add_argument('--log', action='append',
-                         choices=log_topics.keys(),
-                         help='add log topic')
-    logging.add_argument('-l', dest='loglevel', type=int,
-                         help='set log level (summary=1, actions=2, commands=4)')
-    logging.add_argument('-s', '--silent', action='store_true',
-                         help='suppress all output')
+    log_args = parser.add_mutually_exclusive_group()
+    log_args.add_argument('--log', action='append',
+                          choices=logging.topics.keys(),
+                          help='add log topic')
+    log_args.add_argument('-l', dest='loglevel', type=int,
+                          help='set log level (summary=1, actions=2, commands=4)')
+    log_args.add_argument('-s', '--silent', action='store_true',
+                          help='suppress all output')
     parser.add_argument('-j', '--parallel', type=int, default=1,
                         help='set concurrency level')
     parser.add_argument('--debug', action='store_true',
@@ -94,46 +84,6 @@ def make_parser(prog='faber'):
     return parser
 
 
-class ProfileFormatter(logging.Formatter):
-    """If the given record contains a `time` field and it is a non-negative
-    value, add its value to the log output."""
-
-    def format(self, record):
-        s = super(ProfileFormatter, self).format(record)
-        time = record.time if hasattr(record, 'time') else -1.
-        if time >= 0.:
-            s += '\t (time={} s)'.format(time)
-        return s
-
-
-def setup_logging(args):
-    # if debugging is enabled, print everything...
-    if args.debug:
-        logging.basicConfig(format='%(name)s: %(message)s', level=logging.DEBUG)
-    else:
-        logging.basicConfig(format='%(message)s')
-        if args.log:  # if loggers are set by name...
-            for l in args.log:
-                logging.getLogger(l).setLevel(level=logging.INFO)
-        elif args.loglevel is not None:  # if loggers are enabled by level...
-            for n, l in log_topics.items():
-                if args.loglevel & l:
-                    logging.getLogger(n).setLevel(level=logging.INFO)
-        elif not args.silent:
-            # by default, enable summary and actions logger only
-            logging.getLogger('summary').setLevel(level=logging.INFO)
-            logging.getLogger('actions').setLevel(level=logging.INFO)
-    if args.profile:
-        h = logging.StreamHandler()
-        h.setFormatter(ProfileFormatter())
-        c = logging.getLogger('commands')
-        c.handlers[:] = []  # hack !
-        c.addHandler(h)
-        c.propagate = False
-        # `-p` implies `--log=commands`
-        c.setLevel(level=logging.INFO)
-
-
 def main(argv):
 
     parser = make_parser(argv[0])
@@ -153,7 +103,8 @@ def main(argv):
         # (See https://bugs.python.org/issue14191 for context)
         args = parser.parse_args(unknown, args)
 
-        setup_logging(args)
+        logging.setup(args.log, args.loglevel,
+                      args.debug, args.silent, args.profile)
         if args.debug:
             faber.debug = True
         scheduler.init(args.parameters, args.builddir, readonly=args.info=='tools',

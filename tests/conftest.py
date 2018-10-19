@@ -10,6 +10,7 @@ from __future__ import absolute_import, print_function
 from faber import scheduler
 from faber.module import module as M
 from faber import config as C
+from faber import logging
 from os.path import join
 from os import mkdir
 import tempfile
@@ -18,8 +19,15 @@ import pytest
 
 
 def pytest_addoption(parser):
+    parser.addoption('--faber-log', action='append',
+                     choices=logging.topics.keys(),
+                     help='add log topic')
     parser.addoption('--compiler', action='append', default=[],
                      help='specify a compiler to test with. Ex: "gcc", "msvc", "native"')
+
+
+def pytest_configure(config):
+    logging.setup(log=config.getoption('faber_log'))
 
 
 def pytest_generate_tests(metafunc):

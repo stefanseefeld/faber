@@ -6,6 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from __future__ import absolute_import
 from .utils import add_metaclass
 from .feature import feature, set
 from .action import action
