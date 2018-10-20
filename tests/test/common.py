@@ -6,6 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
+from faber import scheduler
 import contextlib
 import tempfile
 import shutil
@@ -13,11 +14,12 @@ import os
 from os.path import join
 
 
-def pyecho(targets, sources, **kwds):
-    kwds = ' '.join(['{}={}'.format(n, v) for n, v in kwds.items()])
+def pyecho(targets, sources):
+    vars = scheduler.variables(targets[0])
+    vars = ' '.join(['{}={}'.format(n, v) for n, v in vars.items()])
     print('{} <- {}'.format(' '.join([t.name for t in targets]),
                             ' '.join([s.name for s in sources])) +
-          (' ({})'.format(kwds) if kwds else ''))
+          (' ({})'.format(vars) if vars else ''))
 
 
 @contextlib.contextmanager

@@ -29,12 +29,12 @@ def test_action():
     a = rule(pyecho, a)
     b = rule(pyecho, b, a)
     c = rule(pyecho, c, b)
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(b)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+    with patch('faber.action.action.__status__') as recipe:
+        assert b.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'b <- a'
-        assert scheduler.update(c)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        assert c.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'c <- b'
 
 
@@ -44,8 +44,8 @@ def test_noop():
     a = artefact('a', attrs=notfile)
     b = artefact('b', attrs=notfile)
     b = rule(pyecho, b, a)
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(b)
+    with patch('faber.action.action.__status__') as recipe:
+        assert b.update()
         assert not recipe.called
 
 
@@ -57,8 +57,8 @@ def test_fail():
     fail = action('failing', 'fail')
     a = rule(fail, a)
     b = rule(pyecho, b, a)
-    with patch('faber.scheduler._report_recipe'):
-        assert not scheduler.update(b)
+    with patch('faber.action.action.__status__'):
+        assert not b.update()
 
 
 @pytest.mark.usefixtures('module')
@@ -70,9 +70,9 @@ def test_nocare():
     fail = action('failing', 'fail')
     a = rule(fail, a)
     b = rule(pyecho, b, a)
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(b)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+    with patch('faber.action.action.__status__') as recipe:
+        assert b.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'b <- a'
 
 
@@ -90,13 +90,13 @@ def test_dynamic_dependencies():
     a = rule(pyecho, 'a', attrs=notfile|always)
     b = rule(action('dg', inject_deps), 'b', a, attrs=notfile)
     c = rule(pyecho, c, b)
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(b)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+    with patch('faber.action.action.__status__') as recipe:
+        assert b.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'ddeps.b'
-        assert scheduler.update(c)
+        assert c.update()
         # verify that d is actually updated before c
-        output = [i[0][5].strip() for i in recipe.call_args_list]
+        output = [i[0][4].strip() for i in recipe.call_args_list]
         assert 'd <-' in output
 
 
@@ -115,9 +115,9 @@ def test_dynamic_recipe():
 
     b = rule(generate, 'b', attrs=notfile|always)
     depend(c, b)
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(c)
-        output = [i[0][5].strip() for i in recipe.call_args_list]
+    with patch('faber.action.action.__status__') as recipe:
+        assert c.update()
+        output = [i[0][4].strip() for i in recipe.call_args_list]
         assert output[-1] == 'c <- a2'
 
 
@@ -140,9 +140,9 @@ def test_multi():
     rule(pyecho, c1, b1)
     rule(pyecho, c2, b2)
     rule(pyecho, d, [c1, c2])
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(d)
-        output = [i[0][4].strip() for i in recipe.call_args_list]
+    with patch('faber.action.action.__status__') as recipe:
+        assert d.update()
+        output = [i[0][3].strip() for i in recipe.call_args_list]
         assert output[0] == 'b1 b2 <- a'
         assert 'c2 <- b2' in output
         # sets aren't ordered, so we check for both possibilities
@@ -156,7 +156,7 @@ def test_intermediate():
     a = rule(fileutils.touch, 'a', attrs=intermediate)
     b = rule(fileutils.touch, 'b', a, attrs=intermediate)
     c = rule(pyecho, 'c', b, attrs=notfile)
-    assert scheduler.update(c)
+    assert c.update()
     assert exists(a._filename)
     assert exists(b._filename)
 
@@ -166,7 +166,7 @@ def test_late():
     """Test that a "late" dependency raises an error."""
 
     a = artefact('a', attrs=notfile|always)
-    assert scheduler.update(a)
+    assert a.update()
     with pytest.raises(scheduler.DependencyError):
         b = artefact('b', attrs=notfile)
         depend(a, b)
@@ -198,4 +198,4 @@ def test_late_cycle():
     echo = action('echo', 'echo $(<) $(>)')
     c = rule(echo, c, b)
     with pytest.raises(scheduler.DependencyError):
-        assert scheduler.update(c)
+        assert c.update()

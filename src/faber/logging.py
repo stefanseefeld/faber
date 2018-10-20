@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import
 import logging
+from logging import getLogger
 
 topics = dict(summary=1, actions=2, commands=4,
               process=0,    # scheduler backend
@@ -40,19 +41,19 @@ def setup(log=[], loglevel=None, debug=False, silent=False, profile=False):
         logging.basicConfig(format='%(message)s')
         if log:  # if loggers are set by name...
             for l in log:
-                logging.getLogger(l).setLevel(level=logging.INFO)
+                getLogger(l).setLevel(level=logging.INFO)
         elif loglevel is not None:  # if loggers are enabled by level...
             for n, l in topics.items():
                 if loglevel & l:
-                    logging.getLogger(n).setLevel(level=logging.INFO)
+                    getLogger(n).setLevel(level=logging.INFO)
         elif not silent:
             # by default, enable summary and actions logger only
-            logging.getLogger('summary').setLevel(level=logging.INFO)
-            logging.getLogger('actions').setLevel(level=logging.INFO)
+            getLogger('summary').setLevel(level=logging.INFO)
+            getLogger('actions').setLevel(level=logging.INFO)
     if profile:
         h = logging.StreamHandler()
         h.setFormatter(ProfileFormatter())
-        c = logging.getLogger('commands')
+        c = getLogger('commands')
         c.handlers[:] = []  # hack !
         c.addHandler(h)
         c.propagate = False

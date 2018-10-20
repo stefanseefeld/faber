@@ -43,8 +43,8 @@ def test_composite():
     # and test it
     test = rule(test, 'test', bin, attrs=notfile)
 
-    with patch('faber.scheduler._report_recipe') as recipe:
+    with patch('faber.action.action.__status__') as recipe:
         scheduler.update([test])
-        (_, _, status, _, _, output, _), kwds = recipe.call_args_list[-1]
+        (_, status, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output == 'testing bin\n'
-        assert status == 0
+        assert status is True

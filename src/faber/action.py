@@ -145,9 +145,9 @@ class action(object):
             cmd = cmd.replace('$(<)', ' '.join(tnames))
             cmd = cmd.replace('$(>)', ' '.join(snames))
             if targets:
-                vars = scheduler.variables(targets[0])
+                vars = self.map(targets[0].features)
                 for v in self.vars:
-                    cmd = cmd.replace('$({})'.format(v), ' '.join(vars.get(v, [])))
+                    cmd = cmd.replace('$({})'.format(v), vars.get(v))
             status, stdout, stderr = scheduler.run(cmd)
             if stdout:
                 print(stdout)

@@ -51,7 +51,7 @@ def test_conditional_dependency():
     c = artefact('c', attrs=notfile)
     c = rule(pyecho, c, dependencies=[placeholder(c, b1, set.name == ''),
                                       placeholder(c, b2, set.name != '')])
-    with patch('faber.scheduler._report_recipe') as recipe:
+    with patch('faber.action.action.__status__') as recipe:
         scheduler.update(c)
-        output = [i[0][5].strip() for i in recipe.call_args_list]
+        output = [i[0][4].strip() for i in recipe.call_args_list]
         assert 'b1 <-' not in output and 'b2 <-' in output

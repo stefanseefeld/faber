@@ -81,7 +81,7 @@ class python(tool):
         else:
             self.libpath = self.check_sysconfig('get_config_var("LIBDIR")')
             self.libfile = self.check_sysconfig('get_config_var("LIBRARY")')
-            match = re.search('(python.*)\.(a|so|dylib)', self.libfile)
+            match = re.search(r'(python.*)\.(a|so|dylib)', self.libfile)
             if match:
                 self.lib = match.group(1)
                 if match.group(2) == 'a':

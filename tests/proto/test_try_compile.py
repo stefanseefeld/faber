@@ -37,8 +37,8 @@ def test_composite():
     # and test it
     check = alias(check, obj)
 
-    with patch('faber.scheduler._report_recipe') as recipe:
+    with patch('faber.action.action.__status__') as recipe:
         scheduler.update([check])
-        (_, _, status, _, _, _, _), kwds = recipe.call_args_list[-1]
+        (_, status, _, _, _, _), kwds = recipe.call_args_list[-1]
         assert recipe.call_count == 3
-        assert status == 0
+        assert status is True

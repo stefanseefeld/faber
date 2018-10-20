@@ -123,7 +123,7 @@ def _pyaction(name, func):
             # mode, such as the ones to assemble compound artefacts.
             if not noexec or hasattr(func, '__noexec__'):
                 try:
-                    status = func(tt, ss, **kwds)
+                    status = func(tt, ss)
                     # let users indicate failure by explicitly returning 'False'
                     if status is not False:
                         status = True

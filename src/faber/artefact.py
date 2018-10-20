@@ -11,10 +11,10 @@ from . import types
 from .feature import set
 from .delayed import delayed_property
 from .utils import path_formatter
+from . import logging
 from os.path import normpath, join
 from collections import defaultdict
 from functools import reduce
-import logging
 
 scheduler_logger = logging.getLogger('scheduler')
 feature_logger = logging.getLogger('features')
@@ -26,10 +26,9 @@ always= 0x0008
 leaves= 0x0010
 noupdate= 0x0020
 rmold= 0x0080
-xfail= 0x0100
-isfile= 0x0400
-precious= 0x0800
-nopropagate = 0x1000
+internal=0x0100
+precious= 0x0200
+nopropagate = 0x0400
 
 
 class artefact(object):
@@ -131,6 +130,10 @@ class artefact(object):
         clone.features.update(set.instantiate(features))
         clone._register()
         return clone
+
+    def update(self):
+        from . import scheduler
+        return scheduler.update(self)
 
     def _register(self):
         from . import scheduler

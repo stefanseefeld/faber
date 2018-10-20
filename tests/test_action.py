@@ -11,7 +11,6 @@ from faber.action import action
 from faber.artefact import artefact, notfile, always
 from faber.tools import fileutils
 from faber.rule import rule
-from faber import scheduler
 from faber.utils import capture_output
 from test.common import pyecho
 from os.path import exists
@@ -48,12 +47,12 @@ def test_recipe():
     a = rule(pyecho, a)
     b = rule(pyecho, b, a)
     c = rule(pyecho, c, b)
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(b)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+    with patch('faber.action.action.__status__') as recipe:
+        assert b.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'b <- a'
-        assert scheduler.update(c)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        assert c.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'c <- b'
 
 
@@ -76,15 +75,15 @@ def test_variables():
     a = rule(A(), a, features=variable('A'))
     b = rule(echo, b, a, features=variable('B'))
     c = rule(pye, c, b, features=variable('C'))
-    with patch('faber.scheduler._report_recipe') as recipe:
-        assert scheduler.update(a)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+    with patch('faber.action.action.__status__') as recipe:
+        assert a.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'A'
-        assert scheduler.update(b)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        assert b.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'B'
-        assert scheduler.update(c)
-        (_, _, _, _, _, output, _), kwds = recipe.call_args_list[-1]
+        assert c.update()
+        (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == "c <- b (variable=['C'])"
 
 
@@ -104,6 +103,6 @@ def test_compound():
                     out.write('something')
 
     a = rule(C(), 'a')
-    scheduler.update(a)
+    a.update()
     with open(a._filename, 'r') as f:
         assert f.readlines() == ['something']

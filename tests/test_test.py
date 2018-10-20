@@ -10,7 +10,6 @@ from faber.test import test, report, pass_, fail, xpass, xfail
 from faber.artefact import always, notfile
 from faber.action import action
 from faber.rule import rule
-from faber import scheduler
 from test.common import tempdir, write_fabscript
 import pytest
 import subprocess
@@ -26,7 +25,7 @@ def test_outcome():
     test2 = test('test2', failing)
     test3 = test('test3', passing, expected=fail)
     test4 = test('test4', failing, expected=fail)
-    assert not scheduler.update([test1, test2, test3, test4])
+    assert not all([t.update() for t in [test1, test2, test3, test4]])
     assert test1.outcome == pass_
     assert test2.outcome == fail
     assert test3.outcome == xpass
@@ -43,7 +42,7 @@ def test_report():
     test4 = test('t4', failing, expected=fail)
     test5 = test('t5', failing, condition=False)
     r = report('report', [test1, test2, test3, test4, test5])
-    assert scheduler.update(r)
+    assert r.update()
     assert test1.outcome == pass_
     assert test2.outcome == fail
     assert test3.outcome == xpass

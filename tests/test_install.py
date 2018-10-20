@@ -9,7 +9,6 @@
 from faber.artefacts import install
 from faber.rule import rule
 from faber.tools import fileutils
-from faber import scheduler
 from faber.feature import set
 from faber.module import module
 from os import mkdir
@@ -54,7 +53,7 @@ def test_installation(stage, prefix):
     b = install.installed(filename, 'src', features=fs)
     c = install.installed(dirname, 'src', features=fs)
     i = install.installation('install', [a, b, c], features=fs)
-    assert scheduler.update(i)
+    assert i.update()
     manifest = [relpath(stage, f.strip())
                 for f in open(i.manifest._filename).readlines()]
     print('manifest:', manifest)
