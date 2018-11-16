@@ -33,7 +33,7 @@ before_install:
        fi
 
 install:
-  - pip install -U pytest mock six flake8 pyyaml
+  - pip install -U pytest mock six flake8 pyyaml codecov pytest-cov
   - if [ "$PYTHON" = "3" ]; then pip install -U pytest-asyncio; fi
 
 script:
@@ -45,5 +45,8 @@ script:
        flake8 src/faber tests scripts/faber
      else
        PYTHONPATH=`pwd`/src scripts/faber --info=tools cxx
-       PYTHONPATH=`pwd`/src py.test --compiler=native -v
+       PYTHONPATH=`pwd`/src py.test --cov=./src --compiler=native -v
      fi
+
+after_success:
+  - codecov

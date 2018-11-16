@@ -1,8 +1,9 @@
 ![logo](https://github.com/stefanseefeld/faber/raw/develop/doc/_static/logo.png)
 
 
-Linux & OSX: [![TravisCI](https://travis-ci.org/stefanseefeld/faber.svg?branch=develop)](https://travis-ci.org/stefanseefeld/faber)
-Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/vci9pp0endmqcayp/branch/develop?svg=true)](https://ci.appveyor.com/project/stefanseefeld/faber/branch/develop)
+Linux & OSX: [![travis-ci](https://travis-ci.org/stefanseefeld/faber.svg?branch=develop)](https://travis-ci.org/stefanseefeld/faber)
+Windows: [![appveyor](https://ci.appveyor.com/api/projects/status/vci9pp0endmqcayp/branch/develop?svg=true)](https://ci.appveyor.com/project/stefanseefeld/faber/branch/develop)
+Code coverage: [![codecov.io](https://codecov.io/gh/stefanseefeld/faber/branch/develop/graph/badge.svg)](https://codecov.io/gh/stefanseefeld/faber)
 
 This project started as a clone of [Boost.Build](https://github.com/boostorg/build/), to experiment with a new Python frontend.
 Meanwhile it has evolved into a new build system, which retains most of the features found in Boost.Build, but with (hopefully !)
