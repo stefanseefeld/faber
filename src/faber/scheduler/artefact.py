@@ -107,6 +107,7 @@ class artefact(object):
         self.boundname = None
         self.recipe = None
         self.prerequisites = set(prerequisites)
+        self._lock = asyncio.Lock()
         self._pqueue = None
         self._dependants = set()
         self._rebuilds = set()    # targets that should be force-rebuilt whenever this one is
@@ -166,19 +167,7 @@ class artefact(object):
         * determine its fate
         * update it"""
 
-        if self.progress > progress.INIT:
-            return
-        self.progress = progress.LAUNCHED
-
-        # process prerequisites
-        # the prerequisite set may grow while we process it, so we use a queue.
-        self._pqueue = asyncio.Queue()
-        await asyncio.gather(*[self._pqueue.put(p) for p in self.prerequisites])
-        while not self._pqueue.empty():
-            p = await self._pqueue.get()
-            await p.process(self)
-        self._pqueue = None
-
+        await self.launch(parent)
         # at this point all prereqs are bound, non-temps will even be updated.
         await self.bind(parent)
         # temps require parents to be bound first, to determine their fate
@@ -186,129 +175,147 @@ class artefact(object):
             await self.compute_fate(parent)
             await self.update()
 
+    async def launch(self, parent=None):
+        """Update all prerequisites."""
+        async with self._lock:
+            if self.progress >= progress.LAUNCHED:
+                return
+            # the prerequisite set may grow while we process it, so we use a queue.
+            self._pqueue = asyncio.Queue()
+            await asyncio.gather(*[self._pqueue.put(p) for p in self.prerequisites])
+            while not self._pqueue.empty():
+                p = await self._pqueue.get()
+                await p.process(self)
+            self._pqueue = None
+            self.progress = progress.LAUNCHED
+
     async def bind(self, parent=None):
         """Bind all artefact-specific variables, including the artefact's filename.
         Precondition: the prerequisite set is now immutable, and all prerequisites are bound."""
 
-        if self.progress >= progress.BOUND:
-            return
-        self.frontend.features.eval()
-        self.boundname = self.frontend.boundname
-        if not self.flags & flag.NOTFILE:
-            d = dirname(self.boundname) or '.'
-            if not lexists(d):
-                makedirs(d)
-            self.binding = binding.EXISTS if lexists(self.boundname) else binding.MISSING
-            self._timestamp = stat(self.boundname).st_mtime if self.binding == binding.EXISTS else 0
+        async with self._lock:
+            if self.progress >= progress.BOUND:
+                return
+            self.frontend.features.eval()
+            self.boundname = self.frontend.boundname
+            if not self.flags & flag.NOTFILE:
+                d = dirname(self.boundname) or '.'
+                if not lexists(d):
+                    makedirs(d)
+                self.binding = binding.EXISTS if lexists(self.boundname) else binding.MISSING
+                self._timestamp = stat(self.boundname).st_mtime if self.binding == binding.EXISTS else 0
 
-        # if temp file does not exist but parent does, use parent
-        if (parent and
-            self.flags & flag.TEMP and
-            self.binding == binding.MISSING and
-            parent.binding != binding.MISSING):
-            self.binding = binding.PARENTS
+            # if temp file does not exist but parent does, use parent
+            if (parent and
+                self.flags & flag.TEMP and
+                self.binding == binding.MISSING and
+                parent.binding != binding.MISSING):
+                self.binding = binding.PARENTS
 
-        msg = f'bind -- {self.name}: {self.boundname} '
-        msg += f'time={self._timestamp}' if self.binding == binding.EXISTS else f'{str(self.binding)}'
-        logger.info(msg)
-        self.progress = progress.BOUND
+            msg = f'bind -- {self.name}: {self.boundname} '
+            msg += f'time={self._timestamp}' if self.binding == binding.EXISTS else f'{str(self.binding)}'
+            logger.info(msg)
+            self.progress = progress.BOUND
 
     async def compute_fate(self, parent=None):
-        if self._fate != fate.INIT:
-            return
-        self._fate=fate.MAKING
 
-        for p in self.prerequisites:
-            await p.compute_fate(self)
+        async with self._lock:
+            if self._fate != fate.INIT:
+                return
+            self._fate=fate.MAKING
 
-        self._fate = fate.STABLE
-        last = 0
-        for p in self.prerequisites:
-            if p.flags & flag.NOPROPAGATE:
-                continue
-            last = max(last, p.timestamp)
-            if self._fate < p.fate:
-                logger.info(f'fate change {self.boundname} from {str(self._fate)} to {str(p.fate)} by dependency')
-                self._fate = p.fate
-        else:
-            # if this a (non-existing) temporary without prerequisites, treat it MISSING
-            if self.flags & flag.TEMP:
-                self._fate = fate.MISSING
-        if self.flags & flag.NOUPDATE:
-            logger.info(f'fate change {self.boundname} back to stable, NOUPDATE')
+            for p in self.prerequisites:
+                await p.compute_fate(self)
+
             self._fate = fate.STABLE
-        # If can not find or make child, can not make target.
-        elif self._fate >= fate.BROKEN:
-            self._fate = fate.CANTMAKE
-        # If children changed, make target.
-        elif self._fate >= fate.SPOIL:
-            self._fate = fate.UPDATE
-        # If target missing, make it.
-        elif self.binding == binding.MISSING:
-            self._fate = fate.MISSING
-        # If children newer, make target.
-        elif self.binding == binding.EXISTS and last > self.timestamp:
-            self._fate = fate.OUTDATED
-        # If temp's children newer than parent, make temp.
-        elif self.binding == binding.PARENTS and last > parent.timestamp:
-            self._fate = fate.NEEDTMP
-        # If deliberately touched, make it.
-        elif self.flags & flag.TOUCHED:
-            self._fate = fate.TOUCHED
-        # If force flag is set, make it.
-        elif artefact.force:
-            self._fate = fate.TOUCHED
-        # If up-to-date temp file present, use it.
-        # If target newer than non-notfile parent, mark target newer.
-        # Otherwise, stable!
-
-        if self._fate == fate.MISSING and not self.recipe and not self.prerequisites:
-            if self.flags & flag.NOCARE:
-                self._fate = fate.STABLE
+            last = 0
+            for p in self.prerequisites:
+                if p.flags & flag.NOPROPAGATE:
+                    continue
+                last = max(last, p.timestamp)
+                if self._fate < p.fate:
+                    logger.info(f'fate change {self.boundname} from {str(self._fate)} to {str(p.fate)} by dependency')
+                    self._fate = p.fate
             else:
-                self._fate = fate.CANTFIND
-        logger.info(f'fate -- {self.boundname}: {str(self._fate)}')
+                # if this a (non-existing) temporary without prerequisites, treat it MISSING
+                if self.flags & flag.TEMP:
+                    self._fate = fate.MISSING
+            if self.flags & flag.NOUPDATE:
+                logger.info(f'fate change {self.boundname} back to stable, NOUPDATE')
+                self._fate = fate.STABLE
+            # If can not find or make child, can not make target.
+            elif self._fate >= fate.BROKEN:
+                self._fate = fate.CANTMAKE
+            # If children changed, make target.
+            elif self._fate >= fate.SPOIL:
+                self._fate = fate.UPDATE
+            # If target missing, make it.
+            elif self.binding == binding.MISSING:
+                self._fate = fate.MISSING
+            # If children newer, make target.
+            elif self.binding == binding.EXISTS and last > self.timestamp:
+                self._fate = fate.OUTDATED
+            # If temp's children newer than parent, make temp.
+            elif self.binding == binding.PARENTS and last > parent.timestamp:
+                self._fate = fate.NEEDTMP
+            # If deliberately touched, make it.
+            elif self.flags & flag.TOUCHED:
+                self._fate = fate.TOUCHED
+            # If force flag is set, make it.
+            elif artefact.force:
+                self._fate = fate.TOUCHED
+            # If up-to-date temp file present, use it.
+            # If target newer than non-notfile parent, mark target newer.
+            # Otherwise, stable!
+
+            if self._fate == fate.MISSING and not self.recipe and not self.prerequisites:
+                if self.flags & flag.NOCARE:
+                    self._fate = fate.STABLE
+                else:
+                    self._fate = fate.CANTFIND
+            logger.info(f'fate -- {self.boundname}: {str(self._fate)}')
 
     async def update(self):
 
-        if self.progress == progress.DONE:
-            return
+        async with self._lock:
+            if self.progress == progress.DONE:
+                return
 
-        if self._fate != fate.STABLE:
-            # Update temporary prerequisites
-            await asyncio.gather(*[p.update() for p in self.prerequisites if p.flags & flag.TEMP and p._fate != fate.STABLE])
+            if self._fate != fate.STABLE:
+                # Update temporary prerequisites
+                await asyncio.gather(*[p.update() for p in self.prerequisites if p.flags & flag.TEMP and p._fate != fate.STABLE])
 
-        failed = None
-        if self._fate != fate.STABLE:
-            failed = next(iter([p for p in self.prerequisites
-                                if p.fate != fate.STABLE and not p.status and not p.flags & flag.NOCARE]), None)
+            failed = None
+            if self._fate != fate.STABLE:
+                failed = next(iter([p for p in self.prerequisites
+                                    if p.fate != fate.STABLE and not p.status and not p.flags & flag.NOCARE]), None)
 
-        # if a prerequisite failed, fail.
-        if failed:
-            self.status = False
-        elif self._fate in (fate.STABLE, fate.NEWER):
-            self.status = True
-        elif self._fate >= fate.CANTFIND:
-            self.status = False
-        elif self._fate == fate.ISTMP:
-            print(f'...using {self.boundname}...')
-            self.status = True
-        elif self._fate >= fate.TOUCHED:
-            if self.recipe:
-                self.progress = progress.RUNNING
-                logger.info(f'update {self.boundname}')
-                self.status = await self.recipe()
-                if self.flags & flag.TEMP:
-                    artefact.temp_files.add(self.boundname)
-                elif not self.flags & flag.NOTFILE:
-                    artefact.files.append(self.boundname)
-                logger.info(f'update {self.boundname} done (status={self.status})')
-                artefact.counter['updated' if self.status else 'failed'] += 1
-            else:
-                # TODO: how should we handle alias artefacts ? What if prereqs fail ? Etc.
+            # if a prerequisite failed, fail.
+            if failed:
+                self.status = False
+            elif self._fate in (fate.STABLE, fate.NEWER):
                 self.status = True
-        self.progress = progress.DONE
-        self._report(failed)
+            elif self._fate >= fate.CANTFIND:
+                self.status = False
+            elif self._fate == fate.ISTMP:
+                print(f'...using {self.boundname}...')
+                self.status = True
+            elif self._fate >= fate.TOUCHED:
+                if self.recipe:
+                    self.progress = progress.RUNNING
+                    logger.info(f'update {self.boundname}')
+                    self.status = await self.recipe()
+                    if self.flags & flag.TEMP:
+                        artefact.temp_files.add(self.boundname)
+                    elif not self.flags & flag.NOTFILE:
+                        artefact.files.append(self.boundname)
+                    logger.info(f'update {self.boundname} done (status={self.status})')
+                    artefact.counter['updated' if self.status else 'failed'] += 1
+                else:
+                    # TODO: how should we handle alias artefacts ? What if prereqs fail ? Etc.
+                    self.status = True
+            self.progress = progress.DONE
+            self._report(failed)
 
     def _report(self, failed):
 
