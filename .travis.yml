@@ -29,6 +29,7 @@ addons:
 
 # Perform the manual steps on osx to install python3 and activate venv
 before_install:
+    # Follow documentation process from from https://github.com/kmcallister/travis-doc-upload
     - openssl aes-256-cbc -K $encrypted_2722dee00096_key -iv $encrypted_2722dee00096_iv
       -in .ci/id_rsa.enc -out ~/.ssh/id_rsa.github -d
     - |

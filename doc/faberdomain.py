@@ -118,7 +118,7 @@ class FaberDirective(ObjectDescription):
         qname = '{}.{}'.format(module, name) if module else name
         classname = self.name[4:] if self.name.startswith('fab:') else self.name
         indextext = '{} ({} in {})'.format(name, classname, module)
-        index = addnodes.index(entries=[('single', indextext, name, None)])
+        index = addnodes.index(entries=[('single', indextext, name, None, None)])
         return [index, content]
 
 
