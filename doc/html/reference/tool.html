@@ -69,14 +69,15 @@ Following idiomatic object-oriented design, abstract tools provide an interface 
 action methods, while subclasses implement them.
 Each derived tool class registers a new <cite>feature</cite> of the same name as the tool class with two subfeatures:
 name and version. For example, consider this simple tool hierarchy:</p>
-digraph T {
+<div class="graphviz"><img src="../_images/graphviz-c0b3b1dd26d203750367b00763f377c55c9437e1.png" alt="digraph T {
   rankdir=&quot;LR&quot;
   node [ fontname=&quot;Bitstream Vera Sans&quot;, fontsize=8, shape=record, style=filled, fillcolor=&quot;khaki3:khaki1&quot;]
   edge [ arrowtail=&quot;empty&quot; arrowhead=&quot;none&quot; dir=&quot;back&quot;]
   cxx [ label=&quot;{ {cxx|cxx.name : feature\lcxx.version : feature\lcompile : action\l}}&quot;]
   gxx [ label=&quot;{ {gxx|gxx.name : feature\lgxx.version : feature\lcompile : action\l}}&quot;]
   &quot;tool&quot; -&gt; &quot;cxx&quot; -&gt; &quot;gxx&quot;;
-}<p>The <em>value</em> of these these feature variables will be determined by the actual instances of these classes,
+}" class="graphviz" /></div>
+<p>The <em>value</em> of these these feature variables will be determined by the actual instances of these classes,
 i.e. an instance of <cite>gxx</cite> will have cxx.name=gxx.name='gxx'.
 This mechanism allows for references to abstract actions such as <cite>cxx.compile</cite> to be resolved to concrete
 actions.</p>
