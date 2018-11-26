@@ -80,7 +80,7 @@ how it reports its update) or to allow it to have additional internal state
 <code class="descname">notfile</code></dt>
 <dd><p><cite>notfile</cite> artefacts do not have corresponding files in the file system,
 thus whether or not they require being updated cannot be determined from
-a file&#8217;s timestamp.</p>
+a file's timestamp.</p>
 </dd></dl>
 
 <dl class="data">
@@ -101,11 +101,11 @@ a file&#8217;s timestamp.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>string</em>) &#8211; the artefact&#8217;s name</li>
-<li><strong>attrs</strong> (<em>int</em>) &#8211; <a class="reference internal" href="#a-attributes"><span>attributes</span></a></li>
-<li><strong>features</strong> &#8211; Set of artefact-specific features to add.</li>
-<li><strong>use</strong> &#8211; Set of features to be exported to other artefacts using this as a source.</li>
-<li><strong>condition</strong> &#8211; Condition in case this artefact is conditional.</li>
+<li><strong>name</strong> (<em>string</em>) -- the artefact's name</li>
+<li><strong>attrs</strong> (<em>int</em>) -- <a class="reference internal" href="#a-attributes"><span class="std std-ref">attributes</span></a></li>
+<li><strong>features</strong> -- Set of artefact-specific features to add.</li>
+<li><strong>use</strong> -- Set of features to be exported to other artefacts using this as a source.</li>
+<li><strong>condition</strong> -- Condition in case this artefact is conditional.</li>
 </ul>
 </td>
 </tr>
@@ -128,19 +128,19 @@ a file&#8217;s timestamp.</p>
 <dl class="attribute">
 <dt id="faber.artefact.name">
 <code class="descname">name</code></dt>
-<dd><p>The artefact&#8217;s name, as set in the constructor.</p>
+<dd><p>The artefact's name, as set in the constructor.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="faber.artefact.qname">
 <code class="descname">qname</code></dt>
-<dd><p>The artefact&#8217;s qualified name, i.e. the name prefixed with the (qualified) name of the module it was defined in.</p>
+<dd><p>The artefact's qualified name, i.e. the name prefixed with the (qualified) name of the module it was defined in.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="faber.artefact.filename">
 <code class="descname">filename</code></dt>
-<dd><p>The artefact&#8217;s filename, if the artefact is a file.</p>
+<dd><p>The artefact's filename, if the artefact is a file.</p>
 </dd></dl>
 
 </div>
@@ -154,7 +154,7 @@ a file&#8217;s timestamp.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples</h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">recipe</span><span class="o">=</span><span class="n">fileutils</span><span class="o">.</span><span class="n">touch</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">recipe</span><span class="o">=</span><span class="n">fileutils</span><span class="o">.</span><span class="n">touch</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -171,7 +171,7 @@ a file&#8217;s timestamp.</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Aug 02, 2018</p>
+      <p>last updated Nov 26, 2018</p>
     </div>
   </body>
 </html>

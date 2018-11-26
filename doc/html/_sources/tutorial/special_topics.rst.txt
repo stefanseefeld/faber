@@ -28,7 +28,7 @@ a set of checks, and then defines macros corresponding to the compiler features
 that are detected. Injecting these features implies a dependency, so whenever
 `check` needs to be built, the associated config checks will be done first.
 (Faber provides some caching mechanism so these checks don't have to be re-run
-if they values are already known.)
+if their values are already known.)
 
 Running Tests
 -------------

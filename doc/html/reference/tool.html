@@ -69,18 +69,15 @@ Following idiomatic object-oriented design, abstract tools provide an interface 
 action methods, while subclasses implement them.
 Each derived tool class registers a new <cite>feature</cite> of the same name as the tool class with two subfeatures:
 name and version. For example, consider this simple tool hierarchy:</p>
-<p class="graphviz">
-<img src="../_images/graphviz-5599b570dee2989fca8cae79b78ea57cf97905da.png" alt="digraph T {
+digraph T {
   rankdir=&quot;LR&quot;
   node [ fontname=&quot;Bitstream Vera Sans&quot;, fontsize=8, shape=record, style=filled, fillcolor=&quot;khaki3:khaki1&quot;]
   edge [ arrowtail=&quot;empty&quot; arrowhead=&quot;none&quot; dir=&quot;back&quot;]
   cxx [ label=&quot;{ {cxx|cxx.name : feature\lcxx.version : feature\lcompile : action\l}}&quot;]
   gxx [ label=&quot;{ {gxx|gxx.name : feature\lgxx.version : feature\lcompile : action\l}}&quot;]
   &quot;tool&quot; -&gt; &quot;cxx&quot; -&gt; &quot;gxx&quot;;
-}" />
-</p>
-<p>The <em>value</em> of these these feature variables will be determined by the actual instances of these classes,
-i.e. an instance of <cite>gxx</cite> will have cxx.name=gxx.name=&#8217;gxx&#8217;.
+}<p>The <em>value</em> of these these feature variables will be determined by the actual instances of these classes,
+i.e. an instance of <cite>gxx</cite> will have cxx.name=gxx.name='gxx'.
 This mechanism allows for references to abstract actions such as <cite>cxx.compile</cite> to be resolved to concrete
 actions.</p>
 <div class="section" id="constructor">
@@ -97,19 +94,19 @@ actions.</p>
 <dl class="attribute">
 <dt id="faber.tool.name">
 <code class="descname">name</code></dt>
-<dd><p>Return the tool&#8217;s name</p>
+<dd><p>Return the tool's name</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="faber.tool.version">
 <code class="descname">version</code></dt>
-<dd><p>Return the tool&#8217;s version string (defaults to &#8216;&#8217; if no version is known).</p>
+<dd><p>Return the tool's version string (defaults to '' if no version is known).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="faber.tool.id">
 <code class="descname">id</code></dt>
-<dd><p>Return the tool&#8217;s id (a string combining name and version).</p>
+<dd><p>Return the tool's id (a string combining name and version).</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -132,14 +129,14 @@ as well as the names of their base class(es).</p>
 <div class="section" id="examples">
 <h2>Examples</h2>
 <p>Given a simple fabscript such as:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.tools.cxx</span> <span class="kn">import</span> <span class="n">cxx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.tools.cxx</span> <span class="kn">import</span> <span class="n">cxx</span>
 
 <span class="n">rule</span><span class="p">(</span><span class="n">cxx</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>it becomes possible to configure your build environment by instantiating
 different compilers:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.tools.gxx</span> <span class="kn">import</span> <span class="n">gxx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.tools.gxx</span> <span class="kn">import</span> <span class="n">gxx</span>
 
 <span class="n">gxx</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">()</span>
 <span class="n">gxx11</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;g++11&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">cxxflags</span><span class="p">(</span><span class="s1">&#39;--std=c++11&#39;</span><span class="p">))</span>
@@ -148,18 +145,18 @@ different compilers:</p>
 </pre></div>
 </div>
 <p>Now you can invoke a build by selecting either of these to compile <cite>hello.o</cite>:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ faber cxx.name=gxx
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ faber cxx.name=gxx
 </pre></div>
 </div>
-<p>will invoke <code class="code docutils literal"><span class="pre">g++</span> <span class="pre">...</span></code>,</p>
-<div class="highlight-none"><div class="highlight"><pre>$ faber cxx.name=g++11
+<p>will invoke <code class="code docutils literal notranslate"><span class="pre">g++</span> <span class="pre">...</span></code>,</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ faber cxx.name=g++11
 </pre></div>
 </div>
-<p>will invoke <code class="code docutils literal"><span class="pre">g++</span> <span class="pre">--std=c++11</span> <span class="pre">...</span></code>,</p>
-<div class="highlight-none"><div class="highlight"><pre>$ faber cxx.name=mingw++
+<p>will invoke <code class="code docutils literal notranslate"><span class="pre">g++</span> <span class="pre">--std=c++11</span> <span class="pre">...</span></code>,</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ faber cxx.name=mingw++
 </pre></div>
 </div>
-<p>will invoke <code class="code docutils literal"><span class="pre">/usr/bin/x86_64-w64-mingw32-g++</span> <span class="pre">...</span></code></p>
+<p>will invoke <code class="code docutils literal notranslate"><span class="pre">/usr/bin/x86_64-w64-mingw32-g++</span> <span class="pre">...</span></code></p>
 </div>
 </div>
 
@@ -174,7 +171,7 @@ different compilers:</p>
     </div>
     </div>
     <div class="footer">
-      <p>last updated Aug 02, 2018</p>
+      <p>last updated Nov 26, 2018</p>
     </div>
   </body>
 </html>

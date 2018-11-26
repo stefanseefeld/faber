@@ -1,6 +1,8 @@
 The `tool` class
 ================
 
+.. py:currentmodule:: faber.tool
+
 A tool provides an (object-oriented) abstraction that encapsulates actions. In the context of a tool,
 actions become methods, with all the associated benefits.
 Following idiomatic object-oriented design, abstract tools provide an interface by defining abstract
@@ -12,10 +14,10 @@ name and version. For example, consider this simple tool hierarchy:
    
    digraph T {
      rankdir="LR"
-     node [ fontname = "Bitstream Vera Sans" fontsize = 8 shape = "record"]
-     edge [ arrowtail = "empty" arrowhead = "none" dir= "back"]
-     cxx [ label = "{ {cxx|cxx.name : feature\lcxx.version : feature\lcompile : action\l}}"]
-     gxx [ label = "{ {gxx|gxx.name : feature\lgxx.version : feature\lcompile : action\l}}"]
+     node [ fontname="Bitstream Vera Sans", fontsize=8, shape=record, style=filled, fillcolor="khaki3:khaki1"]
+     edge [ arrowtail="empty" arrowhead="none" dir="back"]
+     cxx [ label="{ {cxx|cxx.name : feature\lcxx.version : feature\lcompile : action\l}}"]
+     gxx [ label="{ {gxx|gxx.name : feature\lgxx.version : feature\lcompile : action\l}}"]
      "tool" -> "cxx" -> "gxx";
    }
 

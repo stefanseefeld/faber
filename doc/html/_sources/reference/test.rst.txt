@@ -1,5 +1,7 @@
-test
-====
+The `test` module
+=================
+
+.. py:currentmodule:: faber.test
 
 The test classes can be used to define and run tests, and generate test reports.
 

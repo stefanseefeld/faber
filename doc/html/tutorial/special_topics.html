@@ -66,13 +66,13 @@
 <div class="section" id="configuring-builds">
 <h2>Configuring Builds</h2>
 <p>The build logic of a project may depend on features of the build platform that
-isn&#8217;t known in advance. The user (who does the build) may wish to provide some
+isn't known in advance. The user (who does the build) may wish to provide some
 parameters (such as prerequisite library paths), or check whether the compiler
 supports the latest language features.</p>
 <p>The <cite>faber.config</cite> subpackage provides facilities to perform such checks (akin
 to those in the <cite>GNU autoconf tool</cite>). They define conditional features that
 can be set either globally or for specific artefacts. For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.config</span> <span class="kn">import</span> <span class="n">cxx_checks</span><span class="p">,</span> <span class="n">report</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.config</span> <span class="kn">import</span> <span class="n">cxx_checks</span><span class="p">,</span> <span class="n">report</span>
 
 <span class="n">checks</span> <span class="o">=</span> <span class="p">[</span><span class="n">cxx_checks</span><span class="o">.</span><span class="n">has_cxx11</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">define</span><span class="p">(</span><span class="s1">&#39;HAS_CXX11&#39;</span><span class="p">)),</span>
           <span class="n">cxx_checks</span><span class="o">.</span><span class="n">has_cxx14</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">define</span><span class="p">(</span><span class="s1">&#39;HAS_CXX14&#39;</span><span class="p">)),</span>
@@ -87,7 +87,7 @@ can be set either globally or for specific artefacts. For example:</p>
 a set of checks, and then defines macros corresponding to the compiler features
 that are detected. Injecting these features implies a dependency, so whenever
 <cite>check</cite> needs to be built, the associated config checks will be done first.
-(Faber provides some caching mechanism so these checks don&#8217;t have to be re-run
+(Faber provides some caching mechanism so these checks don't have to be re-run
 if their values are already known.)</p>
 </div>
 <div class="section" id="running-tests">
@@ -97,7 +97,7 @@ adequately generally does not work. As test execution is often intimately tied t
 the construction of the tested code, it is natural to integrate the relevant logic
 into the construction tool itself.</p>
 <p>Consider this fabscript snippet:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="n">binary</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="n">binary</span>
 <span class="kn">from</span> <span class="nn">faber.test</span> <span class="kn">import</span> <span class="n">test</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">fail</span>
 
 <span class="n">passing</span> <span class="o">=</span> <span class="n">binary</span><span class="p">(</span><span class="s1">&#39;passing&#39;</span><span class="p">,</span> <span class="s1">&#39;passing.cpp&#39;</span><span class="p">)</span>
@@ -118,11 +118,11 @@ to fail.</p>
 (using <cite>faber ... test1 test2 test3</cite>), it is much more useful to run them using
 the built-in report mechanism. In addition to executing the selected tests this
 may produce a test summary, or even a more elaborate test report:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">report</span><span class="p">(</span><span class="s1">&#39;test-report&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">test1</span><span class="p">,</span> <span class="n">test2</span><span class="p">,</span> <span class="n">test3</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span><span class="p">(</span><span class="s1">&#39;test-report&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">test1</span><span class="p">,</span> <span class="n">test2</span><span class="p">,</span> <span class="n">test3</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Invoking <cite>faber test-report</cite> will now generate output such as</p>
-<div class="highlight-none"><div class="highlight"><pre>test1: PASS
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>test1: PASS
 test2: FAIL
 test3: XFAIL
 test summary: 1 pass, 1 failure, 1 expected failure
@@ -142,7 +142,7 @@ test summary: 1 pass, 1 failure, 1 expected failure
     </div>
     </div>
     <div class="footer">
-      <p>last updated Aug 02, 2018</p>
+      <p>last updated Nov 26, 2018</p>
     </div>
   </body>
 </html>

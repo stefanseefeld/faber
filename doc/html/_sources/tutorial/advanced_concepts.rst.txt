@@ -27,7 +27,7 @@ which allows fabscripts to reference `cxx.compile` when defining rules::
   class gxx(cxx):
 
       compile = action('g++ -c -o $(<) $(>)')
-    ...
+      ...
 
 allowing the build system to later substitute `gxx.compile` where `cxx.compile` was
 requested. For each reference to an abstract tool, faber will attempt to instantiate

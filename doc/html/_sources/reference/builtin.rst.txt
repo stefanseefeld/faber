@@ -1,9 +1,0 @@
-Builtin extensions
-==================
-
-.. toctree::
-   :maxdepth: 1
-
-   Features <features>
-   Tools <tools>
-   Actions <actions>

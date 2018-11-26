@@ -1,5 +1,7 @@
-config
-======
+The `config` module
+===================
+
+.. py:currentmodule:: faber.config
 
 .. contents :: Table of Contents
 
