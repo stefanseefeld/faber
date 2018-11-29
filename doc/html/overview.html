@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="python" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="python" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview &mdash; Faber 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Faber Tutorial" href="tutorial/index.html" />
+    <link rel="prev" title="Faber documentation" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Faber
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hello-world">Hello World !</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-it">Building it</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Faber</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/overview.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="overview">
+<h1>Overview</h1>
+<div class="section" id="basic-usage">
+<h2>Basic usage</h2>
+<p>A <cite>Faber</cite> build process is encoded in one or more <cite>fabscripts</cite> that describe a set
+of <cite>artefacts</cite> that may be constructed using <cite>recipes</cite> from other artefacts
+(including existing input or source files). <cite>Faber</cite> will read those fabscripts to
+assemble a dependency graph and perform the actions necessary to construct either
+goals expressed as command-line arguments, or any default artefacts if no goals were
+specified. features may be specified on the command-line as options to influence
+the exact properties of the build process (e.g., <cite>cxx.name=g++</cite> may be used to
+select a particular compiler, or <cite>target.arch=x86</cite> to select a specific target
+architecture.</p>
+</div>
+<div class="section" id="hello-world">
+<h2>Hello World !</h2>
+<p>Consider this ubiquitous C++ file:</p>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello World !&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>which we want to compile into a <cite>hello</cite> binary. Here is the associated <cite>fabscript</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.artefacts.binary</span> <span class="kn">import</span> <span class="n">binary</span>
+<span class="kn">from</span> <span class="nn">faber.test</span> <span class="kn">import</span> <span class="n">test</span>
+
+<span class="n">hello</span> <span class="o">=</span> <span class="n">binary</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+<span class="n">test_hello</span> <span class="o">=</span> <span class="n">test</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">hello</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">default</span> <span class="o">=</span> <span class="n">hello</span>
+</pre></div>
+</div>
+<p>The above defines two <a class="reference internal" href="glossary.html#term-artefact"><span class="xref std std-term">artefact</span></a>s <cite>hello</cite>, and <cite>test</cite>, then identifies 'hello'
+to be built by default.</p>
+</div>
+<div class="section" id="building-it">
+<h2>Building it</h2>
+<p>To build the <cite>hello</cite> binary, simply run <strong class="command">faber</strong> from within the
+directory containing the <cite>hello.cpp</cite> source file and the <cite>fabscript</cite>.
+This may produce output such as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>gxx.compile hello.o
+gxx.link hello
+</pre></div>
+</div>
+<p>You may also want to perform the test (which in the above example simply consists
+in running the binary), by running <strong class="command">faber test</strong>, which should produce output
+such as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>run test
+Hello World !
+
+test: PASS
+</pre></div>
+</div>
+<p>Finally, you can clean up all the generated files by executing <strong class="command">faber -c</strong>.</p>
+<p>To use a separate build directory you can use the <cite>--builddir</cite> option. Likewise,
+you may use <cite>--srcdir</cite> if the source tree isn't in the current location.</p>
+<p>The above is a very simple example of how to use <cite>faber</cite> to build and test a binary
+from C++ source code. Notice that the build logic is fully portable, i.e. does not
+depend on any platform-specific compiler toolchain. End-users however typically
+want to control what compiler is used in the build process.
+So while <cite>faber</cite> tries to find appropriate tools able to perform the requested
+task, it also provides user control over what toolchain to use, or what flags
+to pass.
+So with the appropriate toolchains installed on the build machine, it is possible
+to use</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>faber cxx.name=g++
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>faber cxx.name=clang++
+</pre></div>
+</div>
+<p>to pick a named compiler,
+or</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>faber target.arch=w64
+</pre></div>
+</div>
+<p>to pick the target architecture if you want to cross-compile a project.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial/index.html" class="btn btn-neutral float-right" title="Faber Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Faber documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Stefan Seefeld
+      Last updated on Nov 29, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

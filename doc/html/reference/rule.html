@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="python" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="python" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rule, alias, depend &mdash; Faber 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The artefact class" href="artefact.html" />
+    <link rel="prev" title="The tool class" href="tool.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Faber
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="feature.html">The <cite>feature</cite> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action.html">The <cite>action</cite> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool.html">The <cite>tool</cite> class</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">rule, alias, depend</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synopsis">synopsis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="artefact.html">The <cite>artefact</cite> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">The <cite>config</cite> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test.html">The <cite>test</cite> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Faber</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Faber Reference</a> &raquo;</li>
+        
+      <li>rule, alias, depend</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/rule.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="rule-alias-depend">
+<h1>rule, alias, depend</h1>
+<p>A rule describes how to update an artefact using a recipe.
+An alias defines a means to reference one or more artefacts
+with a single name / object.
+Depend allows to make an artefact explicitly dependent one
+or more other artefacts.</p>
+<div class="section" id="synopsis">
+<h2>synopsis</h2>
+<dl class="function">
+<dt id="faber.rule.rule">
+<code class="descname">rule</code><span class="sig-paren">(</span><em>recipe</em>, <em>targets</em>, <em>sources=[]</em>, <em>dependencies=[]</em>, <em>attrs=0</em>, <em>features=()</em>, <em>module=None</em>, <em>path_spec=''</em>, <em>logfile=None</em><span class="sig-paren">)</span></dt>
+<dd><p>Express how to generate <cite>artefacts</cite>. In the simplest case this involves a
+source and a recipe...</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd><ul class="first last simple">
+<li>recipe: an action taking <cite>sources</cite> as input and producing <cite>targets</cite>.</li>
+<li><dl class="first docutils">
+<dt>targets: what to make. This can be a string (typically a filename),</dt>
+<dd>an existing <cite>artefact</cite> object, or a list of either strings or
+artefacts (or a mix thereof).</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>sources: the source to make the artefact from. As with <cite>artefacts</cite>, this</dt>
+<dd>may be a string, a artefact, or a list of those.</dd>
+</dl>
+</li>
+<li>depends: additional dependencies not to be used as source.</li>
+<li>attrs:  flags</li>
+<li>features: a set of features</li>
+<li>module: the module to instantiate the artefact in</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="faber.rule.alias">
+<code class="descname">alias</code><span class="sig-paren">(</span><em>target</em>, <em>source</em>, <em>attrs=4</em>, <em>module=None</em><span class="sig-paren">)</span></dt>
+<dd><p>Declare <cite>target</cite> to be an alias for <cite>source</cite>, i.e., update <cite>source</cite> whenever
+updating <cite>target</cite> is requested.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="faber.rule.depend">
+<code class="descname">depend</code><span class="sig-paren">(</span><em>target</em>, <em>dependencies</em><span class="sig-paren">)</span></dt>
+<dd><p>Declare <cite>target</cite> to depend on <cite>dependencies</cite>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># bind target to source using the above rules</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="nb">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+<span class="nb">bin</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+<span class="c1"># force obj to be updated whenever header.h is newer.</span>
+<span class="n">depend</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;header.h&#39;</span><span class="p">)</span>
+<span class="c1"># make &#39;all&#39; an alias for &#39;hello&#39;</span>
+<span class="n">alias</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With the above, <cite>faber all</cite> will update the <cite>hello</cite> binary.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="artefact.html" class="btn btn-neutral float-right" title="The artefact class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tool.html" class="btn btn-neutral" title="The tool class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Stefan Seefeld
+      Last updated on Nov 29, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="python" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="python" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The tool class &mdash; Faber 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rule, alias, depend" href="rule.html" />
+    <link rel="prev" title="The action class" href="action.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Faber
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="feature.html">The <cite>feature</cite> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action.html">The <cite>action</cite> class</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The <cite>tool</cite> class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#constructor">Constructor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rule.html">rule, alias, depend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="artefact.html">The <cite>artefact</cite> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">The <cite>config</cite> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test.html">The <cite>test</cite> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Faber</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Faber Reference</a> &raquo;</li>
+        
+      <li>The <cite>tool</cite> class</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/tool.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-tool-class">
+<h1>The <cite>tool</cite> class</h1>
+<p>A tool provides an (object-oriented) abstraction that encapsulates actions. In the context of a tool,
+actions become methods, with all the associated benefits.
+Following idiomatic object-oriented design, abstract tools provide an interface by defining abstract
+action methods, while subclasses implement them.
+Each derived tool class registers a new <cite>feature</cite> of the same name as the tool class with two subfeatures:
+name and version. For example, consider this simple tool hierarchy:</p>
+<div class="graphviz"><img src="../_images/graphviz-c0b3b1dd26d203750367b00763f377c55c9437e1.png" alt="digraph T {
+  rankdir=&quot;LR&quot;
+  node [ fontname=&quot;Bitstream Vera Sans&quot;, fontsize=8, shape=record, style=filled, fillcolor=&quot;khaki3:khaki1&quot;]
+  edge [ arrowtail=&quot;empty&quot; arrowhead=&quot;none&quot; dir=&quot;back&quot;]
+  cxx [ label=&quot;{ {cxx|cxx.name : feature\lcxx.version : feature\lcompile : action\l}}&quot;]
+  gxx [ label=&quot;{ {gxx|gxx.name : feature\lgxx.version : feature\lcompile : action\l}}&quot;]
+  &quot;tool&quot; -&gt; &quot;cxx&quot; -&gt; &quot;gxx&quot;;
+}" class="graphviz" /></div>
+<p>The <em>value</em> of these these feature variables will be determined by the actual instances of these classes,
+i.e. an instance of <cite>gxx</cite> will have cxx.name=gxx.name='gxx'.
+This mechanism allows for references to abstract actions such as <cite>cxx.compile</cite> to be resolved to concrete
+actions.</p>
+<div class="section" id="constructor">
+<h2>Constructor</h2>
+<dl class="method">
+<dt id="faber.tool.tool">
+<code class="descname">tool</code><span class="sig-paren">(</span><em>name=''</em>, <em>version=''</em><span class="sig-paren">)</span></dt>
+<dd><p>The tool name defaults to its class name.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="attributes">
+<h2>Attributes</h2>
+<dl class="attribute">
+<dt id="faber.tool.name">
+<code class="descname">name</code></dt>
+<dd><p>Return the tool's name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="faber.tool.version">
+<code class="descname">version</code></dt>
+<dd><p>Return the tool's version string (defaults to '' if no version is known).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="faber.tool.id">
+<code class="descname">id</code></dt>
+<dd><p>Return the tool's id (a string combining name and version).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="faber.tool.features">
+<code class="descname">features</code></dt>
+<dd><p>Any features defined for this tool.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="methods">
+<h2>Methods</h2>
+<dl class="classmethod">
+<dt id="faber.tool.instance">
+<em class="property">classmethod </em><code class="descname">instance</code><span class="sig-paren">(</span><em>cls</em>, <em>features=None</em><span class="sig-paren">)</span></dt>
+<dd><p>Find an instance of <cite>cls</cite> that meets the feature requirements. Tools can be found by their (class) name,
+as well as the names of their base class(es).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<p>Given a simple fabscript such as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.tools.cxx</span> <span class="kn">import</span> <span class="n">cxx</span>
+
+<span class="n">rule</span><span class="p">(</span><span class="n">cxx</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>it becomes possible to configure your build environment by instantiating
+different compilers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.tools.gxx</span> <span class="kn">import</span> <span class="n">gxx</span>
+
+<span class="n">gxx</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">()</span>
+<span class="n">gxx11</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;g++11&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">cxxflags</span><span class="p">(</span><span class="s1">&#39;--std=c++11&#39;</span><span class="p">))</span>
+<span class="n">gxx03</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;g++03&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">cxxflags</span><span class="p">(</span><span class="s1">&#39;--std=c++03&#39;</span><span class="p">))</span>
+<span class="n">mingwxx</span> <span class="o">=</span> <span class="n">gxx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mingw++&#39;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s1">&#39;/usr/bin/x86_64-w64-mingw32-g++&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now you can invoke a build by selecting either of these to compile <cite>hello.o</cite>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ faber cxx.name=gxx
+</pre></div>
+</div>
+<p>will invoke <code class="code docutils literal notranslate"><span class="pre">g++</span> <span class="pre">...</span></code>,</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ faber cxx.name=g++11
+</pre></div>
+</div>
+<p>will invoke <code class="code docutils literal notranslate"><span class="pre">g++</span> <span class="pre">--std=c++11</span> <span class="pre">...</span></code>,</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ faber cxx.name=mingw++
+</pre></div>
+</div>
+<p>will invoke <code class="code docutils literal notranslate"><span class="pre">/usr/bin/x86_64-w64-mingw32-g++</span> <span class="pre">...</span></code></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="rule.html" class="btn btn-neutral float-right" title="rule, alias, depend" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="action.html" class="btn btn-neutral" title="The action class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Stefan Seefeld
+      Last updated on Nov 29, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="python" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="python" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The artefact class &mdash; Faber 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The config module" href="config.html" />
+    <link rel="prev" title="rule, alias, depend" href="rule.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Faber
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="feature.html">The <cite>feature</cite> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action.html">The <cite>action</cite> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool.html">The <cite>tool</cite> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rule.html">rule, alias, depend</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The <cite>artefact</cite> class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#attributes">attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constructor">Constructor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#call-operator">Call operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">The <cite>config</cite> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test.html">The <cite>test</cite> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix.html">Appendix</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Faber</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Faber Reference</a> &raquo;</li>
+        
+      <li>The <cite>artefact</cite> class</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/artefact.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-artefact-class">
+<h1>The <cite>artefact</cite> class</h1>
+<p>An artefact is generated by an action. In a fabscript artefacts are typically
+created by invoking a <cite>rule</cite> that declares how to generate an artefact using
+an action. The artefact class may be subclassed, to change its behaviour (e.g.
+how it reports its update) or to allow it to have additional internal state
+(e.g., for composite artefacts that require intermediate steps to be built).</p>
+<div class="section" id="attributes">
+<span id="a-attributes"></span><h2>attributes</h2>
+<dl class="data">
+<dt id="faber.artefact.intermediate">
+<code class="descname">intermediate</code></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="faber.artefact.notfile">
+<code class="descname">notfile</code></dt>
+<dd><p><cite>notfile</cite> artefacts do not have corresponding files in the file system,
+thus whether or not they require being updated cannot be determined from
+a file's timestamp.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="faber.artefact.always">
+<code class="descname">always</code></dt>
+<dd><p>Never consider this artefact up to date.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="constructor">
+<h2>Constructor</h2>
+<dl class="method">
+<dt id="faber.artefact.artefact">
+<code class="descname">artefact</code><span class="sig-paren">(</span><em>name</em>, <em>attrs=0</em>, <em>features=()</em>, <em>use=()</em>, <em>condition=None</em><span class="sig-paren">)</span></dt>
+<dd><p>Construct an artefact.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>string</em>) -- the artefact's name</li>
+<li><strong>attrs</strong> (<em>int</em>) -- <a class="reference internal" href="#a-attributes"><span class="std std-ref">attributes</span></a></li>
+<li><strong>features</strong> -- Set of artefact-specific features to add.</li>
+<li><strong>use</strong> -- Set of features to be exported to other artefacts using this as a source.</li>
+<li><strong>condition</strong> -- Condition in case this artefact is conditional.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="call-operator">
+<h2>Call operator</h2>
+<dl class="method">
+<dt id="faber.artefact.artefact.__call__">
+<code class="descclassname">artefact.</code><code class="descname">__call__</code><span class="sig-paren">(</span><em>features</em><span class="sig-paren">)</span></dt>
+<dd><p>Clone this artefact, and apply new features.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h2>Attributes</h2>
+<dl class="attribute">
+<dt id="faber.artefact.name">
+<code class="descname">name</code></dt>
+<dd><p>The artefact's name, as set in the constructor.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="faber.artefact.qname">
+<code class="descname">qname</code></dt>
+<dd><p>The artefact's qualified name, i.e. the name prefixed with the (qualified) name of the module it was defined in.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="faber.artefact.filename">
+<code class="descname">filename</code></dt>
+<dd><p>The artefact's filename, if the artefact is a file.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="methods">
+<h2>Methods</h2>
+<dl class="method">
+<dt id="faber.artefact.artefact.__status__">
+<code class="descclassname">artefact.</code><code class="descname">__status__</code><span class="sig-paren">(</span><em>status</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">recipe</span><span class="o">=</span><span class="n">fileutils</span><span class="o">.</span><span class="n">touch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="config.html" class="btn btn-neutral float-right" title="The config module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="rule.html" class="btn btn-neutral" title="rule, alias, depend" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Stefan Seefeld
+      Last updated on Nov 29, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
