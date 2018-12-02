@@ -11,19 +11,15 @@ much simplified logic, in addition of course to using Python as scripting langua
 The original bjam engine is still in use as scheduler, though at this point that is mostly an implementation detail.
 
 
-Building
---------
+Building and Installing
+-----------------------
 
 ``` bash
-python setup.py build
+python setup.py install
 ```
 
-Testing
--------
-
-``` bash
-py.test tests
-```
+(See the [Getting Started: Building Faber](https://github.com/stefanseefeld/faber/wiki/Getting-Started%3A-Building-Faber) for a
+detailed discussion of the build process, as well as parameters to customize it.)
 
 Examples
 --------
