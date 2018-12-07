@@ -15,7 +15,7 @@ class features(artefact):
         artefact.__init__(self, name, attrs=notfile|always, features=features)
 
     def __status__(self, status):
-        print(self.features.eval())
+        print(self.features.eval(update=False))
 
 
 class dependency_graph(artefact):

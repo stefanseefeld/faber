@@ -189,7 +189,7 @@ class conditional(artefact):
 
     def __status__(self, status):
         artefact.__status__(self, status)
-        result = self.condition(self.features.eval())
+        result = self.condition(self.features.eval(update=False))
         feature_logger.info('condition "{}" yields {}'
                             .format(self.condition, result))
         if result:

@@ -30,7 +30,7 @@ class placeholder(artefact):
 
     def __status__(self, status):
         artefact.__status__(self, status)
-        self.prereq.features.eval()
+        self.prereq.features.eval(update=False)
         if self.cond(self.prereq.features):
             depend(self.dep, [self.prereq])
 

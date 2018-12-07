@@ -196,7 +196,7 @@ class artefact(object):
         async with self._lock:
             if self.progress >= progress.BOUND:
                 return
-            self.frontend.features.eval()
+            self.frontend.features.eval(update=False)
             self.boundname = self.frontend.boundname
             if not self.flags & flag.NOTFILE:
                 d = dirname(self.boundname) or '.'

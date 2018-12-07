@@ -29,7 +29,7 @@ def conditional_dependency(a, d):
         return d if d.condition else None
     elif not d.features.dependencies():
         # eval using feature.condition
-        result = d.condition(d.features.eval())
+        result = d.condition(d.features.eval(update=False))
         feature_logger.info('condition "{}" yields {}'.format(d.condition, result))
         return d if result else None
     else:

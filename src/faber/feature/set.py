@@ -91,7 +91,11 @@ class set(object):
             self._conditionals[:] = other._conditionals
         return self
 
-    def eval(self):
+    def eval(self, update=True):
+        if update:
+            from .. import scheduler
+            # (allow dependencies to fail)
+            scheduler.update(self.dependencies())
         # compute any delayed values
         self |= set(*[d.result() for d in self._delayed])
         self._delayed[:] = []

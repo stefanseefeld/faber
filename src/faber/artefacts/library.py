@@ -32,7 +32,7 @@ class library(composite):
     def _assemble(self):
         # make sure all compiler features are instantiated
         from ..tools.compiler import compiler, link, soname  # noqa F401
-        self.features.eval()
+        self.features.eval(update=False)
         if 'link' not in self.features:
             self.features += link('shared')
         self.type = types.dso if self.features.link == 'shared' else types.lib

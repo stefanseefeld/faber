@@ -165,7 +165,7 @@ class action(object):
 
     def map(self, fs):
         """translate the given feature-set using any map this action has defined."""
-        fs.eval()
+        fs.eval(update=False)
         if self._maps:
             return {k: v(fs) for k, v in self._maps.items()}
         else:

@@ -97,7 +97,7 @@ def _prepare(recipe, target):
 
     r = actions[recipe]
     t = artefacts[target]
-    t.features.eval()
+    t.features.eval(update=False)
     if not t.attrs & notfile:
         bind_filename(t)
         d = dirname(t._filename) or '.'

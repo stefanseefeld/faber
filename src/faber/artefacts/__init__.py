@@ -77,5 +77,5 @@ class composite(artefact):
 
     def _assemble(self):
         from ..tools import compiler  # noqa F401
-        self.features.eval()
+        self.features.eval(update=False)
         assembly.rule(self, self.sources, self.features, module=self.module)

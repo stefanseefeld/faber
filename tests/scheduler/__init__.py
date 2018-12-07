@@ -15,7 +15,7 @@ class frontend(object):
     """Emulate a faber.artefact enough to support testing the backend."""
 
     class fset(object):
-        def eval(self): pass
+        def eval(self, update=True): pass
 
     def __init__(self, name, attrs):
         self.name = name
