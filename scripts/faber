@@ -118,6 +118,10 @@ def main(argv):
             project.config(os.path.expanduser(args.rc))
         elif os.path.exists(os.path.expanduser('~/.faber')):
             project.config(os.path.expanduser('~/.faber'))
+
+        if args.srcdir and os.path.exists(os.path.join(args.srcdir, '.faber')):
+            project.config(os.path.join(args.srcdir, '.faber'))
+
         if args.info:
             result = project.info(args.info,
                                   args.goals, args.options, args.parameters,
