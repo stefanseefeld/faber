@@ -118,6 +118,8 @@ class set(object):
     def __getattr__(self, name):
         if name in self._features:
             return self._features[name]
+        elif name.startswith('__'):  # no special handling of special attributes
+            return None
         else:
             raise ScriptError('no feature "{}" in set'.format(name), level=2)
 

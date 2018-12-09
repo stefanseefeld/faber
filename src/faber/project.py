@@ -18,7 +18,7 @@ from .utils import aslist
 from . import config as C
 import logging
 import warnings
-from os.path import exists
+from os.path import exists, join
 
 builtin_formatwarning = warnings.formatwarning
 
@@ -148,12 +148,66 @@ def shell(goals, options, parameters, srcdir, builddir):
     """load module in srcdir but rather than updating any goals,
     simply drop into an interactive shell."""
 
+    import pydoc
+
+    class Helper(pydoc.Helper):
+        def __init__(self, env):
+            self._env = env
+            super(Helper, self).__init__()
+
+        def intro(self):
+            self.output.write("""
+Welcome the Faber shell's help utility!
+
+To get a list of available artefacts or features, type
+"artefacts" or "features".""")
+
+        def help(self, request):
+            if isinstance(request, str):
+                request = request.strip()
+                if request == 'artefacts': self.listartefacts()
+                elif request == 'features': self.listfeatures()
+                else:
+                    return super(Helper, self).help(request)
+            else:
+                return super(Helper, self).help(request)
+            self.output.write('\n')
+
+        def listartefacts(self):
+            self.list([k for k, v in self._env.items() if isinstance(v, artefact)])
+
+        def listfeatures(self):
+            from .feature import feature
+            self.list(feature._registry.keys())
+
     options = optioncache(builddir, options)
     module.init(goals, options, parameters)
     C.init(builddir)
     m = module('', srcdir, builddir)
+    # Use the module's environment, but inject a few helper functions
+    env = m._env.copy()
+    env['artefacts'] = list(artefact.iter())
+    pydoc.help = Helper(env)
+    history = None
     import code
-    code.interact('Faber interactive shell', local=m._env)
+    try:
+        import readline
+    except ImportError:
+        pass
+    else:
+        import rlcompleter
+        readline.set_completer(rlcompleter.Completer(env).complete)
+        readline.parse_and_bind('tab: complete')
+        history = join(builddir, '.fabhistory')
+        try:
+            readline.read_history_file(history)
+        except IOError:
+            pass
+
+    code.interact('Faber interactive shell', local=env)
+    if history:
+        readline.write_history_file(history)
+
     C.finish()
     module.finish()
     return True
