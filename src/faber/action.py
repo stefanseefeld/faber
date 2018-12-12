@@ -160,7 +160,6 @@ class action(object):
     def submit(self, targets, sources):
         if not self.command:
             raise RuntimeError(None, ': {} is not implemented'.format(self.qname))
-        scheduler.define_action(self)
         scheduler.define_recipe(self, targets, sources)
 
     def map(self, fs):

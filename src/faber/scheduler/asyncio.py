@@ -16,7 +16,7 @@ import asyncio
 import sys
 
 __all__ = ['init', 'clean', 'finish',
-           'variables', 'define_action', 'define_target', 'add_dependency', 'define_recipe',
+           'variables', 'define_artefact', 'add_dependency', 'define_recipe',
            'run', 'update', 'print_dependency_graph', 'DependencyError']
 
 if sys.platform == 'win32':
@@ -51,11 +51,7 @@ def variables(a):
     return recipe.variables() if recipe else {}
 
 
-def define_action(a):
-    pass
-
-
-def define_target(a, bind=False):
+def define_artefact(a, bind=False):
     artefacts[a] = artefact(a)
 
 

@@ -20,8 +20,8 @@ from collections import defaultdict
 import logging
 
 __all__ = ['init', 'clean', 'finish',
-           'variables', 'define_action', 'define_target', 'add_dependency', 'define_recipe',
-           'run', 'update', 'DependencyError']
+           'variables', 'define_artefact', 'add_dependency', 'define_recipe',
+           'run', 'update', 'print_dependency_graph', 'DependencyError']
 
 logger = logging.getLogger('scheduler')
 summary_logger = logging.getLogger('summary')
@@ -219,18 +219,8 @@ def variables(a):
     return _bjam.get_target_variables(a.id)
 
 
-def define_action(a):
-    if a.id not in actions:
-        logger.info('define action {} = {}'.format(a.id, a.command))
-        actions[a.id] = a
-        func = a.command
-        if type(func) in (FunctionType, MethodType):
-            func = _pyaction(a.id, func)
-        _bjam.define_action(a.id, func, [])
-
-
-def define_target(a, bind=False):
-    logger.info('define target {}'.format(a.id))
+def define_artefact(a, bind=False):
+    logger.info('define artefact {}'.format(a.id))
     artefacts[a.id] = a
     if a.attrs & notfile:
         boundnames[a.id] = a
@@ -253,6 +243,14 @@ def add_dependency(a, deps):
 
 
 def define_recipe(a, targets, sources=[]):
+    if a.id not in actions:
+        logger.info('define action {} = {}'.format(a.id, a.command))
+        actions[a.id] = a
+        func = a.command
+        if type(func) in (FunctionType, MethodType):
+            func = _pyaction(a.id, func)
+        _bjam.define_action(a.id, func, [])
+
     targets = [t.id for t in targets]
     if (a.id, tuple(targets)) not in recipes:
         recipes.append((a.id, tuple(targets)))
