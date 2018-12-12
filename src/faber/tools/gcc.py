@@ -20,11 +20,13 @@ import re
 
 # known architectures for each machine type
 marchs = dict(x86_64=['x86_64', 'x86'],
+              arm=['eabi'],
               w64=['w64', 'w32'])
 
 # compiler flags per architecture
 arch_flags = dict(x86_64=['-m64'],
                   x86=['-m32'],
+                  eabi=[],
                   w64=['-m64'],
                   w32=['-m32'])
 
@@ -48,11 +50,11 @@ def validate(cls, command, version, features):
         machine = cpu
 
     if machine not in marchs:
-        raise ValueError('Unsupported machine type {}'.format(machine))
+        raise ValueError('Unsupported machine type "{}"'.format(machine))
     if 'target' in features:
         arch = str(features.target.arch)
         if arch not in marchs[machine]:
-            raise ValueError('Unsupported target architecture {}'.format(arch))
+            raise ValueError('Unsupported target architecture "{}"'.format(arch))
         features |= compiler.target(os=os)
     else:
         arch=marchs[machine][0]
