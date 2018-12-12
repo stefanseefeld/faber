@@ -17,7 +17,7 @@ import sys
 
 __all__ = ['init', 'clean', 'finish',
            'variables', 'define_action', 'define_target', 'add_dependency', 'define_recipe',
-           'run', 'update', 'DependencyError']
+           'run', 'update', 'print_dependency_graph', 'DependencyError']
 
 if sys.platform == 'win32':
     loop = asyncio.ProactorEventLoop()
@@ -84,3 +84,8 @@ def update(aa):
         return all([a.status for a in aa])
     except Exception:
         raise
+
+
+def print_dependency_graph(aa=[]):
+    from . import graph
+    graph.visualize(*[artefacts[a] for a in aslist(aa)], filename='dependencies.png')
