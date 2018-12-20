@@ -11,10 +11,15 @@ from faber.artefacts.binary import binary
 from faber.artefacts.library import library
 from faber.tools.compiler import *
 
+shared=link('shared')
+static=link('static')
+
 # greet uses dynamic linking by default...
 greet = library('greet', 'greet.cpp', version=(1, 0, 0), features=define('GREET_EXPORTS'))
 hello1 = binary('hello1', ['hello.cpp', greet], features=define('GREET_IMPORTS'))
-# ...which can be overridden 
-hello2 = binary('hello2', ['hello.cpp', greet(features=link('static'))])
+# ...which can be overridden
+# (We need to specify this also for the binary so its intermediate file(s) don't
+# clash with the above.)
+hello2 = binary('hello2', ['hello.cpp', greet(features=static)], features=static)
 
 default = [hello1, hello2]
