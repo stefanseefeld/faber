@@ -7,8 +7,8 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-sphinx_build  = action('sphinx-build', 'sphinx-build -b html $(>) $(<)')
+from faber.tools.sphinx import sphinx
 
-html = rule(sphinx_build, 'html', '.', attrs=always)
+html = rule(sphinx.html, 'html', '.', attrs=always)
 
 default = html
