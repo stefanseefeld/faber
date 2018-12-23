@@ -63,7 +63,7 @@ class optioncache(object):
         if os.path.exists(self.filename):
             with open(self.filename) as f:
                 exec(f.read(), self.options)
-        if options['with_'] or options['without']:
+        if options.get('with_', []) or options.get('without', []):
             if self.options['with_'] or self.options['without']:
                 warnings.warn('Overriding saved options with command-line options')
             self.options.update(options)
