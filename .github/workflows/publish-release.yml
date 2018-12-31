@@ -14,8 +14,11 @@ jobs:
       uses: actions/setup-python@v2
     - name: build
       run: |
+        pip install wheel
         python -c "import versioneer as V; print(f'version={V.get_version()}')" >> $GITHUB_ENV
-        python setup.py sdist
+        python setup.py sdist bdist_wheel
+        rm -rf build
+        PYTHONPATH=`pwd`/src python setup_bench.py bdist_wheel
     - name: release snapshot on github
       if: contains(github.ref, 'dev')
       uses: actions/create-release@v1
@@ -26,12 +29,11 @@ jobs:
         release_name: Release ${{ env.version }}
         draft: false
         prerelease: true
-    - name: publish snapshot to Test PyPI
+    - name: publish snapshot to PyPI
       if: contains(github.ref, 'dev')
       uses: pypa/gh-action-pypi-publish@master
       with:
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
+        password: ${{ secrets.PYPI_API_TOKEN }}
     - name: release on github
       if: ${{ !contains(github.ref, 'dev') }}
       uses: actions/create-release@v1

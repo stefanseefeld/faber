@@ -1,0 +1,18 @@
+<RCC>
+  <qresource>
+    <file>images/bg.png</file>
+    <file>images/stop.svg</file>
+    <file>images/log.svg</file>
+    <file>images/view.svg</file>
+    <file>images/cleanup.svg</file>
+    <file>images/logo.svg</file>
+    <file>images/diamond.png</file>
+    <file>images/executable.png</file>
+    <file>images/application.png</file>
+    <file>images/application2.png</file>
+    <file>images/module.svg</file>
+    <file>images/minus.png</file>
+    <file>images/plus.png</file>
+    <file>images/logo_small.ico</file>
+  </qresource>
+</RCC>

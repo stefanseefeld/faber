@@ -8,21 +8,32 @@
 
 from .artefact import flag
 import os
-import graphviz
 
 
-def walk(a, d=None):
+def walk(a, d=None, visited=None):
     """Traverse the prerequisites of `a`."""
 
+    visited = set() if visited is None else visited
     # This of course assumes the graph not to have any cycles.
     yield a, d
     for p in a.prerequisites:
-        yield from walk(p, a)
+        if p not in visited:
+            visited.add(p)
+            yield from walk(p, a, visited)
+
+
+def collect(a):
+    """Construct set of artefacts to be (potentially) updated with a"""
+    all = set()
+    all.add(a)
+    for i in walk(a, visited=all): pass
+    return all
 
 
 def visualize(*args, filename='dependencies', format=None):
     """Visualize the dependency graph for artefacts in `args`."""
 
+    import graphviz
     g = graphviz.Digraph(graph_attr={'rankdir': 'TB'})
 
     nodes = set()
@@ -53,4 +64,4 @@ def visualize(*args, filename='dependencies', format=None):
     full_filename = '.'.join([filename, format])
     with open(full_filename, 'wb') as f:
         f.write(data)
-    print('output written to {}'.format(full_filename))
+    return full_filename
