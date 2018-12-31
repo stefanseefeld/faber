@@ -36,10 +36,16 @@ class cache(object):
             self.conn.commit()
             self.conn.close()
 
+    def reset(self, level):
+        self.conn.commit()
+        if level > 1:
+            self.conn.execute('DELETE FROM checks')
+
     def clean(self):
         self.conn.close()
         self.conn = None
         os.remove(self.filename)
+        self.conn = sqlite3.connect(self.filename)
 
     def __contains__(self, key):
         with self.conn:
@@ -81,6 +87,11 @@ class logfiles(dict):
         for f in self.values():
             f.close()
             os.remove(f.name)
+
+    def reset(self):
+        for f in self.values():
+            f.seek(0)
+            f.truncate(0)
 
 
 class check(artefact):

@@ -112,6 +112,9 @@ class artefact(object):
         self._dependants = set()
         self._rebuilds = set()    # targets that should be force-rebuilt whenever this one is
         self.flags = flag(self.frontend.attrs)
+        self.reset()
+
+    def reset(self):
         self.binding = binding.UNBOUND
         self._timestamp = 0
         self._fate = fate.INIT
