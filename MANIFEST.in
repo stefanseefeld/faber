@@ -13,6 +13,9 @@ global-exclude *.so
 # python modules
 recursive-include   src/faber *.py
 
+# VERSION file
+include             src/faber/VERSION
+
 # bjam sources
 recursive-include   src/bjam *
 
