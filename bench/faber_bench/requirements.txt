@@ -1,0 +1,5 @@
+faber
+PyQt6
+qasync
+pydot
+pygments

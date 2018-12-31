@@ -1,0 +1,14 @@
+#
+# MANIFEST template for source distribution generation
+#
+
+include LICENSE README.md MANIFEST.in setup.py pyproject.toml
+global-exclude *~
+global-exclude *.pyc
+global-exclude *.pyo
+
+# python modules
+recursive-include   src/faber_bench *.py
+recursive-include   src/faber_bench *.ui
+recursive-include   src/faber_bench *.qrc
+recursive-include   src/faber_bench *.svg

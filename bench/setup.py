@@ -8,7 +8,6 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from setuptools import setup
-from setuptools.command.build import build
 from subprocess import check_output
 import re
 import os
@@ -26,29 +25,5 @@ def get_version_from_git():
         raise ValueError('unable to extract version from git tag')
 
 
-data = [('share/doc/faber', ('LICENSE', 'README.md'))]
-
-
-class build_doc(build):
-
-    description = "build documentation"
-
-    def run(self):
-
-        self.announce('building documentation')
-        orig = sys.argv
-        sys.argv = ['faber', '--srcdir=doc', '--builddir=doc']
-        try: cli.main()
-        finally: sys.argv = orig
-
-
-docs = []
-if os.path.exists('doc/html'):
-    for root, dirs, files in os.walk('doc/html'):
-        dest = root.replace('doc/html', 'share/doc/faber')
-        docs.append((dest,
-                    [os.path.join(root, file) for file in files
-                     if os.path.isfile(os.path.join(root, file))]))
-
 if __name__ == '__main__':
-    setup(data_files=data + docs)
+    setup()

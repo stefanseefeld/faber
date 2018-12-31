@@ -30,12 +30,11 @@ jobs:
         release_name: Release ${{ env.version }}
         draft: false
         prerelease: true
-    - name: publish snapshot to Test PyPI
+    - name: publish snapshot to PyPI
       if: contains(github.ref, 'dev')
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
+        password: ${{ secrets.PYPI_API_TOKEN }}
     - name: release on github
       if: ${{ !contains(github.ref, 'dev') }}
       uses: actions/create-release@v1

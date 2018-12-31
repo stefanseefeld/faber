@@ -47,6 +47,10 @@ class dependency_error(Exception): pass
 
 class artefact(object):
 
+    # TODO: clarify the API for this, to hook into the scheduler
+    #       to update any observers (e.g., a GUI)
+    callback = None
+
     @classmethod
     def init(cls, files=[], keep_temps=False, force=False):
         """set up some global state."""
@@ -156,12 +160,16 @@ class artefact(object):
         if self.progress >= progress.BOUND:
             raise dependency_error(f'can not add {p.frontend}: '
                                    f'{self.frontend.boundname} already bound')
+        if p in self.prerequisites:
+            return
         self.prerequisites.add(p)
         if cyclic(self):
             raise dependency_error(f'dependency cycle detected while adding '
                                    f'{self.frontend} -> {p.frontend}')
         if self._pqueue:
             self._pqueue.put_nowait(p)
+            if self.callback:
+                self.callback.add_prerequisite(self, p)
 
     async def process(self, parent=None):
         """Process this artefact:
@@ -338,3 +346,5 @@ class artefact(object):
             else:
                 summary_logger.info(msg)
         self.frontend.__status__(self.status)
+        if artefact.callback:
+            artefact.callback.status(self)

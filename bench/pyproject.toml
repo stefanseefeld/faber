@@ -1,16 +1,18 @@
 [build-system]
+#requires = ["pdm-backend"]
+#build-backend = "pdm.backend"
 requires = [ "setuptools", "wheel", "setuptools-git-versioning", "pytest-runner"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "faber"
+name = "faber-bench"
 authors = [
   {name = "Stefan Seefeld", email = "stefan@seefeld.name"}
 ]
 maintainers = [
   {name = "Stefan Seefeld", email = "stefan@seefeld.name"}
 ]
-description = "Faber is a construction tool."
+description = "A graphical Faber interface."
 requires-python = ">= 3.6"
 dependencies = []
 dynamic = ["version"]
@@ -28,25 +30,23 @@ Homepage = "https://stefanseefeld.github.io/faber"
 Repository = "https://github.com/stefanseefeld/faber"
 Issues = "https://github.com/stefanseefeld/faber/issues"
 
-[project.scripts]
-faber = "faber.cli:cli_main"
+[project.gui-scripts]
+faber-bench = "faber_bench.cli:cli_main"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-script-files = []
+#[tool.setuptools]
+#package-dir = {"" = ".."}
+#script-files = []
 
 [tool.setuptools-git-versioning]
 enabled = true
 version_callback = "setup:get_version_from_git"
 
 [tool.setuptools.packages.find]
-where = ["src"]
-include = ["faber*"]
-exclude = ["faber_bench*"]
+#where = ["../src"]
+include = ["faber_bench*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.ui"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ['requirements.txt']}
-
-[tool.pytest.ini_options]
-addopts = "-v"
-testpaths = ["tests"]

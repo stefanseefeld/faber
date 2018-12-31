@@ -1,0 +1,38 @@
+File "/usr/local/lib/python3.13/dist-packages/pyproject_hooks/_in_process/_in_process.py", line 70, in _build_backend\n
+obj = import_module(mod_path)\n
+File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module\n
+return _bootstrap._gcd_import(name[level:], package, level)\n
+~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n
+File "<frozen importlib._bootstrap>", line 1387, in _gcd_import\n
+File "<frozen importlib._bootstrap>", line 1360, in _find_and_load\n
+File "<frozen importlib._bootstrap>", line 1310, in _find_and_load_unlocked\n
+File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed\n
+File "<frozen importlib._bootstrap>", line 1387, in _gcd_import\n
+File "<frozen importlib._bootstrap>", line 1360, in _find_and_load\n
+File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked\n
+File "<frozen importlib._bootstrap>", line 935, in _load_unlocked\n
+File "<frozen importlib._bootstrap_external>", line 1026, in exec_module\n
+File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed\n
+File "/tmp/build-env-b0kzz57x/lib/python3.13/site-packages/setuptools/__init__.py", line 21, in <module>\n
+import _distutils_hack.override  # noqa: F401\n
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n
+File "/tmp/build-env-b0kzz57x/lib/python3.13/site-packages/_distutils_hack/override.py", line 1, in <module>\n
+__import__(\'_distutils_hack\').do_override()\n
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n
+File "/tmp/build-env-b0kzz57x/lib/python3.13/site-packages/_distutils_hack/__init__.py", line 89, in do_override\n
+ensure_local_distutils()\n
+~~~~~~~~~~~~~~~~~~~~~~^^\n
+File "/tmp/build-env-b0kzz57x/lib/python3.13/site-packages/_distutils_hack/__init__.py", line 75, in ensure_local_distutils\n
+core = importlib.import_module(\'distutils.core\')\n
+File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module\n
+return _bootstrap._gcd_import(name[level:], package, level)\n
+~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n
+File "/tmp/build-env-b0kzz57x/lib/python3.13/site-packages/setuptools/_distutils/core.py", line 16, in <module>\n
+from .cmd import Command\n
+File "/tmp/build-env-b0kzz57x/lib/python3.13/site-packages/setuptools/_distutils/cmd.py", line 9, in <module>\n
+import logging\n
+File "/home/stefan/projects/faber/src/faber_bench/logging.py", line 11, in <module>\n
+from faber.logging import setup\n
+File "/home/stefan/projects/faber/src/faber/logging.py", line 11, in <module>\n
+from logging import getLogger\n
+ImportError: cannot import name \'getLogger\' from partially initialized module \'logging\' (most likely due to a circular import) (/home/stefan/projects/faber/src/faber_bench/logging.py)\n
