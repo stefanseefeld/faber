@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>#
+# Copyright (c) 2018 Stefan Seefeld
+# All rights reserved.
+#
+# This file is part of Faber. It is made available under the
+# Boost Software License, Version 1.0.
+# (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
+ </comment>
+ <class>init</class>
+ <widget class="QWidget" name="init">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>710</width>
+    <height>278</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Atelier</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/images/logo_small.ico</normaloff>:/images/logo_small.ico</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0">
+    <layout class="QGridLayout" name="grid">
+     <item row="0" column="0" colspan="2">
+      <widget class="QLabel" name="logo">
+       <property name="minimumSize">
+        <size>
+         <width>203</width>
+         <height>64</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>203</width>
+         <height>64</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resource.qrc">:/images/logo.svg</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="srcdir_label">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>source directory :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QComboBox" name="srcdir_value">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QPushButton" name="browse_srcdir">
+       <property name="text">
+        <string>Browse...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="builddir_label">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>build directory :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QComboBox" name="builddir_value">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QPushButton" name="browse_builddir">
+       <property name="text">
+        <string>Browse...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" alignment="Qt::AlignTop">
+      <widget class="QCheckBox" name="enable_parameters">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>parameters :</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="FeatureTable" name="parameters" native="true">
+       <property name="columnCount" stdset="0">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <layout class="QHBoxLayout" name="parameter_buttons">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="add_parameter">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="remove_parameter">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="4" column="0" alignment="Qt::AlignTop">
+      <widget class="QCheckBox" name="enable_options">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>options :</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="FeatureTable" name="options" native="true">
+       <property name="columnCount" stdset="0">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <layout class="QHBoxLayout" name="options_buttons">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="add_option">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="remove_option">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="3">
+      <widget class="QPushButton" name="run">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Start</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QPushButton" name="cancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FeatureTable</class>
+   <extends>QWidget</extends>
+   <header>featuretable.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>srcdir_value</tabstop>
+  <tabstop>browse_srcdir</tabstop>
+  <tabstop>builddir_value</tabstop>
+  <tabstop>browse_builddir</tabstop>
+  <tabstop>parameters</tabstop>
+  <tabstop>add_parameter</tabstop>
+  <tabstop>remove_parameter</tabstop>
+  <tabstop>cancel</tabstop>
+  <tabstop>run</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
