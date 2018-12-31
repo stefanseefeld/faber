@@ -9,6 +9,10 @@ global-exclude *.pyo
 
 # python modules
 recursive-include   src/faber *.py
+recursive-include   src/atelier *.py
+recursive-include   src/atelier *.ui
+recursive-include   src/atelier *.qrc
+recursive-include   src/atelier *.svg
 
 # version info
 include versioneer.py
