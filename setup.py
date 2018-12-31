@@ -8,17 +8,12 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from distutils.core import setup, Extension
-from distutils.command import build, install_scripts
+from distutils.command import build, install_scripts, install_data, sdist
 import sys, os, os.path, glob, shutil
 import subprocess
-import re
-
-try:
-    out = subprocess.check_output('git describe --tags --match release/*'.split(),
-                                  stderr=subprocess.STDOUT).decode().strip()
-    version=re.match('release/(.+)', out).group(1)
-except Exception as e:
-    version='snapshot'
+# allow the in-place import of the version
+sys.path.insert(0, 'src')
+from faber import version
 
 def prefix(pref, list): return [pref + x for x in list]
 
@@ -70,6 +65,29 @@ class build_doc(build.build):
        subprocess.check_call([python, faber,
                               '--srcdir={}'.format('doc'),
                               '--builddir={}'.format('doc')])
+
+
+class finstall_data(install_data.install_data):
+    """Install VERSION file."""
+
+    def finalize_options(self):
+        self.set_undefined_options('install', ('install_lib', 'install_dir'),)
+        install_data.install_data.finalize_options(self)
+
+    def run(self):
+        install_data.install_data.run(self)
+        vf = os.path.join(self.install_dir, 'faber', 'VERSION')
+        open(vf, 'w').write(version)
+        self.outfiles.append(vf)
+
+
+class fsdist(sdist.sdist):
+
+    def make_release_tree(self, base_dir, files):
+        sdist.sdist.make_release_tree(self, base_dir, files)
+        print('base_dir=', base_dir)
+        open(os.path.join(base_dir, 'src', 'faber', 'VERSION'), 'w').write(version)
+
 
 docs = []
 if os.path.exists('doc/html'):
@@ -138,8 +156,10 @@ setup(name='faber',
                      'Programming Language :: Python',
                      'Programming Language :: C'],
       cmdclass={'build_doc': build_doc,
+                'install_data': finstall_data,
                 'install_scripts': install_faber,
-                'check': check},
+                'check': check,
+                'sdist': fsdist},
       package_dir={'':'src'},
       packages=find_packages('src/faber', 'faber'),
       ext_modules=[bjam],

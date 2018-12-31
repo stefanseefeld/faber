@@ -81,6 +81,8 @@ def make_parser(prog='faber'):
                         help='print information about the build logic')
     parser.add_argument('--shell', action='store_true',
                         help='run interactive shell')
+    parser.add_argument('-v', '--version', action='store_true',
+                        help='report version and exit')
     return parser
 
 
@@ -89,6 +91,10 @@ def main(argv):
     parser = make_parser(argv[0])
     try:
         args, unknown = parser.parse_known_args(argv[1:])
+
+        if args.version:
+            print('Faber version {}'.format(faber.version))
+            return True
 
         def with_gen(w):
             k, v = w.split('=', 1) if '=' in w else (w, None)
