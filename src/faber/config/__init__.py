@@ -9,6 +9,7 @@
 from ..artefact import artefact, notfile
 from ..rule import depend
 from .. import output
+from .. import logging
 
 
 def init(builddir):
@@ -43,11 +44,13 @@ class report(artefact):
 
     def _report(self):
 
+        logger = logging.getLogger('summary')
+
         max_name_length = max(len(c.qname) for c in self.checks)
-        print(output.coloured('configuration check results:', attrs=['bold']))
+        logger.info(output.coloured('configuration check results:', attrs=['bold']))
         for c in self.checks:
-            print('  {:{}} : {} {}'
-                  .format(c.qname, max_name_length, c.result, '(cached)' if c.cached else ''))
+            logger.info('  {:{}} : {} {}'
+                        .format(c.qname, max_name_length, c.result, '(cached)' if c.cached else ''))
 
     def __status__(self, status):
         artefact.__status__(self, status)

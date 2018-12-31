@@ -17,6 +17,7 @@ import logging
 
 action_logger = logging.getLogger('actions')
 command_logger = logging.getLogger('commands')
+output_logger = logging.getLogger('output')
 
 
 class CallError(Exception):
@@ -186,6 +187,6 @@ class action(object):
             action_logger.info(alog)
             command_logger.info(command, extra={'time': time})
             if stdout:
-                print(stdout)
+                output_logger.info(stdout)
             if stderr:
-                print(stderr)
+                output_logger.info(stderr)

@@ -9,6 +9,7 @@
 from ..artefact import artefact, notfile, always
 from ..rule import rule
 from .. import output
+from .. import logging
 from . import pass_, fail, xfail
 
 
@@ -25,6 +26,9 @@ class report(artefact):
 
     def print_summary(self, targets, sources):
         """Print a summary of the report."""
+
+        logger = logging.getLogger('summary')
+
         passes = sum(1 for s in self.tests if s.outcome == pass_)
         failures = [s for s in self.tests if s.outcome == fail]
         xfailures = sum(1 for s in self.tests if s.outcome == xfail)
@@ -40,13 +44,14 @@ class report(artefact):
         if xfailures > 1: x += 's'
         s = skipped and '{} skipped'.format(skipped) or ''
         line = ', '.join([o for o in [p, f, x, s] if o])
-        print(output.coloured('test summary: ' + line, colour, attrs=['bold']))
+
+        logger.info(output.coloured('test summary: ' + line, colour, attrs=['bold']))
         if failures:
-            print(output.coloured('failures:', 'red', attrs=['bold']))
+            logger.info(output.coloured('failures:', 'red', attrs=['bold']))
             for f in failures:
-                print(output.coloured(f.qname, 'red', attrs=['bold']))
+                logger.info(output.coloured(f.qname, 'red', attrs=['bold']))
                 if f.output[1]:  # if there is output on stderr...
-                    print(f.output[1])
+                    logger.info(f.output[1])
             if self.fail_on_failures:
                 return False
         return True

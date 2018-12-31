@@ -47,9 +47,10 @@ def setup(log=[], loglevel=None, debug=False, silent=False, profile=False):
                 if loglevel & l:
                     getLogger(n).setLevel(level=logging.INFO)
         elif not silent:
-            # by default, enable summary and actions logger only
+            # by default, enable summary, actions, and output loggers only
             getLogger('summary').setLevel(level=logging.INFO)
             getLogger('actions').setLevel(level=logging.INFO)
+            getLogger('output').setLevel(level=logging.INFO)
     if profile:
         h = logging.StreamHandler()
         h.setFormatter(ProfileFormatter())
