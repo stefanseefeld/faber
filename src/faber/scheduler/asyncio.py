@@ -15,7 +15,7 @@ from ..utils import aslist
 import asyncio
 import sys
 
-__all__ = ['init', 'clean', 'finish',
+__all__ = ['init', 'reset', 'clean', 'finish',
            'variables', 'define_artefact', 'add_dependency', 'define_recipe',
            'run', 'update', 'print_dependency_graph', 'DependencyError']
 
@@ -36,6 +36,11 @@ def init(params, builddir, readonly=False, **options):
     force = options.get('force', False)
     artefact.init(files, intermediates, force)
     recipe.init(jobs, timeout, noexec)
+
+
+def reset():
+    for a in artefacts.values():
+        a.reset()
 
 
 def clean(level=1):

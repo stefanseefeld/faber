@@ -26,6 +26,13 @@ def finish():
     check.logfiles.clear()
 
 
+def reset(level):
+    from .check import check
+    check.logfiles.reset()
+    if check.cache:
+        check.cache.reset(level)
+
+
 def clean(level):
     from .check import check
     if level > 1:
