@@ -126,7 +126,7 @@ call "%py_exe%" %pyscript% %*
             with open(bat_file, 'wt') as fobj:
                 fobj.write(bat_contents)
 
-class check(build.build):
+class test(build.build):
 
    description = "run tests"
 
@@ -144,7 +144,7 @@ setup(name='faber',
       maintainer='Stefan Seefeld',
       maintainer_email='stefan@seefeld.name',
       description='Faber is a construction tool.',
-      url='http://github.com/stefanseefeld/faber',
+      url='https://stefanseefeld.github.io/faber',
       download_url='https://github.com/stefanseefeld/faber/releases',
       license='BSL',
       classifiers = ['Environment :: Console',
@@ -158,7 +158,7 @@ setup(name='faber',
       cmdclass={'build_doc': build_doc,
                 'install_data': finstall_data,
                 'install_scripts': install_faber,
-                'check': check,
+                'test': test,
                 'sdist': fsdist},
       package_dir={'':'src'},
       packages=find_packages('src/faber', 'faber'),
