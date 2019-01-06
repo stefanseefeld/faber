@@ -13,6 +13,7 @@ class InvalidState(Exception):
         Exception.__init__(self,
                            'cannot access unfinished artefact "{}"'
                            .format(a.boundname))
+        self.artefact = a
 
 
 class delayed(object):

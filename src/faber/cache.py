@@ -10,7 +10,6 @@ import sqlite3
 import hashlib
 import os
 import os.path
-import warnings
 
 
 class filecache(object):
@@ -18,9 +17,10 @@ class filecache(object):
 
     def __init__(self, builddir, params):
         self.root = builddir
-        if not os.path.exists(self.root):
-            os.makedirs(self.root)
-        self.filename = os.path.join(self.root, '.filecache')
+        fdir = os.path.join(builddir, '.faber')
+        if not os.path.exists(fdir):
+            os.makedirs(fdir)
+        self.filename = os.path.join(fdir, 'filecache')
         variant = str(params).encode('utf-8')
         self.variant = hashlib.md5(variant).hexdigest()
         self.conn = sqlite3.connect(self.filename)
@@ -51,32 +51,3 @@ class filecache(object):
             for i in self.conn.execute('SELECT filename FROM files WHERE variant=?',
                                        (self.variant,)):
                 yield i[0]
-
-
-class optioncache(object):
-    """Remember command-line options for convenience."""
-
-    def __init__(self, builddir, options, readonly=False):
-
-        self.filename = os.path.join(builddir, '.optioncache')
-        self.options = dict(with_={}, without=[])
-        if os.path.exists(self.filename):
-            with open(self.filename) as f:
-                exec(f.read(), self.options)
-        if options.get('with_', []) or options.get('without', []):
-            if self.options['with_'] or self.options['without']:
-                warnings.warn('Overriding saved options with command-line options')
-            self.options.update(options)
-        if not readonly:
-            with open(self.filename, 'w') as opts:
-                opts.write('with_={}\n'.format(repr(self.options['with_'])))
-                opts.write('without={}\n'.format(repr(self.options['without'])))
-
-    def clean(self):
-        os.remove(self.filename)
-
-    def get_with(self, value):
-        return self.options['with_'].get(value)
-
-    def get_without(self, value):
-        return value in self.options['without']

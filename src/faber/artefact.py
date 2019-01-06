@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from . import types
 from .feature import set
 from .delayed import delayed_property
-from .utils import path_formatter
+from .utils import path_formatter, add_metaclass
 from . import logging
 from os.path import normpath, join
 from collections import defaultdict
@@ -135,6 +135,9 @@ class artefact(object):
         from . import scheduler
         return scheduler.update(self)
 
+    def reset(self):
+        self.status = None
+
     def _register(self):
         from . import scheduler
         artefact._qnames[self.qname].append(self)
@@ -153,20 +156,23 @@ class artefact(object):
         self.status = status
 
 
+class source_type(type):
+    def __call__(cls, name, *args, **kwds):
+        """Make sure there is only one instance per source (file)."""
+        from .module import module as M
+        module = kwds.get('module') or M.current
+        qname = module.qname(name)
+        if qname not in cls._instances:
+            cls._instances[qname] = type.__call__(cls, name, *args, **kwds)
+        return cls._instances[qname]
+
+
+@add_metaclass(source_type)
 class source(artefact):
     """A source is a simple feature-less artefact representing an existing
     file outside faber's control."""
 
     _instances = {}
-
-    def __new__(cls, name, module=None):
-        """Make sure there is only one instance per source (file)."""
-        from .module import module as M
-        module = module or M.current
-        qname = module.qname(name)
-        if qname not in cls._instances:
-            cls._instances[qname] = object.__new__(cls)
-        return cls._instances[qname]
 
     def _register(self):
         # don't depend on anything
@@ -196,3 +202,9 @@ class conditional(artefact):
             from . import scheduler
             for d in self.dependent:
                 scheduler.add_dependency(d, self.a)
+
+
+def init():
+    """reset globals"""
+
+    source._instances.clear()

@@ -32,7 +32,8 @@ class ProfileFormatter(logging.Formatter):
         return s
 
 
-def setup(log=[], loglevel=None, debug=False, silent=False, profile=False):
+def setup(log=None, loglevel=None, debug=False, profile=False):
+    """If `log` is a list of loggers to enable, or None to indicate default settings."""
 
     # if debugging is enabled, print everything...
     if debug:
@@ -46,7 +47,7 @@ def setup(log=[], loglevel=None, debug=False, silent=False, profile=False):
             for n, l in topics.items():
                 if loglevel & l:
                     getLogger(n).setLevel(level=logging.INFO)
-        elif not silent:
+        elif log is None:  # undefined, use defaults
             # by default, enable summary, actions, and output loggers only
             getLogger('summary').setLevel(level=logging.INFO)
             getLogger('actions').setLevel(level=logging.INFO)
