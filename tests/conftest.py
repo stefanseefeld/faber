@@ -8,13 +8,12 @@
 
 from __future__ import absolute_import, print_function
 from faber import scheduler
+from faber.project import project, buildinfo
 from faber.module import module as M
-from faber import config as C
 from faber import logging
+from test.common import tempdir
 from os.path import join
 from os import mkdir
-import tempfile
-import shutil
 import pytest
 
 
@@ -44,18 +43,11 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture()
 def module():
-
-    root = tempfile.mkdtemp()
-    srcdir = join(root, 'test-source')
-    mkdir(srcdir)
-    builddir = join(root, 'test-build')
-    scheduler.init(params={}, builddir=builddir)
-    M.init(goals={}, options={}, params={})
-    C.init(builddir)
-    m = M('test', srcdir, builddir, process=False)
-    with m:
-        yield
-    C.finish()
-    M.finish()
-    scheduler.finish()
-    shutil.rmtree(root)
+    with tempdir() as root:
+        srcdir = join(root, 'test-source')
+        mkdir(srcdir)
+        builddir = join(root, 'test-build')
+        info = buildinfo(builddir, srcdir)
+        with project(info):
+            with M('test', srcdir, builddir, process=False):
+                yield

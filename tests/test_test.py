@@ -69,8 +69,11 @@ default = r
 
     with tempdir() as dirpath:
         write_fabscript(dirpath, script)
+        command = cmd
+        command.append('--srcdir={}'.format(dirpath))
+        command.append('--builddir={}'.format(dirpath))
         if fail:
             with pytest.raises(subprocess.CalledProcessError):
-                subprocess.check_output(cmd + ['--srcdir={}'.format(dirpath)])
+                subprocess.check_output(command)
         else:
-            subprocess.check_output(cmd + ['--srcdir={}'.format(dirpath)])
+            subprocess.check_output(command)

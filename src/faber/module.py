@@ -54,8 +54,7 @@ class module(object):
     current = None
 
     @staticmethod
-    def init(goals, options, params):
-        module.goals = goals
+    def init(options, params):
         module.options = options
         module.params = params
 
@@ -74,7 +73,6 @@ class module(object):
             self._features = lazy_set(module.params.copy())
         from . import builtin
         self._env = builtin.__dict__.copy()
-        self._env['goals'] = module.goals
         self._env['options'] = module.options
         self._env['features'] = self._features
         self._env.update(kwds)

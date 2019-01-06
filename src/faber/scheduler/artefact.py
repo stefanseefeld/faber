@@ -199,7 +199,11 @@ class artefact(object):
         async with self._lock:
             if self.progress >= progress.BOUND:
                 return
-            self.frontend.features.eval(update=False)
+            try:
+                self.frontend.features.eval(update=False)
+            except Exception:
+                print('something went wrong binding {self.frontend}')
+                raise
             self.boundname = self.frontend.boundname
             if not self.flags & flag.NOTFILE:
                 d = dirname(self.boundname) or '.'
@@ -215,7 +219,7 @@ class artefact(object):
                 parent.binding != binding.MISSING):
                 self.binding = binding.PARENTS
 
-            msg = f'bind -- {self.name}: {self.boundname} '
+            msg = f'bind -- {id(self)} {self.name}: {self.boundname} '
             msg += f'time={self._timestamp}' if self.binding == binding.EXISTS else f'{str(self.binding)}'
             logger.info(msg)
             self.progress = progress.BOUND

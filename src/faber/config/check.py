@@ -21,9 +21,10 @@ logger = logging.getLogger('config')
 class cache(object):
 
     def __init__(self, builddir):
-        if not exists(builddir):
-            os.makedirs(builddir)
-        self.filename = join(builddir, '.configcache')
+        fdir = join(builddir, '.faber')
+        if not exists(fdir):
+            os.makedirs(fdir)
+        self.filename = join(fdir, 'configcache')
         self.conn = sqlite3.connect(self.filename)
         # Create table if it doesn't exist yet.
         if not next(self.conn.execute('SELECT name FROM sqlite_master '

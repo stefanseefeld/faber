@@ -7,7 +7,6 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from ..utils import capture_output
-from ..action import CallError
 from .artefact import dependency_error
 import asyncio
 from concurrent.futures import TimeoutError
@@ -66,6 +65,7 @@ class recipe(object):
 
     def run_callable(self):
 
+        from ..action import CallError
         # Setting '__noexec__' allows a function to be run even in noexec mode.
         if recipe.noexec and not hasattr(self.action.command, '__noexec__'):
             return True, '', ''

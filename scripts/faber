@@ -8,11 +8,16 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 import faber
-from faber import scheduler
 from faber import project
 from faber import logging
 import os.path
 import argparse
+
+
+try:
+    input = raw_input
+except NameError:
+    pass
 
 
 class PosArgsParser(argparse.Action):
@@ -91,57 +96,61 @@ def main(argv):
     parser = make_parser(argv[0])
     try:
         args, unknown = parser.parse_known_args(argv[1:])
-
+        if args.silent:
+            args.log = []
         if args.version:
             print('Faber version {}'.format(faber.version))
             return True
 
         def with_gen(w):
             k, v = w.split('=', 1) if '=' in w else (w, None)
-            yield k[7:]
+            yield k[2:]
             yield v
-        with_ = dict(map(with_gen, [w for w in unknown if w.startswith('--with-')]))
-        without = [w[10:] for w in unknown if w.startswith('--without-')]
-        args.options = dict(with_=with_, without=without)
+        args.options = dict(map(with_gen, [w for w in unknown
+                                           if w.startswith('--with-')]))
+        args.options.update(dict.fromkeys([w[2:] for w in unknown
+                                           if w.startswith('--without-')], None))
+
         unknown = [a for a in unknown
                    if not a.startswith('--with-') and not a.startswith('--without-')]
         # Parse the remainder, as there may be more positional arguments.
         # (See https://bugs.python.org/issue14191 for context)
         args = parser.parse_args(unknown, args)
 
-        logging.setup(args.log, args.loglevel,
-                      args.debug, args.silent, args.profile)
+        logging.setup(args.log, args.loglevel, args.debug, args.profile)
         if args.debug:
             faber.debug = True
-        scheduler.init(args.parameters, args.builddir, readonly=args.info=='tools',
-                       log=args.log and 'process' in args.log,
-                       jobs=args.parallel,
-                       force=args.force,
-                       intermediates=args.intermediates,
-                       timeout=args.timeout,
-                       noexec=args.noexec)
         if args.rc:
             project.config(os.path.expanduser(args.rc))
         elif os.path.exists(os.path.expanduser('~/.faber')):
             project.config(os.path.expanduser('~/.faber'))
 
-        if args.srcdir and os.path.exists(os.path.join(args.srcdir, '.faber')):
-            project.config(os.path.join(args.srcdir, '.faber'))
-
+        if args.srcdir and os.path.exists(os.path.join(args.srcdir, '.faberrc')):
+            project.config(os.path.join(args.srcdir, '.faberrc'))
+        info = project.buildinfo(args.builddir, args.srcdir)
+        if args.parameters and info.parameters and \
+           args.parameters != info.parameters and \
+           input('override existing parameters ? [y/N]:') != 'y':
+            return False
+        if args.options and info.options and \
+           args.options != info.options and \
+           input('override existing options ? [y/N]:') != 'y':
+            return False
+        info.parameters = args.parameters
+        info.options = args.options
+        proj = project.project(info,
+                               parallel=args.parallel, force=args.force,
+                               intermediates=args.intermediates,
+                               timeout=args.timeout,
+                               noexec=args.noexec)
         if args.info:
-            result = project.info(args.info,
-                                  args.goals, args.options, args.parameters,
-                                  args.srcdir, args.builddir)
+            result = proj.info(args.info, args.goals)
         elif args.shell:
-            result = project.shell(args.goals, args.options, args.parameters,
-                                   args.srcdir, args.builddir)
+            result = proj.shell()
         elif args.clean:
-            result = project.clean(args.clean, args.options, args.parameters,
-                                   args.srcdir, args.builddir)
+            result = proj.clean(args.clean)
         else:
-            result = project.build(args.goals, args.options, args.parameters,
-                                   args.srcdir, args.builddir)
-        scheduler.finish()
+            result = proj.build(args.goals)
         return result
     except KeyboardInterrupt:
         pass

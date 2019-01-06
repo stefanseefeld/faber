@@ -31,7 +31,7 @@ def init(params, builddir, readonly=False, **options):
     noexec = options.get('noexec', False)
     files = filecache(builddir, params) if not readonly else ()
     intermediates = options.get('intermediates', False)
-    jobs = options.get('jobs', 1)
+    jobs = options.get('parallel', 1)
     timeout = options.get('timeout', 0)
     force = options.get('force', False)
     artefact.init(files, intermediates, force)
@@ -39,8 +39,9 @@ def init(params, builddir, readonly=False, **options):
 
 
 def reset():
-    for a in artefacts.values():
-        a.reset()
+    for b, f in artefacts.items():
+        b.reset()
+        f.reset()
 
 
 def clean(level=1):
