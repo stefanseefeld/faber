@@ -45,6 +45,7 @@ class cache(object):
     def clean(self):
         self.conn.close()
         self.conn = None
+        logger.info('cleaning config cache')
         os.remove(self.filename)
         self.conn = sqlite3.connect(self.filename)
 
@@ -110,6 +111,9 @@ class check(artefact):
         self.logfile = check.logfiles[self.module]
         # The 'condition' here is simply the value of the check's status member.
         self.use = delayed(lambda: set.instantiate(if_) if self.status else set.instantiate(ifnot), self)
+        self.reset()
+
+    def reset(self):
         key = str((self.name, str(self.features))).encode('utf-8')
         self._cache_key = hashlib.md5(key).hexdigest()
         self.cached = self._cache_key in check.cache
