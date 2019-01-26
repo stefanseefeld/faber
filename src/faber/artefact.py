@@ -193,6 +193,10 @@ class conditional(artefact):
         self.a = a
         self.dependent = []  # set by depend()
 
+    def reset(self):
+        # do not reset this artefact as we can't undo its action
+        pass
+
     def __status__(self, status):
         artefact.__status__(self, status)
         result = self.condition(self.features.eval(update=False))

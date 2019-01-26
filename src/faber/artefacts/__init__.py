@@ -61,6 +61,10 @@ class composite(artefact):
             # without any delayed values, assemble immediately
             self._assemble()
 
+    def reset(self):
+        # do not reset this artefact as we can't undo the assembly
+        pass
+
     def __call__(self, features):
         c = artefact.__call__(self, features)
         if c.features.dependencies():
@@ -77,5 +81,6 @@ class composite(artefact):
 
     def _assemble(self):
         from ..tools import compiler  # noqa F401
-        self.features.eval(update=False)
-        assembly.rule(self, self.sources, self.features, module=self.module)
+        if self.status is None:
+            self.features.eval(update=False)
+            assembly.rule(self, self.sources, self.features, module=self.module)

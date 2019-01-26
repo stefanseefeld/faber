@@ -29,6 +29,10 @@ class scan(artefact):
         rule(recipe, self, src)
         depend(self._obj, self)
 
+    def reset(self):
+        # do not reset this artefact as we can't undo its action
+        pass
+
     def __status__(self, status):
         # the file format is simply a newline-separated list
         # of (header) filenames
