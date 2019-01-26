@@ -22,6 +22,7 @@ class makedep(action):
     cppflags = map(compiler.cppflags)
     cppflags += map(compiler.define, translate, prefix='-D')
     cppflags += map(compiler.include, translate, prefix='-I')
+    cppflags += map(cxxstd, translate, prefix='-std=c++')
 
 
 class compile(action):

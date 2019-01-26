@@ -21,6 +21,13 @@ The following features are provided by Faber and its built-in tools.
 
    Generic C++ compiler flags. They are passed through to the compiler, unmodified.
 
+.. fab:feature:: cxxstd
+   :attributes: incidental
+   :values: 98, 03, 11, 14, 17
+   :module: faber.tools.cxx
+
+   C++ standard version to be used.
+
 .. fab:feature:: ldflags
    :attributes: multi, incidental
    :module: faber.tools.compiler
