@@ -10,6 +10,7 @@ from ..artefact import artefact, notfile, always
 from ..rule import rule
 from .. import output
 from .. import logging
+from .suite import suite
 from . import pass_, fail, xfail
 
 
@@ -21,8 +22,18 @@ class report(artefact):
 
         artefact.__init__(self, name, attrs=notfile|always)
         rule(self.print_summary, self, tests)
-        self.tests = tests
+        self._tests = tests
         self.fail_on_failures = fail_on_failures
+
+    @property
+    def tests(self):
+        for t in self._tests:
+            if isinstance(t, suite):
+                # Use `yield from` once we stop supporting Python 2.7
+                for i in t:
+                    yield i
+            else:
+                yield t
 
     def print_summary(self, targets, sources):
         """Print a summary of the report."""

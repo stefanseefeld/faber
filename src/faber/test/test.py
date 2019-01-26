@@ -34,7 +34,7 @@ $(>)"""
             command = 'LD_LIBRARY_PATH=$(runpath) $(>)'
 
     def __init__(self, name, sources, run=False, dependencies=[], features=(),
-                 condition=None, expected=pass_):
+                 condition=None, expected=pass_, module=None):
         """Create a test.
 
         Arguments:
@@ -51,7 +51,7 @@ $(>)"""
           * condition: either a boolean or a feature condition to indicate if this test is to be performed or skipped.
           * expected: the expected outcome"""
 
-        artefact.__init__(self, name, attrs=notfile|nocare|always, features=features, condition=condition)
+        artefact.__init__(self, name, attrs=notfile|nocare|always, features=features, condition=condition, module=module)
         sources = aslist(sources)
         self.xoutcome = expected
         self.outcome = None

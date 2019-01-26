@@ -12,4 +12,5 @@ xpass = 0x3
 xfail = 0x4
 
 from .test import test  # noqa F401
+from .suite import suite  # noqa F401
 from .report import report  # noqa F401
