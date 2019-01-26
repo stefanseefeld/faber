@@ -2,6 +2,6 @@ Command-line interface
 ======================
 
 .. argparse::
-   :filename: scripts/faber
+   :module: faber.cli
    :func: make_parser
    :prog: faber

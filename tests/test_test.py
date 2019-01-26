@@ -10,11 +10,9 @@ from faber.test import test, report, pass_, fail, xpass, xfail
 from faber.artefact import always, notfile
 from faber.action import action
 from faber.rule import rule
-from test.common import tempdir, write_fabscript
+from faber import cli
+from test.common import tempdir, write_fabscript, argv
 import pytest
-import subprocess
-from os.path import join, abspath
-import sys
 
 
 @pytest.mark.usefixtures('module')
@@ -63,17 +61,13 @@ r = report('report', [test1, test2], fail_on_failures={})
 default = r
 """.format(fail)
 
-    python = sys.executable
-    faber = abspath(join('scripts', 'faber'))
-    cmd = [python, faber]
-
     with tempdir() as dirpath:
         write_fabscript(dirpath, script)
-        command = cmd
+        command = ['faber']
         command.append('--srcdir={}'.format(dirpath))
         command.append('--builddir={}'.format(dirpath))
-        if fail:
-            with pytest.raises(subprocess.CalledProcessError):
-                subprocess.check_output(command)
-        else:
-            subprocess.check_output(command)
+        with argv(command):
+            if fail:
+                assert not cli.main()
+            else:
+                assert cli.main()

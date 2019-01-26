@@ -1,3 +1,4 @@
+dist: xenial
 language: python
 
 matrix:
@@ -42,12 +43,12 @@ script:
   - PYTHONPATH=`pwd`/src python -m faber.platform
   - |
      if [ "$flake8" = true ]; then
-       flake8 src/faber tests scripts/faber
+       flake8 src/faber tests
      elif [ "$doc" = true ]; then
-       PYTHONPATH=`pwd`/src scripts/faber --srcdir=doc --builddir=build
+       PYTHONPATH=`pwd`/src python -m faber.cli --srcdir=doc --builddir=build
        .ci/upload_docs.sh
      else
-       PYTHONPATH=`pwd`/src scripts/faber --info=tools cxx
+       PYTHONPATH=`pwd`/src python -m faber.cli --info=tools cxx
        PYTHONPATH=`pwd`/src py.test --cov=./src --compiler=native -v
      fi
 

@@ -12,6 +12,7 @@ import tempfile
 import shutil
 import os
 from os.path import join
+import sys
 
 
 def pyecho(targets, sources):
@@ -41,3 +42,12 @@ def cwd(tmp):
 def write_fabscript(dirpath, content):
     with open(join(dirpath, 'fabscript'), 'w') as f:
         f.write(content)
+
+
+@contextlib.contextmanager
+def argv(args):
+
+    orig = sys.argv
+    sys.argv = type(orig)(args)
+    try: yield
+    finally: sys.argv = orig

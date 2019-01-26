@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # Copyright (c) 2016 Stefan Seefeld
 # All rights reserved.
@@ -8,16 +7,10 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 import faber
-from faber import project
-from faber import logging
+from . import project
+from . import logging
 import os.path
 import argparse
-
-
-try:
-    input = raw_input
-except NameError:
-    pass
 
 
 class PosArgsParser(argparse.Action):
@@ -42,10 +35,9 @@ class PosArgsParser(argparse.Action):
                 namespace.goals.append(v)
 
 
-def make_parser(prog='faber'):
+def make_parser():
 
-    parser = argparse.ArgumentParser(prog=prog,
-                                     description='Faber is a construction tool.')
+    parser = argparse.ArgumentParser(description='Faber is a construction tool.')
     parser.add_argument('goals', metavar='GOAL', nargs='*',
                         action=PosArgsParser,
                         help='a goal to update')
@@ -86,21 +78,17 @@ def make_parser(prog='faber'):
                         help='print information about the build logic')
     parser.add_argument('--shell', action='store_true',
                         help='run interactive shell')
-    parser.add_argument('-v', '--version', action='store_true',
-                        help='report version and exit')
+    parser.add_argument('-v', '--version', action='version', version=faber.version)
     return parser
 
 
-def main(argv):
+def main():
 
-    parser = make_parser(argv[0])
+    parser = make_parser()
     try:
-        args, unknown = parser.parse_known_args(argv[1:])
+        args, unknown = parser.parse_known_args()
         if args.silent:
             args.log = []
-        if args.version:
-            print('Faber version {}'.format(faber.version))
-            return True
 
         def with_gen(w):
             k, v = w.split('=', 1) if '=' in w else (w, None)
@@ -163,7 +151,10 @@ def main(argv):
     return True
 
 
-if __name__ == '__main__':
+def cli_main():
+    """Convert boolean result to process exit status."""
+    return 0 if main() else 1
 
-    import sys
-    sys.exit(0 if main(sys.argv) else 1)
+
+if __name__ == "__main__":
+    main()

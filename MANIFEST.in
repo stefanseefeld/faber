@@ -2,8 +2,7 @@
 # MANIFEST template for source distribution generation
 #
 
-include LICENSE README.md MANIFEST.in setup.py
-exclude setup.cfg
+include LICENSE README.md MANIFEST.in setup.py setup.cfg
 global-exclude *~
 global-exclude *.pyc
 global-exclude *.pyo
@@ -16,9 +15,6 @@ include             src/faber/VERSION
 
 #documentation
 recursive-include   doc *
-
-# scripts
-include             scripts/*
 
 # unit tests
 recursive-include tests *

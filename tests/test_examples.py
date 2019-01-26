@@ -6,12 +6,11 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from test.common import cwd
-import subprocess
+from faber import cli
+from test.common import cwd, argv
 import pytest
 import sys
-from os.path import join, abspath
-from six import raise_from
+from os.path import join
 
 compilers = {'gcc': {'cc': 'gcc', 'cxx': 'g++'},
              'clang': {'cc': 'clang', 'cxx': 'clang++'},
@@ -30,101 +29,93 @@ def get_cxx_opt(name):
     return 'cxx.name={}'.format(compilers[name]['cxx'])
 
 
-def check_output(*cmd):
-    # Report the output of the failing process rather
-    # than the traceback of the check_output call.
-    try:
-        subprocess.check_output(*cmd)
-    except subprocess.CalledProcessError as e:
-        raise_from(Exception(e.output), None)
+def faber(*args):
+    with argv(('faber',) + args):
+        cli.main()
 
-
-python = sys.executable
-faber = abspath(join('scripts', 'faber'))
 
 if sys.platform=='win32':
     # on Windows we can't clean up the config cache while
     # it is still being accessed via the test module itself
-    clean = ['-c']  # clean
+    clean = '-c'  # clean
 else:
-    clean = ['-cc']  # extra clean
+    clean = '-cc'  # extra clean
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='requires a "c++" tool')
 def test_action():
 
     with cwd(join('examples', 'action')):
-        cmd = [python, faber]
-        check_output(cmd)
-        check_output(cmd + clean)
+        faber()
+        faber(clean)
 
 
 def test_tool(compiler):
 
-    cmd = [python, faber]
+    args = []
     if compiler:
-        cmd.append(get_cxx_opt(compiler))
+        args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'tool')):
-        check_output(cmd)
-        check_output(cmd + clean)
+        faber(*args)
+        faber(clean)
 
 
 def test_implicit_rules(compiler):
 
-    cmd = [python, faber]
+    args = []
     if compiler:
-        cmd.append(get_cxx_opt(compiler))
+        args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'implicit_rules')):
-        check_output(cmd)
-        check_output(cmd + clean)
+        faber(*args)
+        faber(clean)
 
 
 def test_modular(compiler):
 
-    cmd = [python, faber]
+    args = []
     if compiler:
-        cmd.append(get_cxx_opt(compiler))
+        args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'modular')):
-        check_output(cmd)
-        check_output(cmd + clean)
+        faber(*args)
+        faber(clean)
 
 
 def test_config(compiler):
 
-    cmd = [python, faber]
+    args = []
     if compiler:
-        cmd.append(get_cxx_opt(compiler))
+        args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'config')):
-        check_output(cmd)
-        check_output(cmd + clean)
+        faber(*args)
+        faber(clean)
 
 
 @pytest.mark.skip(reason='this requires a bit more work...')
 def test_python(compiler):
 
-    cmd = [python, faber]
+    args = []
     if compiler:
-        cmd.append(get_cc_opt(compiler))
+        args.append(get_cc_opt(compiler))
     with cwd(join('examples', 'python')):
-        check_output(cmd)
-        check_output(cmd + clean)
+        faber(*args)
+        faber(clean)
 
 
 def test_test(compiler):
 
-    cmd = [python, faber]
+    args = []
     if compiler:
-        cmd.append(get_cxx_opt(compiler))
+        args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'test')):
-        check_output(cmd)
-        check_output(cmd + clean)
+        faber(*args)
+        faber(clean)
 
 
 def test_package(compiler):
 
-    cmd = [python, faber]
+    args = []
     if compiler:
-        cmd.append(get_cxx_opt(compiler))
+        args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'package')):
-        check_output(cmd + ['tgz', 'stgz'])
-        check_output(cmd + clean)
+        faber(*args + ['tgz', 'stgz'])
+        faber(clean)
