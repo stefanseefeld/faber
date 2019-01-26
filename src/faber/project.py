@@ -55,9 +55,9 @@ class buildinfo(object):
     retrieved from there."""
 
     def __init__(self, builddir, srcdir=None):
-        self.builddir = builddir
-        filename = join(self.builddir, '.faber', 'info')
-        if exists(filename):  # this is an existing build directory
+        filename = join(builddir, '.faber', 'info') if builddir else None
+        if filename and exists(filename):  # this is an existing build directory
+            self.builddir = builddir
             c = ConfigParser(allow_no_value=True)
             c.read(filename)
             self.srcdir = c['general']['srcdir']
@@ -65,19 +65,17 @@ class buildinfo(object):
                 raise Exception('incompatible source directory')
             self.options = dict(c.items('options'))
             self.parameters = dict(c.items('parameters'))
-        elif exists(join(self.builddir, 'fabscript')):  # it's a source directory
+        elif builddir and exists(join(builddir, 'fabscript')):  # it's a source directory
+            self.builddir = builddir
             if srcdir and abspath(self.builddir) != abspath(srcdir):
                 raise Exception('incompatible source directory')
             else:
                 self.srcdir = srcdir or self.builddir
                 self.options = {}
                 self.parameters = {}
-        elif exists(join(srcdir, 'fabscript')):  # it's a new builddir
+        else:  # it's a new builddir
+            self.builddir = builddir
             self.srcdir = srcdir
-            self.options = {}
-            self.parameters = {}
-        else:
-            self.srcdir = None
             self.options = {}
             self.parameters = {}
 

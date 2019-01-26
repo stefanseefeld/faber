@@ -13,6 +13,14 @@ from os.path import join, exists
 from os import mkdir
 
 
+def test_no_args():
+
+    with tempdir():
+        info = buildinfo(None)
+        assert info.srcdir is None
+        assert info.builddir is None
+
+
 def test_new_project():
 
     with tempdir() as root:
