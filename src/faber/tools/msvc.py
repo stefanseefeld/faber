@@ -5,6 +5,7 @@
 # This file is part of Faber. It is made available under the
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
+import os
 
 from ..action import action
 from ..feature import set as fset, map, translate, select_if
@@ -22,6 +23,19 @@ except ImportError:  # python 2
     import _winreg as winreg
 from collections import OrderedDict
 from subprocess import *
+from sys import stdout
+
+
+def check_output_decoded(*args, **kwargs):
+    """Try to decode output with system default."""
+
+    try:
+        # get encoding via power shell
+        encoding = check_output(['powershell.exe', '[System.Text.Encoding]::Default.BodyName']).decode().splitlines()[0]
+    except (OSError, SubprocessError):
+        encoding = stdout.encoding
+
+    return check_output(*args, **kwargs).decode(encoding)
 
 
 class makedep(action):
@@ -176,57 +190,66 @@ class msvc(cc, cxx):
     @classmethod
     def find_path(cls, product_dir, arch):
         setup = join(product_dir, 'vcvarsall.bat')
-        output = check_output([setup, arch, '&', 'set']).decode()
-        vars = dict(line.split('=', 1) for line in output.splitlines() if '=' in line)
-        path = vars['Path']
-        for p in path.split(pathsep):
-            if exists(join(p, 'cl.exe')):
-                return p
 
-    @classmethod
-    def discover(cls):
-
-        # start with versions reported by `vswhere`
         try:
-            vswhere = ['vswhere',
-                       '-products', '*',
-                       '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-                       '-property', 'installationPath']
-            output = check_output(vswhere).decode()
-            paths = [join(line, 'VC\\Auxiliary\\Build') for line in output.splitlines()]
-            for p in paths:
-                version = open(join(p, 'Microsoft.VCToolsVersion.default.txt')).read().strip()
-                cls._toolchains[version] = OrderedDict()
-                for arch in msvc.known_archs:
-                    product_dir, path = p, None
-                    try:
-                        path = cls.find_path(p, msvc.win_archs[arch])
-                    except Exception:
-                        pass
-                    if path:
-                        cls._toolchains[version][arch] = (normpath(product_dir), normpath(path))
-                if not cls._toolchains[version]:
-                    # remove empty entries
-                    del cls._toolchains[version]
+            output = check_output_decoded([setup, arch, '&', 'set'])
+            variables = dict(line.split('=', 1) for line in output.splitlines() if '=' in line)
+
+            path = variables.get('Path', [])
+            for p in path.split(pathsep):
+                if exists(join(p, 'cl.exe')):
+                    return p
         except Exception:
             pass
 
-        # Known toolset versions, in order of preference.
-        known_versions = ['15.0',
-                          '14.0',
-                          '12.0',
-                          '11.0',
-                          '10.0',
-                          '10.0express',
-                          '9.0',
-                          '9.0express',
-                          '8.0',
-                          '8.0express',
-                          '7.1',
-                          '7.1toolkit',
-                          '7.0',
-                          '6.0']
+    @classmethod
+    def discover_with_vswhere(cls):
+        """Discover MSVC with vswhere and return a dict"""
+        try:
+            # check whether its on the PATH already
+            vswhere = check_output_decoded(['where', 'vswhere'], stderr=PIPE).strip()
 
+        except CalledProcessError:
+            # try default location
+            program_files = os.environ.get('ProgramFiles(x86)', '')
+            vswhere = join(program_files, 'Microsoft Visual Studio', 'Installer', 'vswhere.exe')
+
+        if not exists(vswhere):
+            return {}
+
+        # ask vswhere for known versions
+        vswhere_args = ['-products', '*',
+                        '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+                        '-property', 'installationPath']
+
+        try:
+            output = check_output_decoded([vswhere] + vswhere_args)
+        except (FileNotFoundError, SubprocessError):
+            return {}
+
+        discovered_toolchains = {}
+        for line in output.splitlines():
+            build_helper_dir = join(line, 'VC', 'Auxiliary', 'Build')
+            version_file = join(build_helper_dir, 'Microsoft.VCToolsVersion.default.txt')
+
+            try:
+                version = open(version_file, 'r').read().strip()
+            except (IOError, FileNotFoundError):
+                continue
+
+            toolchain = OrderedDict()
+            for arch in msvc.known_archs:
+                toolchain_path = cls.find_path(build_helper_dir, msvc.win_archs[arch])
+                if toolchain_path:
+                    toolchain[arch] = (normpath(build_helper_dir), normpath(toolchain_path))
+
+            if toolchain:
+                discovered_toolchains[version] = toolchain
+
+        return discovered_toolchains
+
+    @classmethod
+    def discover_with_registry(cls):
         # Names of registry keys containing the Visual C++ installation path (relative
         # to "HKEY_LOCAL_MACHINE\SOFTWARE\\Microsoft").
         reg_keys = {'6.0': 'VisualStudio\\6.0\\Setup\\Microsoft Visual C++',
@@ -240,11 +263,12 @@ class msvc(cc, cxx):
                     '10.0express': 'VCExpress\\10.0\\Setup\\VC',
                     '11.0': 'VisualStudio\\11.0\\Setup\\VC',
                     '12.0': 'VisualStudio\\12.0\\Setup\\VC',
-                    '14.0': 'VisualStudio\\14.0\\Setup\\VC',
-                    '15.0': 'VisualStudio\\15.0\\Setup\\VC'}
+                    '14.0': 'VisualStudio\\14.0\\Setup\\VC'}
 
-        for version in known_versions:
-            cls._toolchains[version] = OrderedDict()
+        discovered_toolchains = {}
+
+        for version, reg_key in reg_keys.items():
+            toolchain = OrderedDict()
             for arch in msvc.known_archs:
                 product_dir, path = None, None
                 for x64elt in ('', 'Wow6432Node\\'):
@@ -257,10 +281,21 @@ class msvc(cc, cxx):
                     except Exception:
                         pass
                 if path:
-                    cls._toolchains[version][arch] = (normpath(product_dir), normpath(path))
-            if not cls._toolchains[version]:
-                # remove empty entries
-                del cls._toolchains[version]
+                    toolchain[arch] = (normpath(product_dir), normpath(path))
+
+            if toolchain:
+                discovered_toolchains[version] = toolchain
+
+        return discovered_toolchains
+
+    @classmethod
+    def discover(cls):
+        toolchains = cls.discover_with_vswhere()
+        toolchains.update(cls.discover_with_registry())
+
+        # add them starting with the highest version
+        for version, toolchain in sorted(toolchains.items(), reverse=True):
+            cls._toolchains[version] = toolchain
 
     @classmethod
     def instances(cls, fs=None):
