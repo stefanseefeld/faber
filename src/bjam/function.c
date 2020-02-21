@@ -3783,6 +3783,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
     instruction * code;
     LIST * l;
     LIST * result = L0;
+    void * saved_stack = s->data;
 
     PROFILE_ENTER_LOCAL(function_run);
 
