@@ -7,37 +7,14 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from distutils.core import setup, Extension
+from distutils.core import setup
 from distutils.command import build, install_scripts, install_data, sdist
-import sys, os, os.path, glob, shutil
+import sys, os, os.path
 import subprocess
 # allow the in-place import of the version
 sys.path.insert(0, 'src')
 from faber import version
 
-def prefix(pref, list): return [pref + x for x in list]
-
-sources=['bjam.c', 'rules.c', 'hash.c', 'modules.c',
-         'frames.c', 'constants.c',
-         'lists.c', 'timestamp.c', 'function.c',
-         'pathsys.c', 'builtins.c',
-         'md5.c', 'filesys.c', 'variable.c',
-         'strings.c', 'output.c', 'execcmd.c', 'debug.c',
-         'graph.c', 'make.c', 'make1.c', 'command.c',
-         'cwd.c', 'native.c', 'compile.c', 'object.c']
-libraries=[]
-if sys.platform == 'win32':
-    sources+=['execnt.c', 'pathnt.c', 'filent.c']
-    libraries=['kernel32', 'advapi32', 'user32']
-else:
-    sources+=['execunix.c', 'pathunix.c', 'fileunix.c']
-
-bjam = Extension(name='faber.scheduler._bjam',
-                 sources=prefix('src/bjam/', sources),
-                 define_macros=[('HAVE_PYTHON', None),
-                                ('OPT_SEMAPHORE', None),
-                                ('OPT_GRAPH_DEBUG_EXT', None)],
-                 libraries=libraries)
 scripts = ['scripts/faber']
 data = [('share/doc/faber-{}'.format(version), ('LICENSE', 'README.md'))]
 
@@ -153,8 +130,7 @@ setup(name='faber',
                      'Operating System :: OS Independent',
                      'Topic :: Software Development :: Build Tools',
                      'Topic :: Software Development :: Testing',
-                     'Programming Language :: Python',
-                     'Programming Language :: C'],
+                     'Programming Language :: Python'],
       cmdclass={'build_doc': build_doc,
                 'install_data': finstall_data,
                 'install_scripts': install_faber,
@@ -162,7 +138,6 @@ setup(name='faber',
                 'sdist': fsdist},
       package_dir={'':'src'},
       packages=find_packages('src/faber', 'faber'),
-      ext_modules=[bjam],
       scripts=scripts,
       data_files=data + docs,
       )

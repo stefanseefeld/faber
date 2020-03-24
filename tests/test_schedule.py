@@ -121,7 +121,6 @@ def test_dynamic_recipe():
         assert output[-1] == 'c <- a2'
 
 
-@pytest.mark.skip(reason="actions with multiple targets are not yet supported.")
 @pytest.mark.usefixtures('module')
 def test_multi():
     """TBD"""
@@ -142,7 +141,7 @@ def test_multi():
     rule(pyecho, d, [c1, c2])
     with patch('faber.action.action.__status__') as recipe:
         assert d.update()
-        output = [i[0][3].strip() for i in recipe.call_args_list]
+        output = [i[0][4].strip() for i in recipe.call_args_list]
         assert output[0] == 'b1 b2 <- a'
         assert 'c2 <- b2' in output
         # sets aren't ordered, so we check for both possibilities

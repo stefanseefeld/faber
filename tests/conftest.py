@@ -7,7 +7,6 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from __future__ import absolute_import, print_function
-from faber import scheduler
 from faber.project import project, buildinfo
 from faber.module import module as M
 from faber import logging
@@ -27,12 +26,6 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     logging.setup(log=config.getoption('faber_log'))
-
-
-collect_ignore = []
-if scheduler.__backend__ == 'bjam':
-    # These tests require the asyncio backend
-    collect_ignore.append('scheduler')
 
 
 def pytest_generate_tests(metafunc):

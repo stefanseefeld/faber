@@ -7,17 +7,12 @@ exclude setup.cfg
 global-exclude *~
 global-exclude *.pyc
 global-exclude *.pyo
-global-exclude *.o
-global-exclude *.so
 
 # python modules
 recursive-include   src/faber *.py
 
 # VERSION file
 include             src/faber/VERSION
-
-# bjam sources
-recursive-include   src/bjam *
 
 #documentation
 recursive-include   doc *
