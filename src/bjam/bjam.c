@@ -49,7 +49,7 @@ static LIST *list_from_sequence(PyObject *a)
   for (; i < s; ++i)
   {
     PyObject *e = PySequence_GetItem(a, i);
-    char *s = PYSTRING_AS_STRING(e);
+    char *s = (char *)PYSTRING_AS_STRING(e);
     if (!s)
     {
       PyErr_BadArgument();
@@ -209,7 +209,7 @@ static PyObject *bjam_define_action(PyObject *self, PyObject *args)
                         &PyList_Type, &bindlist_python))
     return NULL;
   if (PYSTRING_CHECK(body))
-    cmd = PYSTRING_AS_STRING(body);
+    cmd = (char *)PYSTRING_AS_STRING(body);
   else if (!PyCallable_Check(body))
   {
     PyErr_SetString(PyExc_RuntimeError, "action is neither string nor callable");
