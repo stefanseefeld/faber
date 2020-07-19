@@ -9,6 +9,7 @@
 
 from setuptools import setup, find_packages
 from distutils.command import build, install_data, sdist
+import versioneer
 import sys
 import os
 import subprocess
@@ -18,7 +19,9 @@ if sys.version_info < (3, 6, 0):
 
 # allow the in-place import of the version
 sys.path.insert(0, 'src')
-from faber import cli, version  # noqa E402
+from faber import cli  # noqa E402
+
+version = versioneer.get_version()
 
 data = [('share/doc/faber-{}'.format(version), ('LICENSE', 'README.md'))]
 
@@ -34,28 +37,6 @@ class build_doc(build.build):
         sys.argv = ['faber', '--srcdir=doc', '--builddir=doc']
         try: cli.main()
         finally: sys.argv = orig
-
-
-class finstall_data(install_data.install_data):
-    """Install VERSION file."""
-
-    def finalize_options(self):
-        self.set_undefined_options('install', ('install_lib', 'install_dir'),)
-        install_data.install_data.finalize_options(self)
-
-    def run(self):
-        install_data.install_data.run(self)
-        vf = os.path.join(self.install_dir, 'faber', 'VERSION')
-        open(vf, 'w').write(version)
-        self.outfiles.append(vf)
-
-
-class fsdist(sdist.sdist):
-
-    def make_release_tree(self, base_dir, files):
-        sdist.sdist.make_release_tree(self, base_dir, files)
-        print('base_dir=', base_dir)
-        open(os.path.join(base_dir, 'src', 'faber', 'VERSION'), 'w').write(version)
 
 
 docs = []
@@ -85,9 +66,7 @@ setup(name='faber',
                    'Topic :: Software Development :: Build Tools',
                    'Topic :: Software Development :: Testing',
                    'Programming Language :: Python'],
-      cmdclass={'build_doc': build_doc,
-                'install_data': finstall_data,
-                'sdist': fsdist},
+      cmdclass=versioneer.get_cmdclass({'build_doc': build_doc}),
       package_dir={'': 'src'},
       packages=find_packages(where='src'),
       entry_points=dict(console_scripts=['faber=faber.cli:cli_main']),

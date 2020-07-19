@@ -78,7 +78,7 @@ def make_parser():
                         help='print information about the build logic')
     parser.add_argument('--shell', action='store_true',
                         help='run interactive shell')
-    parser.add_argument('-v', '--version', action='version', version=faber.version)
+    parser.add_argument('-v', '--version', action='version', version=faber.__version__)
     return parser
 
 

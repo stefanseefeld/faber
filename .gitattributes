@@ -94,3 +94,4 @@ TODO         text svneol=native#text/plain
 *.tpp        text svneol=native#text/plain
 *.jam        text svneol=native#text/plain
 *.java       text svneol=native#text/plain
+src/faber/_version.py export-subst

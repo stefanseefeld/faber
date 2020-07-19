@@ -10,8 +10,8 @@ global-exclude *.pyo
 # python modules
 recursive-include   src/faber *.py
 
-# VERSION file
-include             src/faber/VERSION
+# version info
+include versioneer.py
 
 #documentation
 recursive-include   doc *
