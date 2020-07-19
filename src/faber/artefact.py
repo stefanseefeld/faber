@@ -110,7 +110,12 @@ class artefact(object):
         self.module = module or M.current
         self.attrs = attrs
         self.path_spec = path_spec
-        self.features = self.module.features | set.instantiate(features)
+        # Make sure sources are indeed feature-less (and free of dependencies !)
+        if isinstance(self, source):
+            assert not features
+            self.features = set()
+        else:
+            self.features = self.module.features | set.instantiate(features)
         self.use = set.instantiate(use)
         self.condition = condition
         self.status = None
