@@ -75,7 +75,7 @@ class composite(artefact):
 
     def _submit(self):
         a = rule(assemble(), 'a:' + self.name, attrs=notfile|always|nopropagate,
-                 dependencies=self.sources + self.dependencies)
+                 dependencies=self.sources + self.dependencies + self.features.dependencies())
         composite._targets[a] = self
         depend(self, a)
 
