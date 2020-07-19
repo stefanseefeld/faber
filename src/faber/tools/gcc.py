@@ -16,7 +16,6 @@ from .cc import *
 import os.path
 import os
 import subprocess
-import re
 
 # known architectures for each machine type
 marchs = dict(x86_64=['x86_64', 'x86'],
@@ -42,7 +41,7 @@ def validate(cls, command, version, features):
                          .format(command, version, v))
     else:
         version = v
-    cpu, vendor, os = re.match(r'(\w+)-(\w+)-(\w+)', m).groups()
+    cpu, _, os = platform.split_triplet(m)
     if os == 'mingw32':
         os = 'Windows'
         machine = 'w64'

@@ -42,7 +42,7 @@ def validate(cls, command, version, features):
                          .format(command, version, v))
     else:
         version = v
-    cpu, vendor, os = re.match(r'(\w+)-(\w+)-(\w+)', m).groups()
+    cpu, _, os = platform.split_triplet(m)
     machine = cpu
 
     if machine not in marchs:
