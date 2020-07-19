@@ -166,7 +166,8 @@ class composite_value(value):
         return '<value {}={}>'.format(self._type.name, value)
 
     def __str__(self):
-        return '<...>'
+        values = [getattr(self, s.name) for s in self._type.subfeatures]
+        return '<{}>'.format('.'.join([str(v) for v in values]))
 
     def serialize(self, prefix=''):
         if prefix: prefix += '.'
