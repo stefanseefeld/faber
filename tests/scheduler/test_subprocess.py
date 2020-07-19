@@ -8,7 +8,6 @@
 
 import asyncio
 import pytest
-from concurrent.futures import TimeoutError
 
 
 @pytest.mark.asyncio
@@ -17,5 +16,5 @@ async def test_timeout():
     will be aborted and generate an appropriate error."""
     try:
         await asyncio.wait_for(asyncio.sleep(1), timeout=0.1)
-    except TimeoutError:
+    except asyncio.TimeoutError:
         pass
