@@ -183,6 +183,7 @@ class artefact(object):
         async with self._lock:
             if self.progress >= progress.LAUNCHED:
                 return
+            logger.info(f'progress -- {self.frontend} launching')
             # the prerequisite set may grow while we process it, so we use a queue.
             self._pqueue = asyncio.Queue()
             await asyncio.gather(*[self._pqueue.put(p) for p in self.prerequisites])
@@ -191,6 +192,7 @@ class artefact(object):
                 await p.process(self)
             self._pqueue = None
             self.progress = progress.LAUNCHED
+            logger.info(f'progress -- {self.frontend} launched')
 
     async def bind(self, parent=None):
         """Bind all artefact-specific variables, including the artefact's filename.
@@ -201,8 +203,8 @@ class artefact(object):
                 return
             try:
                 self.frontend.features.eval(update=False)
-            except Exception:
-                print('something went wrong binding {self.frontend}')
+            except Exception as e:
+                logger.critical(f'something went wrong binding {self.frontend}: {e}')
                 raise
             self.boundname = self.frontend.boundname
             if not self.flags & flag.NOTFILE:
@@ -223,6 +225,7 @@ class artefact(object):
             msg += f'time={self._timestamp}' if self.binding == binding.EXISTS else f'{str(self.binding)}'
             logger.info(msg)
             self.progress = progress.BOUND
+            logger.info(f'progress -- {self.frontend} bound')
 
     async def compute_fate(self, parent=None):
 
@@ -241,14 +244,14 @@ class artefact(object):
                     continue
                 last = max(last, p.timestamp)
                 if self._fate < p.fate:
-                    logger.info(f'fate change {self.boundname} from {str(self._fate)} to {str(p.fate)} by dependency')
+                    logger.info(f'fate -- change {self.boundname} from {str(self._fate)} to {str(p.fate)} by dependency')
                     self._fate = p.fate
             else:
                 # if this a (non-existing) temporary without prerequisites, treat it MISSING
                 if self.flags & flag.TEMP:
                     self._fate = fate.MISSING
             if self.flags & flag.NOUPDATE:
-                logger.info(f'fate change {self.boundname} back to stable, NOUPDATE')
+                logger.info(f'fate -- change {self.boundname} back to stable, NOUPDATE')
                 self._fate = fate.STABLE
             # If can not find or make child, can not make target.
             elif self._fate >= fate.BROKEN:
@@ -305,23 +308,25 @@ class artefact(object):
             elif self._fate >= fate.CANTFIND:
                 self.status = False
             elif self._fate == fate.ISTMP:
-                print(f'...using {self.boundname}...')
+                summary_logger(f'...using {self.boundname}...')
                 self.status = True
             elif self._fate >= fate.TOUCHED:
                 if self.recipe:
                     self.progress = progress.RUNNING
-                    logger.info(f'update {self.boundname}')
+                    logger.info(f'progress -- {self.frontend} running')
+                    logger.info(f'update -- {self.boundname}')
                     self.status = await self.recipe()
                     if self.flags & flag.TEMP:
                         artefact.temp_files.add(self.boundname)
                     elif not self.flags & flag.NOTFILE:
                         artefact.files.append(self.boundname)
-                    logger.info(f'update {self.boundname} done (status={self.status})')
+                    logger.info(f'update -- {self.boundname} done (status={self.status})')
                     artefact.counter['updated' if self.status else 'failed'] += 1
                 else:
                     # TODO: how should we handle alias artefacts ? What if prereqs fail ? Etc.
                     self.status = True
             self.progress = progress.DONE
+            logger.info(f'progress -- {self.frontend} done')
             self._report(failed)
 
     def _report(self, failed):
