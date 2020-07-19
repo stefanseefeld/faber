@@ -10,9 +10,8 @@
 class InvalidState(Exception):
 
     def __init__(self, a):
-        Exception.__init__(self,
-                           'cannot access unfinished artefact "{}"'
-                           .format(a.boundname))
+        cln = a.__module__ + '.' + a.__class__.__qualname__
+        Exception.__init__(self, f'cannot access unfinished {cln} {a}')
         self.artefact = a
 
 
@@ -32,6 +31,10 @@ class delayed(object):
         if self._artefact.status is None:
             raise InvalidState(self._artefact)
         return self._func()
+
+    def __str__(self):
+        cln = self.__class__.__name__
+        return f'<{cln} func={self._func} artefact={self._artefact}>'
 
 
 class delayed_property(property):
