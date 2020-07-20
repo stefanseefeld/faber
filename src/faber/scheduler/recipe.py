@@ -15,6 +15,7 @@ import tempfile
 import sys
 import logging
 import os
+import re
 
 logger = logging.getLogger('scheduler')
 
@@ -104,6 +105,13 @@ class recipe(object):
         vars = self.variables()
         async with recipe.semaphore:
             cmd = self.action.command
+            # substitute $(<[N])
+            for m in re.findall(r'(\$\(<\[(\d+)\]\))', cmd):
+                cmd = cmd.replace(m[0], self.targets[int(m[1])].boundname)
+            # substitute $(>[N])
+            for m in re.findall(r'(\$\(>\[(\d+)\]\))', cmd):
+                cmd = cmd.replace(m[0], self.sources[int(m[1])].boundname)
+
             vars.update([('<', [t.boundname for t in self.targets])])
             vars.update([('>', [s.boundname for s in self.sources])])
             for v in vars:

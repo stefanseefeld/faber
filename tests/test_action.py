@@ -38,6 +38,19 @@ def test_call():
 
 
 @pytest.mark.usefixtures('module')
+def test_call_index():
+    """Check that commands can index target and source variables."""
+    b = artefact('b', attrs=notfile)
+    c = artefact('c', attrs=notfile)
+    d = artefact('d', attrs=notfile)
+    with capture_output() as (out, err):
+        a = action('echo', 'echo $(<[1]) $(>[0])')
+        a([b, c], [d])
+    assert out.getvalue().strip() == 'test.c test.d'
+    assert err.getvalue() == ''
+
+
+@pytest.mark.usefixtures('module')
 def test_recipe():
     """Check that an artefact's __recipe__ method is called to report
     the execution of the recipe updating it."""

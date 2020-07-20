@@ -143,7 +143,15 @@ class action(object):
             return status
         elif type(self.command) is str:
             cmd = self.command
+            # substitute $(<[N])
+            for m in re.findall(r'(\$\(<\[(\d+)\]\))', cmd):
+                cmd = cmd.replace(m[0], tnames[int(m[1])])
+            # substitute $(>[N])
+            for m in re.findall(r'(\$\(>\[(\d+)\]\))', cmd):
+                cmd = cmd.replace(m[0], snames[int(m[1])])
+            # substitute $(<)
             cmd = cmd.replace('$(<)', ' '.join(tnames))
+            # substitute $(>)
             cmd = cmd.replace('$(>)', ' '.join(snames))
             if targets:
                 vars = self.map(targets[0].features)
