@@ -156,7 +156,7 @@ class action(object):
             if targets:
                 vars = self.map(targets[0].features)
                 for v in self.vars:
-                    cmd = cmd.replace('$({})'.format(v), vars.get(v))
+                    cmd = cmd.replace('$({})'.format(v), vars.get(v) or '')
             status, stdout, stderr = scheduler.run(cmd)
             if stdout:
                 print(stdout)
