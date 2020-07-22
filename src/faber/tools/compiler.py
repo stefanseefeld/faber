@@ -72,4 +72,3 @@ class compiler(tool):
             raise
         except Exception as e:
             logger.info('trying to instantiate {} yields "{}"'.format(name, e))
-            raise
