@@ -22,6 +22,9 @@ except ImportError:  # python 2
     import _winreg as winreg
 from collections import OrderedDict
 from subprocess import *
+import logging
+
+logger = logging.getLogger('tools')
 
 
 class makedep(action):
