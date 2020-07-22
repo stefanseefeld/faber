@@ -141,10 +141,11 @@ class msvc(cc, cxx):
             version = self.find_version_requirement(features)
         if not version and len(msvc._toolchains):
             version = list(msvc._toolchains)[0]
+        if version not in msvc._toolchains:
+            raise ValueError(f'unknown MSVC version {version}')
         arch = str(features.target.arch) if 'target' in features else None
         if arch and arch not in msvc._toolchains[version]:
-            raise ValueError('MSVC {} does not support target architecture {}'
-                             .format(version, arch))
+            raise ValueError(f'MSVC {version} does not support target architecture {arch}')
         if arch:
             product_dir, path = msvc._toolchains[version][arch]
             features |= compiler.target(os='Windows')
@@ -208,6 +209,7 @@ class msvc(cc, cxx):
                         pass
                     if path:
                         cls._toolchains[version][arch] = (normpath(product_dir), normpath(path))
+                        logger.info(f'vswhere discovered MSVC version={version} arch={arch}')
                 if not cls._toolchains[version]:
                     # remove empty entries
                     del cls._toolchains[version]
@@ -261,6 +263,7 @@ class msvc(cc, cxx):
                         pass
                 if path:
                     cls._toolchains[version][arch] = (normpath(product_dir), normpath(path))
+                    logger.info(f'discovered via registry MSVC version={version} arch={arch}')
             if not cls._toolchains[version]:
                 # remove empty entries
                 del cls._toolchains[version]
