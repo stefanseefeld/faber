@@ -22,6 +22,10 @@ except ImportError:  # python 2
     import _winreg as winreg
 from collections import OrderedDict
 from subprocess import *
+from xml.dom.minidom import parseString
+import logging
+
+logger = logging.getLogger('tools')
 
 
 class makedep(action):
@@ -138,10 +142,11 @@ class msvc(cc, cxx):
             version = self.find_version_requirement(features)
         if not version and len(msvc._toolchains):
             version = list(msvc._toolchains)[0]
+        if version not in msvc._toolchains:
+            raise ValueError(f'unknown MSVC version {version}')
         arch = str(features.target.arch) if 'target' in features else None
         if arch and arch not in msvc._toolchains[version]:
-            raise ValueError('MSVC {} does not support target architecture {}'
-                             .format(version, arch))
+            raise ValueError(f'MSVC {version} does not support target architecture {arch}')
         if arch:
             product_dir, path = msvc._toolchains[version][arch]
             features |= compiler.target(os='Windows')
@@ -191,24 +196,32 @@ class msvc(cc, cxx):
             vswhere = ['vswhere',
                        '-products', '*',
                        '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-                       '-property', 'installationPath']
+                       '-format', 'xml']
+            logger.debug(f"executing {' '.join(vswhere)}")
             output = check_output(vswhere).decode()
-            paths = [join(line, 'VC\\Auxiliary\\Build') for line in output.splitlines()]
-            for p in paths:
-                version = open(join(p, 'Microsoft.VCToolsVersion.default.txt')).read().strip()
+            instances = parseString(output).getElementsByTagName('instance')
+            for i in instances:
+                installation_path = i.getElementsByTagName('installationPath')[0].childNodes[0].data
+                version = i.getElementsByTagName('productDisplayVersion')[0].childNodes[0].data
+                logger.debug(f'result: installation_path={installation_path}, version={version}')
+                ipath = join(installation_path, 'VC', 'Auxiliary', 'Build')
+                # This reports a different version, though the meaning of it isn't clear:
+                #version = open(join(ipath, 'Microsoft.VCToolsVersion.default.txt')).read().strip()
                 cls._toolchains[version] = OrderedDict()
                 for arch in msvc.known_archs:
-                    product_dir, path = p, None
+                    product_dir, path = ipath, None
                     try:
-                        path = cls.find_path(p, msvc.win_archs[arch])
+                        path = cls.find_path(ipath, msvc.win_archs[arch])
                     except Exception:
                         pass
                     if path:
                         cls._toolchains[version][arch] = (normpath(product_dir), normpath(path))
+                        logger.info(f'vswhere discovered MSVC version={version} arch={arch}')
                 if not cls._toolchains[version]:
                     # remove empty entries
                     del cls._toolchains[version]
-        except Exception:
+        except Exception as e:
+            logger.debug(f'{e}')
             pass
 
         # Known toolset versions, in order of preference.
@@ -258,6 +271,7 @@ class msvc(cc, cxx):
                         pass
                 if path:
                     cls._toolchains[version][arch] = (normpath(product_dir), normpath(path))
+                    logger.info(f'discovered via registry MSVC version={version} arch={arch}')
             if not cls._toolchains[version]:
                 # remove empty entries
                 del cls._toolchains[version]
