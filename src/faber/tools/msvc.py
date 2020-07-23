@@ -6,11 +6,12 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
+from ..action import action, CallError
 from ..feature import set as fset, map, translate, select_if
 from ..artefact import artefact
 from .. import types
 from ..assembly import implicit_rule as irule
+from ..utils import capture_output
 from . import compiler
 from .cc import cc
 from .cxx import cxx, cxxstd
@@ -24,17 +25,15 @@ from collections import OrderedDict
 from subprocess import *
 from xml.dom.minidom import parseString
 import logging
+import sys
 
 logger = logging.getLogger('tools')
 
 
 class makedep(action):
 
-    # TODO: It seems hard to capture include dependencies *only*.
-    #       We either have to also collect the full preprocessor output,
-    #       or we need to redirect stderr, which is dangerous as it may
-    #       hide valuable error messages...
-    command = 'cl /nologo $(cppflags) /showIncludes /EP $(>) 1>NUL 2>$(<)'
+    # /showIncludes emits to stderr !
+    command = 'cl /nologo $(cppflags) /showIncludes /EP $(>)'
     cppflags = map(compiler.cppflags)
     cppflags += map(compiler.define, translate, prefix='/D')
     cppflags += map(compiler.include, translate, prefix='/I"', suffix='"')
@@ -52,17 +51,25 @@ class makedep_wrapper(action):
         return self.cmd.map(fs)  # just forward variables from makedep
 
     def makedep(self, targets, sources):
-        dfile = targets[0]._filename
-        self.cmd(targets, sources)
-        with open(dfile) as f:
-            # skip 'Note: including file: ', and remove dupliates
-            headers = set([l[22:].lstrip() for l in f.readlines()
-                           if l.startswith('Note: including file: ')])
+        with capture_output() as (out, err):
+            try:
+                status = self.cmd(targets, sources)
+            except CallError as e:
+                status = False
+        stderr = err.getvalue()
+        if status is False:
+            # on error make sure to report stderr
+            print(stderr, file=sys.stderr)
+            return status
+        # skip 'Note: including file: ', and remove dupliates
+        headers = set([l[22:].lstrip() for l in stderr
+                       if l.startswith('Note: including file: ')])
         # header paths are relative to the toplevel srcdir,
         # while we need them to be relative to the current module
         base = targets[0].module.srcdir
         rp = lambda f, base: f if isabs(f) else relpath(f, base)
         headers = [rp(h, base) for h in headers]
+        dfile = targets[0]._filename
         with open(dfile, 'w') as f:
             f.writelines(headers)
 

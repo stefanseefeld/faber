@@ -14,6 +14,7 @@ from .utils import aslist
 from . import output
 import re
 import logging
+import sys
 
 action_logger = logging.getLogger('actions')
 command_logger = logging.getLogger('commands')
@@ -161,7 +162,7 @@ class action(object):
             if stdout:
                 print(stdout)
             if stderr:
-                print(stderr)
+                print(stderr, file=sys.stderr)
             if not status:
                 raise CallError(cmd)
             return status
