@@ -13,6 +13,7 @@ from ..utils import aslist
 from .. import assembly
 from .. import output
 import logging
+import sys
 
 action_logger = logging.getLogger('actions')
 command_logger = logging.getLogger('commands')
@@ -40,7 +41,7 @@ class assemble(action):
             action_logger.debug(output.coloured('{} {}'.format(self.qname, targets), attrs=['bold']))
         command_logger.debug(command)
         if not status:
-            print(stderr)
+            print(stderr, file=sys.stderr)
 
 
 class composite(artefact):
