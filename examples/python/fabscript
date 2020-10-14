@@ -11,10 +11,12 @@ from faber.artefact import notfile, always
 from faber.tools.python import python, pythonpath
 from faber.artefacts.python import extension
 
-greet = extension('greet', 'greet.c')
+python = python.instance()
+
+greet = extension('greet', 'greet.c', features=python.include)
 test = rule(python.run, 'test', 'greet_test.py',
             dependencies=greet,
             attrs=notfile|always,
-            features=pythonpath(greet.path))
+            features=pythonpath(greet.path, base='.'))
 
 default = greet

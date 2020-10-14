@@ -90,7 +90,6 @@ def test_config(compiler):
         faber(clean)
 
 
-@pytest.mark.skip(reason='this requires a bit more work...')
 def test_python(compiler):
 
     args = []
