@@ -54,7 +54,7 @@ class makedep_wrapper(action):
         with capture_output() as (out, err):
             try:
                 status = self.cmd(targets, sources)
-            except CallError as e:
+            except CallError:
                 status = False
         stderr = err.getvalue()
         if status is False:
@@ -213,7 +213,7 @@ class msvc(cc, cxx):
                 logger.debug(f'result: installation_path={installation_path}, version={version}')
                 ipath = join(installation_path, 'VC', 'Auxiliary', 'Build')
                 # This reports a different version, though the meaning of it isn't clear:
-                #version = open(join(ipath, 'Microsoft.VCToolsVersion.default.txt')).read().strip()
+                # version = open(join(ipath, 'Microsoft.VCToolsVersion.default.txt')).read().strip()
                 cls._toolchains[version] = OrderedDict()
                 for arch in msvc.known_archs:
                     product_dir, path = ipath, None
