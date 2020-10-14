@@ -72,23 +72,42 @@ class python(tool):
         # Now determine all the flags we may need to compile C / C++ extensions
         self.include = include(self.check_sysconfig('get_python_inc()'))
         platform = self.check_python('import platform; print(platform.system())')
+        impl = self.check_python('import platform; print(platform.python_implementation())')
+        prefix = self.check_python('import sys; print(sys.prefix)')
         if platform == 'Windows':
-            version = self.check_python('import sys; print("%d%d"%sys.version_info[0:2])')
-            prefix = self.check_python('import sys; print(sys.prefix)')
-            self.libfile = join(prefix, 'libs', 'python{}.lib'.format(version))
-            self.libpath = join(prefix, 'libs')
-            self.lib = 'python' + version
+            if impl == 'CPython':
+                version = self.check_python('import sys; print("%d%d"%sys.version_info[0:2])')
+                self.libfile = join(prefix, 'libs', 'python{}.lib'.format(version))
+                self.libpath = join(prefix, 'libs')
+                self.lib = 'python' + version
+            elif impl == 'PyPy':
+                version = self.check_python('import sys; print(sys.version_info[0])')
+                self.libfile = join(prefix, 'libs', 'libpypy{}-c.lib'.format(version))
+                self.libpath = join(prefix, 'libs')
+                self.lib = 'libpypy' + version + '-c'
+            else:
+                raise ValueError('unsupported Python implementation')
         else:
             self.libpath = self.check_sysconfig('get_config_var("LIBDIR")')
-            self.libfile = self.check_sysconfig('get_config_var("LIBRARY")')
-            match = re.search(r'(python.*)\.(a|so|dylib)', self.libfile)
-            if match:
-                self.lib = match.group(1)
-                if match.group(2) == 'a':
-                    flags = self.check_sysconfig('get_config_var("LINKFORSHARED")')
-                    if flags is not None:
-                        flags=flags.split()
-                        self.ldflags = ldflags(*flags)  # TODO: use them !
+            if impl == 'CPython':
+                self.libfile = self.check_sysconfig('get_config_var("LIBRARY")')
+                match = re.search(r'(python.*)\.(a|so|dylib)', self.libfile)
+                if match:
+                    self.lib = match.group(1)
+                    if match.group(2) == 'a':
+                        flags = self.check_sysconfig('get_config_var("LINKFORSHARED")')
+                        if flags is not None:
+                            flags=flags.split()
+                            self.ldflags = ldflags(*flags)  # TODO: use them !
+            elif impl == 'PyPy':
+                version = self.check_python('import sys; print(sys.version_info[0])')
+                suffix = self.check_python('import sysconfig; print(sysconfig.get_config_vars()["SHLIB_SUFFIX"])')
+                self.libfile = join(prefix, 'libs', 'libpypy{}-c{}'.format(version, suffix))
+                self.libpath = join(prefix, 'libs')
+                self.lib = 'pypy' + version + '-c'
+            else:
+                raise ValueError('unsupported Python implementation')
+
             # Only publish the libpath if it isn't a system path
             if self.libpath in ['/usr/lib', '/usr/lib64']:
                 self.libpath = None
@@ -100,3 +119,4 @@ class python(tool):
         flags += ' ' + self.check_sysconfig('get_config_var("SHLIBS")')
         flags = [f[2:] for f in flags.strip().split() if f.startswith('-l')]
         self.libs += libs(*flags)
+        self.ext_suffix = self.check_sysconfig('get_config_var("EXT_SUFFIX")')
