@@ -39,10 +39,10 @@ class python(tool):
     run = run()
 
     def check_python(self, cmd):
-        return subprocess.check_output([self.command, '-c', cmd]).decode().strip()
+        return subprocess.check_output([self.command, '-c', cmd], universal_newlines=True).strip()
 
     def check_sysconfig(self, cmd):
-        r = self.check_python('import distutils.sysconfig as c; print(c.{})'.format(cmd))
+        r = self.check_python(f'import sysconfig as c; print(c.{cmd})')
         return r if r != 'None' else ''
 
     def __init__(self, name='python', command=None, version='', features=()):
@@ -51,8 +51,7 @@ class python(tool):
         self.command = command or 'python'
         v = self.check_python('import platform; print(platform.python_version())')
         if version and v != version:
-            raise ValueError('{} version mismatch: expected {}, got {}'
-                             .format(self.command, version, v))
+            raise ValueError(f'{self.command} version mismatch: expected {version}, got {v}')
         a = self.check_python('import platform; print(platform.machine())')
         b = int(self.check_python('import struct;print(struct.calcsize("P") * 8)'))
         if a == 'AMD64':  # Windows...
@@ -62,33 +61,51 @@ class python(tool):
         if 'target' in features:
             arch = str(features.target.arch)
             if arch != a:
-                raise ValueError('{} architecture mismatch: expected {}, got {}'
-                                 .format(self.command, arch, a))
+                raise ValueError(f'{self.command} architecture mismatch: expected {arch}, got {a}')
         else:
             features += target(arch=a)
         tool.__init__(self, name=name, version=v)
         self.features |= features
         self.run.subst('python ', self.command + ' ')
         # Now determine all the flags we may need to compile C / C++ extensions
-        self.include = include(self.check_sysconfig('get_python_inc()'))
+        self.include = include(self.check_sysconfig('get_config_var("INCLUDEPY")'))
         platform = self.check_python('import platform; print(platform.system())')
+        impl = self.check_python('import platform; print(platform.python_implementation())')
+        prefix = self.check_python('import sys; print(sys.prefix)')
         if platform == 'Windows':
-            version = self.check_python('import sys; print("%d%d"%sys.version_info[0:2])')
-            prefix = self.check_python('import sys; print(sys.prefix)')
-            self.libfile = join(prefix, 'libs', 'python{}.lib'.format(version))
-            self.libpath = join(prefix, 'libs')
-            self.lib = 'python' + version
+            if impl == 'CPython':
+                version = self.check_sysconfig('get_config_var("py_version_nodot")')
+                self.libfile = join(prefix, 'libs', f'python{version}.lib')
+                self.libpath = join(prefix, 'libs')
+                self.lib = 'python' + version
+            elif impl == 'PyPy':
+                version = self.check_python('import sys; print(sys.version_info[0])')
+                self.libfile = join(prefix, 'libs', f'libpypy{version}-c.lib')
+                self.libpath = join(prefix, 'libs')
+                self.lib = 'libpypy' + version + '-c'
+            else:
+                raise ValueError('unsupported Python implementation')
         else:
             self.libpath = self.check_sysconfig('get_config_var("LIBDIR")')
-            self.libfile = self.check_sysconfig('get_config_var("LIBRARY")')
-            match = re.search(r'(python.*)\.(a|so|dylib)', self.libfile)
-            if match:
-                self.lib = match.group(1)
-                if match.group(2) == 'a':
-                    flags = self.check_sysconfig('get_config_var("LINKFORSHARED")')
-                    if flags is not None:
-                        flags=flags.split()
-                        self.ldflags = ldflags(*flags)  # TODO: use them !
+            if impl == 'CPython':
+                self.libfile = self.check_sysconfig('get_config_var("LIBRARY")')
+                match = re.search(r'(python.*)\.(a|so|dylib)', self.libfile)
+                if match:
+                    self.lib = match.group(1)
+                    if match.group(2) == 'a':
+                        flags = self.check_sysconfig('get_config_var("LINKFORSHARED")')
+                        if flags is not None:
+                            flags=flags.split()
+                            self.ldflags = ldflags(*flags)  # TODO: use them !
+            elif impl == 'PyPy':
+                version = self.check_python('import sys; print(sys.version_info[0])')
+                suffix = self.check_sysconfig('get_config_var("SHLIB_SUFFIX")')
+                self.libfile = join(prefix, 'libs', f'libpypy{version}-c{suffix}')
+                self.libpath = join(prefix, 'libs')
+                self.lib = 'pypy' + version + '-c'
+            else:
+                raise ValueError('unsupported Python implementation')
+
             # Only publish the libpath if it isn't a system path
             if self.libpath in ['/usr/lib', '/usr/lib64']:
                 self.libpath = None
@@ -100,3 +117,4 @@ class python(tool):
         flags += ' ' + self.check_sysconfig('get_config_var("SHLIBS")')
         flags = [f[2:] for f in flags.strip().split() if f.startswith('-l')]
         self.libs += libs(*flags)
+        self.ext_suffix = self.check_sysconfig('get_config_var("EXT_SUFFIX")')
