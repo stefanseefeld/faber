@@ -7,7 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from __future__ import absolute_import, print_function
-from faber.project import project, buildinfo
+from faber.project import init, project, buildinfo
 from faber.module import module as M
 from faber import logging
 from test.common import tempdir
@@ -32,6 +32,12 @@ def pytest_generate_tests(metafunc):
     if 'compiler' in metafunc.fixturenames:
         compilers = metafunc.config.option.compiler or ['']
         metafunc.parametrize('compiler', compilers)
+
+
+@pytest.fixture(autouse=True)
+def session():
+    # reset global state
+    init()
 
 
 @pytest.fixture()

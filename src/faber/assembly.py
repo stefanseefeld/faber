@@ -109,6 +109,10 @@ class _implicit_rule(object):
 _repository = defaultdict(list)
 
 
+def init():
+    _repository.clear()
+
+
 class NoRuleError(NotImplementedError): pass
 
 

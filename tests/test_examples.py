@@ -31,7 +31,7 @@ def get_cxx_opt(name):
 
 def faber(*args):
     with argv(('faber',) + args):
-        cli.main()
+        return cli.main()
 
 
 if sys.platform=='win32':
@@ -46,8 +46,8 @@ else:
 def test_action():
 
     with cwd(join('examples', 'action')):
-        faber()
-        faber(clean)
+        assert faber()
+        assert faber(clean)
 
 
 def test_tool(compiler):
@@ -56,8 +56,8 @@ def test_tool(compiler):
     if compiler:
         args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'tool')):
-        faber(*args)
-        faber(clean)
+        assert faber(*args)
+        assert faber(clean)
 
 
 def test_implicit_rules(compiler):
@@ -66,8 +66,8 @@ def test_implicit_rules(compiler):
     if compiler:
         args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'implicit_rules')):
-        faber(*args)
-        faber(clean)
+        assert faber(*args)
+        assert faber(clean)
 
 
 def test_modular(compiler):
@@ -76,8 +76,8 @@ def test_modular(compiler):
     if compiler:
         args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'modular')):
-        faber(*args)
-        faber(clean)
+        assert faber(*args)
+        assert faber(clean)
 
 
 def test_config(compiler):
@@ -86,8 +86,8 @@ def test_config(compiler):
     if compiler:
         args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'config')):
-        faber(*args)
-        faber(clean)
+        assert faber(*args)
+        assert faber(clean)
 
 
 def test_python(compiler):
@@ -96,8 +96,8 @@ def test_python(compiler):
     if compiler:
         args.append(get_cc_opt(compiler))
     with cwd(join('examples', 'python')):
-        faber(*args)
-        faber(clean)
+        assert faber(*args)
+        assert faber(clean)
 
 
 def test_test(compiler):
@@ -106,8 +106,8 @@ def test_test(compiler):
     if compiler:
         args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'test')):
-        faber(*args)
-        faber(clean)
+        assert faber(*args)
+        assert faber(clean)
 
 
 def test_package(compiler):
@@ -116,5 +116,5 @@ def test_package(compiler):
     if compiler:
         args.append(get_cxx_opt(compiler))
     with cwd(join('examples', 'package')):
-        faber(*args + ['tgz', 'stgz'])
-        faber(clean)
+        assert faber(*args + ['tgz', 'stgz'])
+        assert faber(clean)

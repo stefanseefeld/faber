@@ -11,6 +11,7 @@ from . import scheduler
 from .feature import lazy_set
 from .feature.condition import expr as fexpr
 from .artefact import artefact, init as artefact_init
+from .assembly import init as assembly_init
 from .module import module
 from .error import error_reporter
 from .utils import aslist
@@ -35,6 +36,10 @@ def formatwarning(message, category, *args, **kwds):
 
 warnings.formatwarning = formatwarning
 logger = logging.getLogger(__name__)
+
+
+def init():
+    assembly_init()
 
 
 def config(script):

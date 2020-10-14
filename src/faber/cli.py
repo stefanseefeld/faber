@@ -108,6 +108,7 @@ def main():
         logging.setup(args.log, args.loglevel, args.debug, args.profile)
         if args.debug:
             faber.debug = True
+        project.init()
         if args.rc:
             project.config(os.path.expanduser(args.rc))
         elif os.path.exists(os.path.expanduser('~/.faber')):
