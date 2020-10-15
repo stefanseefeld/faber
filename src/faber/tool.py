@@ -12,7 +12,7 @@ from .feature import feature, set
 from .action import action
 from .error import ArgumentError
 from collections import defaultdict
-from copy import copy
+from copy import deepcopy
 import logging
 
 logger = logging.getLogger('tools')
@@ -46,7 +46,7 @@ class tool_type(type):
 
         a = type.__getattribute__(cls, name)
         if isinstance(a, action) and a._cls is not cls:
-            a = copy(a)
+            a = deepcopy(a)
             a._cls = cls
         return a
 
@@ -91,7 +91,7 @@ class tool(object):
         for a in dir(self):
             o = getattr(self, a)
             if isinstance(o, action):
-                o = copy(o)
+                o = deepcopy(o)
                 o._cls = self.__class__
                 o._tool = self
                 setattr(self, a, o)
