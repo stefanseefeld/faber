@@ -7,12 +7,19 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 import operator
+import re
 
 
 def contains(op1, op2):
     # allow op1 to be `false`, so `set.nonexistent.contains('x')`
     # becomes a valid expression
     return False if isinstance(op1, false) else operator.contains(op1, op2)
+
+
+def matches(op1, op2):
+    # allow op1 to be `false`, so `set.nonexistent.match('x')`
+    # becomes a valid expression
+    return False if isinstance(op1, false) else re.match(op2, str(op1))
 
 
 class expr(object):
@@ -30,6 +37,7 @@ class expr(object):
     def __bool__(self): raise ValueError('invalid expression "{}" !'.format(self))
     def __nonzero__(self): return self.__bool__()
     def __call__(self, ctx): return True
+    def matches(self, other): return binary(matches, self, other)
 
 
 class true(expr):
