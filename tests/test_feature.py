@@ -284,3 +284,14 @@ def test_delayed():
     fs.eval()
     assert fs.define == ('MACRO', 'SHARED', 'GXX', 'CXX')
     assert fs.include == ('a', 'b', '/some/path',)
+
+
+def test_condition():
+
+    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
+    target = feature('target', feature('os', sub=True), feature('arch', sub=True))
+    define = feature('define', attributes=multi)
+    fs = set(tool(name='g++', version='6.3'), target(os='gnu-linux', arch='x86_64'))
+    fs += define('LINUX', condition=set.target.os.matches('.*-linux'))
+    fs.eval()
+    assert fs.define == ('LINUX',)

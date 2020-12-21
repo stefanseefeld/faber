@@ -8,7 +8,7 @@
 
 from ..feature import set
 from ..artefacts.library import library
-from ..tools.compiler import link
+from ..tools.compiler import link, ldflags
 from ..tools.python import python
 from os.path import join, normpath
 
@@ -19,7 +19,10 @@ class extension(library):
         library.__init__(self, *args, **kwds)
         p = python.instance(self.features)
         self.features |= set(p.include, p.linkpath, link('shared'))
+        # on windows we need to link with libpython
         self.features |= p.libs(condition=(set.cc.name=='msvc')|(set.cxx.name=='msvc'))
+        # on darwin we need to add `-undefined dynamic_lookup` to prevent undefined symbols errors
+        self.features |= ldflags('-undefined dynamic_lookup', condition=(set.target.os.matches('darwin.*')))
         self._suffix = p.ext_suffix
 
     @property
