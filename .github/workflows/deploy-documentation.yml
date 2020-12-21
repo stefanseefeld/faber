@@ -1,0 +1,35 @@
+name: deploy documentation
+
+on:
+  push:
+    branches: [ develop, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      uses: actions/setup-python@v2
+    - name: prerequisites
+      run: |
+        sudo apt-get install graphviz libgraphviz-dev
+        python -m pip install --upgrade pip
+        python -m pip install sphinx sphinx-argparse pygraphviz
+
+    - name: build
+      run: |
+        PYTHONPATH=`pwd`/src python -m faber.cli --srcdir=doc --builddir=build
+        if [ "${GITHUB_REF##*/}" == develop ]; then
+          echo "destination_dir=doc/develop/html" >> $GITHUB_ENV
+        else
+          echo "destination_dir=doc/html" >> $GITHUB_ENV
+        fi
+
+    - name: deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: build/html
+        destination_dir: ${{ env.destination_dir }}
+        keep_files: true
