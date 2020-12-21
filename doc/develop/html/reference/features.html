@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Builtin features - Faber 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '1.0',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Appendix" href="../appendix.html" />
+    <link rel="next" title="Builtin tools" href="tools.html" />
+    <link rel="prev" title="Command-line interface" href="../cli.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Command-line interface" href="../cli.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Builtin tools" href="tools.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="builtin-features">
+<h1>Builtin features</h1>
+<p>The following features are provided by Faber and its built-in tools.</p>
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">cppflags</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Generic preprocessing flags. They are passed through to the compiler, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">cflags</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Generic C compiler flags. They are passed through to the compiler, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">cxxflags</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Generic C++ compiler flags. They are passed through to the compiler, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">cxxstd</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.cxx</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>incidental</em></p>
+</dd>
+<dt class="field-odd">Possible values</dt>
+<dd class="field-odd"><p><p>98, 03, 11, 14, 17</p>
+</p>
+</dd>
+</dl>
+<dd><p>C++ standard version to be used.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">ldflags</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Generic linker flags. They are passed through to the compiler / linker, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">define</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Macro definitions. They are passed through to the compiler / preprocessor, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">linkpath</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>path</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Library search paths. They are passed through to the compiler / linker, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">include</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>path</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Header search paths. They are passed through to the compiler / preprocessor, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">libs</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>Libraries to be linked to. They are passed through to the compiler / linker, unmodified.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">link</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Possible values</dt>
+<dd class="field-even"><p><p>'static', 'shared'</p>
+</p>
+</dd>
+</dl>
+<dd><p>Link type for libraries.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">target.os</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+</dl>
+<dd><p>The target OS of the compiler. Examples: Linux, Windows, Darwin.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">target.arch</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+</dl>
+<dd><p>The target architecture of the compiler. Examples: x86_64, x86, arm, aarm64.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">runpath</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.compiler</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>path</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>The library search path used during application execution.</p>
+</dd></dl>
+
+<dl class="fab feature">
+<dt>
+<code class="sig-name descname">pythonpath</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.python</p>
+</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p><em>multi</em>,<em>path</em>,<em>incidental</em></p>
+</dd>
+</dl>
+<dd><p>The Python module search path used during application execution.</p>
+</dd></dl>
+
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Command-line interface" href="../cli.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Builtin tools" href="tools.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Dec 21, 2020</p>
+    </div>
+  </body>
+</html>

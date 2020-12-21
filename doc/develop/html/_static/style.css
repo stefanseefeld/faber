@@ -1,0 +1,81 @@
+@import url(boost.css);
+
+.header h1 a
+{
+  color: #00507f;
+  font-size: 200%;
+  font-style: italic; 
+}
+.header h3 { margin: 1px;}
+#contents 
+{ 
+/*    border-bottom: solid thin black;*/
+}
+.footer p
+{
+  text-align: center;
+  color: gray;
+  font-style: italic;
+}
+
+.highlight
+{
+  border: 1px solid #dcdcdc;
+  background-color: inherit;
+  padding: 0 1em;
+  margin: 0 5em;
+}
+#searchbox
+{
+  float: right;
+  width: auto;
+  margin: 0 2em;
+}
+
+.admonition-title { font-weight: bold;}
+.toctree-wrapper,
+#table-of-contents
+{
+  border: 1px solid #dcdcdc;
+  padding: 1em;
+  margin: 0 2em;
+  display: inline-block;
+}
+.toctree-wrapper .caption,
+.toctree-wrapper .topic-title,
+#table-of-contents .topic-title { font-weight: bold;}
+
+.admonition
+{
+  border: 1px solid #dcdcdc;
+  padding: 1em;
+  margin: 0 2em;
+}
+
+#command-line-interface col.option { min-width: 10em;}
+
+body .content > .section { padding: 2em; }
+
+.section h1
+{
+  font-size: 200%;
+  color: #00507f;
+}
+
+.section h2
+{
+  font-size: 160%;
+  color: #00507f;
+}
+
+/* builtin extension listings */
+
+dl.feature, dl.tool, dl.action { margin-left: 1em;}
+dl.feature *, dl.tool *, dl.action * { padding-left: 1em;}
+
+dl.feature dt, dl.tool dt, dl.action dt 
+{
+  padding: 1em 0em;
+  font-size: 150%;
+  font-weight: bold;
+}

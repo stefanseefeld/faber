@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The feature module - Faber 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '1.0',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Faber Reference" href="index.html" />
+    <link rel="next" title="The action class" href="action.html" />
+    <link rel="prev" title="Faber Reference" href="index.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber Reference" href="index.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="The action class" href="action.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="the-feature-module">
+<h1>The <cite>feature</cite> module</h1>
+<p>A feature is a typed variable that can be used to parametrize the
+build process. A given feature variable may hold one or multiple
+values. It may be restricted to a pre-defined set of possible values,
+or it may be free. Most values are simple strings, though they may
+be interpreted as a path.</p>
+<div class="section" id="attributes">
+<span id="id1"></span><h2>attributes</h2>
+<p>Attribute flags are used to indicate how to interpret feature values.</p>
+<dl class="py data">
+<dt id="faber.feature.multi">
+<code class="sig-name descname">multi</code></dt>
+<dd><p>The feature may take multiple values.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="faber.feature.path">
+<code class="sig-name descname">path</code></dt>
+<dd><p>Values are interpreted as a path. By default, this is taken to be
+relative to the directory containing the issuing fabscript.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="faber.feature.incidental">
+<code class="sig-name descname">incidental</code></dt>
+<dd><p>Incidental values are not considered when matching two feature values.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="the-feature-class">
+<h2>The <cite>feature</cite> class</h2>
+<div class="section" id="constructor">
+<h3>Constructor</h3>
+<dl class="py method">
+<dt id="faber.feature.feature">
+<code class="sig-name descname">feature</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt>
+<code class="sig-name descname">feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span></dt>
+<dt>
+<code class="sig-name descname">feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span></dt>
+<dt>
+<code class="sig-name descname">feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">attributes</span></em><span class="sig-paren">)</span></dt>
+<dt>
+<code class="sig-name descname">feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">attributes</span></em><span class="sig-paren">)</span></dt>
+<dt>
+<code class="sig-name descname">feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">subfeatures</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Construct a new feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em>) -- the feature's name</p></li>
+<li><p><strong>values</strong> (<em>list</em>) -- list of valid values</p></li>
+<li><p><strong>attributes</strong> (<em>int</em>) -- <a class="reference internal" href="#attributes"><span class="std std-ref">attributes</span></a></p></li>
+<li><p><strong>subfeatures</strong> (<em>features</em>) -- subfeatures</p></li>
+</ul>
+</dd>
+</dl>
+<p>A feature normally takes a name, optional attributes,
+as well as a possible set of valid values. If no <cite>values</cite> are
+given, the feature's range of values is unrestricted.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="call-operator">
+<h3>Call operator</h3>
+<dl class="py method">
+<dt id="faber.feature.__call__">
+<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">values</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Create a feature variable with the given values. (These need
+to match the values the feature was constructed with.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>values</strong> -- initial values of the feature variable</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="the-value-class">
+<h2>The <cite>value</cite> class</h2>
+<div class="section" id="operators">
+<h3>Operators</h3>
+<dl class="py method">
+<dt id="faber.feature.__ior__">
+<code class="sig-name descname">__ior__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Add the given value to this variable (if it isn't already present).
+In addition to the above rules for constructing a new feature variable,
+this is only valid if the <cite>multi</cite> attribute is set for this feature.
+Trying to add a value to a feature variable without it will result in
+an error.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="faber.feature.__eq__">
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return <cite>True</cite> if <cite>other</cite> has or is the same value as self.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="the-set-class">
+<h2>The <cite>set</cite> class</h2>
+<div class="section" id="class-methods">
+<h3>Class methods</h3>
+<dl class="py method">
+<dt id="faber.feature.__getattr__">
+<code class="sig-name descname">__getattr__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return a condition expression that</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id2">
+<h3>Constructor</h3>
+<dl class="py method">
+<dt id="faber.feature.set">
+<code class="sig-name descname">set</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt>
+<code class="sig-name descname">set</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">values</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Construct a feature set from the given values.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="methods">
+<h3>Methods</h3>
+<blockquote>
+<div><p>A set is a dictionary-like type and provides a similar interface:</p>
+</div></blockquote>
+<dl class="py method">
+<dt id="faber.feature.keys">
+<code class="sig-name descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="faber.feature.values">
+<code class="sig-name descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="faber.feature.items">
+<code class="sig-name descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="id3">
+<h3>Operators</h3>
+<dl class="py method">
+<dt id="id0">
+<code class="sig-name descname">__getattr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>For convenience, variables in a set can be accessed using simple attribute access syntax. If feature <cite>include</cite> is present in set <cite>s</cite>,
+<cite>s['include']</cite> and <cite>s.include</cite> give access to it.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="the-condition-expr-classes">
+<h2>The <cite>condition.expr</cite> classes</h2>
+<dl class="py class">
+<dt id="faber.feature.expr">
+<em class="property">class </em><code class="sig-name descname">expr</code></dt>
+<dd><p>Base class to construct condition expressions.</p>
+<div class="graphviz"><img src="../_images/inheritance-8d0ca40841eb079732b359abbb2f39fda5421fef.png" alt="Inheritance diagram of faber.feature.condition.true, faber.feature.condition.false, faber.feature.condition.unary, faber.feature.condition.binary, faber.feature.condition.sub, faber.feature.condition.value" class="inheritance graphviz" /></div>
+<p>All relational operators are supported, and will result in compound expressions.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<p>Assuming the following features are defined:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faber.feature</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">include</span> <span class="o">=</span> <span class="n">feature</span><span class="p">(</span><span class="s1">&#39;include&#39;</span><span class="p">,</span> <span class="n">multi</span><span class="o">|</span><span class="n">path</span><span class="o">|</span><span class="n">incidental</span><span class="p">)</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">feature</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;shared&#39;</span><span class="p">,</span> <span class="s1">&#39;static&#39;</span><span class="p">))</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">feature</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">=</span><span class="n">feature</span><span class="p">(),</span> <span class="n">arch</span><span class="o">=</span><span class="n">feature</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>it is possible to define values for them globally per command-line arguments:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>faber include=search include=path link=shared target.os=Linux
+</pre></div>
+</div>
+<p>These feature values are added to all artefact feature sets by default (but
+may be overwritten or added to by artefact-specific values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">link</span><span class="p">(</span><span class="s1">&#39;static&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Artefacts may be conditionalized using condition expressions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">greet</span> <span class="o">=</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;greet&#39;</span><span class="p">,</span> <span class="s1">&#39;greet.cpp&#39;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="nb">set</span><span class="o">.</span><span class="n">define</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;HAS_FEATURE&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Faber Reference" href="index.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="The action class" href="action.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Dec 21, 2020</p>
+    </div>
+  </body>
+</html>

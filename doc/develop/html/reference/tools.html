@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Builtin tools - Faber 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '1.0',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Appendix" href="../appendix.html" />
+    <link rel="next" title="Builtin actions" href="actions.html" />
+    <link rel="prev" title="Builtin features" href="features.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Builtin features" href="features.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Builtin actions" href="actions.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="builtin-tools">
+<h1>Builtin tools</h1>
+<p>The following tools are provided by Faber.</p>
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">cc</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.cc</p>
+</p>
+</dd>
+<dt class="field-even">Actions</dt>
+<dd class="field-even"><p><p>makedep, compile, archive, link</p>
+</p>
+</dd>
+</dl>
+<dd><p>Generic C compiler base class.</p>
+</dd></dl>
+
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">cxx</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.cxx</p>
+</p>
+</dd>
+<dt class="field-even">Actions</dt>
+<dd class="field-even"><p><p>makedep, compile, archive, link</p>
+</p>
+</dd>
+</dl>
+<dd><p>Generic C++ compiler base class.</p>
+</dd></dl>
+
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">gcc</code></dt>
+<dl class="field-list">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.gcc</p>
+</p>
+</dd>
+<dt class="field-even">Inheritance</dt>
+<dd class="field-even"><div class="graphviz"><img src="../_images/graphviz-1a1b86b8ac182e70f285f693a1767e9a9dd2f3d9.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+gcc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;gcc&quot;];
+cc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;cc&quot;];
+gcc -&gt; cc;
+}" class="graphviz" /></div>
+</dd>
+<dt class="field-odd">Actions</dt>
+<dd class="field-odd"><p><p>makedep, compile, archive, link</p>
+</p>
+</dd>
+</dl>
+<dd><p>GCC C compiler.</p>
+</dd></dl>
+
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">gxx</code></dt>
+<dl class="field-list">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.gxx</p>
+</p>
+</dd>
+<dt class="field-even">Inheritance</dt>
+<dd class="field-even"><div class="graphviz"><img src="../_images/graphviz-b0dc39bea1363147fc68adf4ea7bd3b176af4630.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+gxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;gxx&quot;];
+cxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;cxx&quot;];
+gxx -&gt; cxx;
+}" class="graphviz" /></div>
+</dd>
+<dt class="field-odd">Actions</dt>
+<dd class="field-odd"><p><p>makedep, compile, archive, link</p>
+</p>
+</dd>
+</dl>
+<dd><p>GCC C++ compiler.</p>
+</dd></dl>
+
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">clang</code></dt>
+<dl class="field-list">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.clang</p>
+</p>
+</dd>
+<dt class="field-even">Inheritance</dt>
+<dd class="field-even"><div class="graphviz"><img src="../_images/graphviz-2c72472731b4ecc251f12530cd1128ba3e13e4c3.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+clang [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;clang&quot;];
+cc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;cc&quot;];
+clang -&gt; cc;
+}" class="graphviz" /></div>
+</dd>
+<dt class="field-odd">Actions</dt>
+<dd class="field-odd"><p><p>makedep, compile, archive, link</p>
+</p>
+</dd>
+</dl>
+<dd><p>CLang C compiler.</p>
+</dd></dl>
+
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">clangxx</code></dt>
+<dl class="field-list">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.clangxx</p>
+</p>
+</dd>
+<dt class="field-even">Inheritance</dt>
+<dd class="field-even"><div class="graphviz"><img src="../_images/graphviz-c5e5efb2445e41cc563207ce15fa924a11485efa.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+clangxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;clangxx&quot;];
+cxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;cxx&quot;];
+clangxx -&gt; cxx;
+}" class="graphviz" /></div>
+</dd>
+<dt class="field-odd">Actions</dt>
+<dd class="field-odd"><p><p>makedep, compile, archive, link</p>
+</p>
+</dd>
+</dl>
+<dd><p>CLang C++ compiler.</p>
+</dd></dl>
+
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">msvc</code></dt>
+<dl class="field-list">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.msvc</p>
+</p>
+</dd>
+<dt class="field-even">Inheritance</dt>
+<dd class="field-even"><div class="graphviz"><img src="../_images/graphviz-7ec00767aa576b413634884806009ed24bdaf21b.png" alt="digraph I {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+msvc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;msvc&quot;];
+cc [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot;cc&quot;];
+ cxx [shape=&quot;box&quot;, fontsize=&quot;10&quot;, height=&quot;0.25&quot;, fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;, style=&quot;setlinewidth(0.5) filled&quot;, fillcolor=&quot;khaki3:khaki1&quot;, label=&quot; cxx&quot;];
+msvc -&gt; cc;
+msvc -&gt;  cxx;
+}" class="graphviz" /></div>
+</dd>
+<dt class="field-odd">Actions</dt>
+<dd class="field-odd"><p><p>makedep, compile, archive, link</p>
+</p>
+</dd>
+</dl>
+<dd><p>MSVC C &amp; C++ compiler.</p>
+</dd></dl>
+
+<dl class="fab tool">
+<dt>
+<code class="sig-name descname">python</code></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Defined in</dt>
+<dd class="field-odd"><p><p>faber.tools.python</p>
+</p>
+</dd>
+<dt class="field-even">Actions</dt>
+<dd class="field-even"><p><p>run</p>
+</p>
+</dd>
+</dl>
+<dd><p>A (C)Python interpreter.</p>
+</dd></dl>
+
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Builtin features" href="features.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Builtin actions" href="actions.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Dec 21, 2020</p>
+    </div>
+  </body>
+</html>

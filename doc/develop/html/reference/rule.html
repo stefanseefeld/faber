@@ -1,0 +1,144 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rule, alias, depend - Faber 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '1.0',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Faber Reference" href="index.html" />
+    <link rel="next" title="The artefact class" href="artefact.html" />
+    <link rel="prev" title="The tool class" href="tool.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="The tool class" href="tool.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="The artefact class" href="artefact.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="rule-alias-depend">
+<h1>rule, alias, depend</h1>
+<p>A rule describes how to update an artefact using a recipe.
+An alias defines a means to reference one or more artefacts
+with a single name / object.
+Depend allows to make an artefact explicitly dependent one
+or more other artefacts.</p>
+<div class="section" id="synopsis">
+<h2>synopsis</h2>
+<dl class="py function">
+<dt id="faber.rule.rule">
+<code class="sig-name descname">rule</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">recipe</span></em>, <em class="sig-param"><span class="n">targets</span></em>, <em class="sig-param"><span class="n">sources</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">dependencies</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">features</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">module</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path_spec</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">logfile</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Express how to generate <cite>artefacts</cite>. In the simplest case this involves a
+source and a recipe...</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><ul class="simple">
+<li><p>recipe: an action taking <cite>sources</cite> as input and producing <cite>targets</cite>.</p></li>
+<li><dl class="simple">
+<dt>targets: what to make. This can be a string (typically a filename),</dt><dd><p>an existing <cite>artefact</cite> object, or a list of either strings or
+artefacts (or a mix thereof).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sources: the source to make the artefact from. As with <cite>artefacts</cite>, this</dt><dd><p>may be a string, a artefact, or a list of those.</p>
+</dd>
+</dl>
+</li>
+<li><p>depends: additional dependencies not to be used as source.</p></li>
+<li><p>attrs:  flags</p></li>
+<li><p>features: a set of features</p></li>
+<li><p>module: the module to instantiate the artefact in</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="faber.rule.alias">
+<code class="sig-name descname">alias</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">module</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Declare <cite>target</cite> to be an alias for <cite>source</cite>, i.e., update <cite>source</cite> whenever
+updating <cite>target</cite> is requested.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="faber.rule.depend">
+<code class="sig-name descname">depend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">dependencies</span></em><span class="sig-paren">)</span></dt>
+<dd><p>Declare <cite>target</cite> to depend on <cite>dependencies</cite>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># bind target to source using the above rules</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="nb">compile</span><span class="p">,</span> <span class="s1">&#39;hello.o&#39;</span><span class="p">,</span> <span class="s1">&#39;hello.cpp&#39;</span><span class="p">)</span>
+<span class="nb">bin</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+<span class="c1"># force obj to be updated whenever header.h is newer.</span>
+<span class="n">depend</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;header.h&#39;</span><span class="p">)</span>
+<span class="c1"># make &#39;all&#39; an alias for &#39;hello&#39;</span>
+<span class="n">alias</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With the above, <cite>faber all</cite> will update the <cite>hello</cite> binary.</p>
+</div>
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="The tool class" href="tool.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Faber Reference" href="index.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="The artefact class" href="artefact.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Dec 21, 2020</p>
+    </div>
+  </body>
+</html>

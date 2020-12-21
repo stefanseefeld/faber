@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Builtin actions - Faber 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '1.0',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Faber 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Appendix" href="../appendix.html" />
+    <link rel="next" title="Index" href="../genindex.html" />
+    <link rel="prev" title="Builtin tools" href="tools.html" /> 
+  </head>
+  <body>
+    <div class="header">
+    <table border="0" cellpadding="7" cellspacing="0" width="100%" summary=
+    "header">
+      <tr>
+        <td valign="top" width="300">
+          <h3><a href="../index.html"><img 
+          alt="C++ Boost" src="../_static/logo.png" border="0"></a></h3>
+        </td>
+	<td>
+      <div id="searchbox" style="display: none">
+        <form class="search" action="../search.html" method="get">
+          <input type="text" name="q" size="18" />
+          <input type="submit" value="Search" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+      </div>
+      <script type="text/javascript">$('#searchbox').show(0);</script>
+	</td>
+      </tr>
+    </table>
+    </div>
+    <hr/>
+    <div class="content">
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Builtin tools" href="tools.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Index" href="../genindex.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+      
+  <div class="section" id="builtin-actions">
+<h1>Builtin actions</h1>
+<p>The following actions are provided by Faber and its built-in tools.</p>
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">touch</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Touch a file, i.e. either create it if it doesn't exist,
+or update its modification time.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">copy</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Copy a file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">remove</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Remove a file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cc.makedep</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Inject header dependencies for the given target by parsing the source.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cc.compile</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Compile a C file into an object file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cc.archive</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Generate an archive (static library) from the given object file(s).</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cc.link</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Link the given object file(s) into shared library.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cxx.makedep</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Inject header dependencies for the given target by parsing the source.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cxx.compile</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Compile a C++ file into an object file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cxx.archive</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Generate an archive (static library) from the given object file(s).</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">cxx.link</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Link the given object file(s) into shared library.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gcc.makedep</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Inject header dependencies for the given target by parsing the source.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gcc.compile</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Compile a C file into an object file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gcc.archive</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Generate an archive (static library) from the given object file(s).</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gcc.link</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Link the given object file(s) into shared library.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gxx.makedep</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Inject header dependencies for the given target by parsing the source.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gxx.compile</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Compile a C++ file into an object file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gxx.archive</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Generate an archive (static library) from the given object file(s).</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">gxx.link</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Link the given object file(s) into shared library.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clang.makedep</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Inject header dependencies for the given target by parsing the source.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clang.compile</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Compile a C file into an object file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clang.archive</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Generate an archive (static library) from the given object file(s).</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clang.link</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Link the given object file(s) into shared library.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clangxx.makedep</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Inject header dependencies for the given target by parsing the source.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clangxx.compile</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Compile a C++ file into an object file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clangxx.archive</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Generate an archive (static library) from the given object file(s).</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">clangxx.link</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Link the given object file(s) into shared library.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">msvc.makedep</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Inject header dependencies for the given target by parsing the source.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">msvc.compile</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Compile a C or C++ file into an object file.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">msvc.archive</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Generate an archive (static library) from the given object file(s).</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">msvc.link</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Link the given object file(s) into shared library.</p>
+</dd></dl>
+
+<dl class="fab action">
+<dt>
+<code class="sig-name descname">python.run</code></dt>
+<dl class="field-list simple">
+</dl>
+<dd><p>Run the given Python script.</p>
+</dd></dl>
+
+</div>
+
+
+    <div class="navbar" style="text-align:right;">
+      
+      
+      <a class="prev" title="Builtin tools" href="tools.html"><img src="../_static/prev.png" alt="prev"/></a>
+      <a class="up" title="Appendix" href="../appendix.html"><img src="../_static/up.png" alt="up"/></a>
+      <a class="next" title="Index" href="../genindex.html"><img src="../_static/next.png" alt="next"/></a>
+      
+    </div>
+    </div>
+    <div class="footer">
+      <p>last updated Dec 21, 2020</p>
+    </div>
+  </body>
+</html>
