@@ -73,6 +73,9 @@ class makedep_wrapper(action):
         action.__init__(self, cmd.name, self.makedep)
         self.cmd = cmd
 
+    def subst(self, old, new):
+        return self.cmd.subst(old, new)
+
     def map(self, fs):
         return self.cmd.map(fs)  # just forward variables from makedep
 
@@ -163,6 +166,7 @@ class gcc(cc):
             # if command is of the form <prefix>-g++, make sure
             # to adjust the names of the other tools of the toolchain.
             prefix = command[:-3] if command.endswith('gcc') else ''
+            self.makedep.subst('gcc', command)
             self.compile.subst('gcc', command)
             self.archive.subst('ar', prefix + 'ar')
             self.link.subst('gcc', command)

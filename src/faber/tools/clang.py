@@ -117,6 +117,10 @@ class clang(cc):
                                               version, features)
         cc.__init__(self, name=name, version=version)
         self.features |= features
+        if command:
+            self.makedep.subst('clang', command)
+            self.compile.subst('clang', command)
+            self.link.subst('clang', command)
 
         irule(self.compile, types.obj, types.cxx)
         irule(self.archive, types.lib, types.obj)
