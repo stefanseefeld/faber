@@ -78,6 +78,7 @@ class gxx(cxx):
             # if command is of the form <prefix>-g++, make sure
             # to adjust the names of the other tools of the toolchain.
             prefix = command[:-3] if command.endswith('g++') else ''
+            self.makedep.subst('g++', command)
             self.compile.subst('g++', command)
             self.archive.subst('ar', prefix + 'ar')
             self.link.subst('g++', command)
