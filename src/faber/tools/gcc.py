@@ -82,18 +82,11 @@ class makedep_wrapper(action):
     def makedep(self, targets, sources):
         dfile = targets[0]._filename
         self.cmd(targets, sources)
-        with open(dfile) as f:
-            out = ''.join(f.readlines())
-        lines = out.split('\\')
-        # remove the first two tokens, e.g.
-        # '<file>.o:' and '<file>.c'
-        lines[0] = lines[0].split(' ', 2)
-        if len(lines[0]) == 3:
-            lines[0] = lines[0][2]
-        else:
-            del lines[0]
-        # flatten listing to contain one header per item
-        headers = [h for l in lines for h in l.split()]
+        out = open(dfile).read()
+        # tokenize the generated output...
+        tokens = [token for line in out.split('\\\n') for token in line.split()]
+        # ...and remove the first two tokens, e.g. '<file>.o:' and '<file>.c'
+        headers = tokens[2:]
         # filter out system headers
         # TODO: make this configurable
         headers = [h for h in headers if not h.startswith('/usr/include')]
