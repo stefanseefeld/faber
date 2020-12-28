@@ -7,11 +7,11 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from __future__ import absolute_import, print_function
-from faber.project import init, project, buildinfo
+from faber.project import init, config, project, buildinfo
 from faber.module import module as M
 from faber import logging
 from test.common import tempdir
-from os.path import join
+from os.path import join, exists, expanduser
 from os import mkdir
 import pytest
 
@@ -38,6 +38,8 @@ def pytest_generate_tests(metafunc):
 def session():
     # reset global state
     init()
+    if exists(expanduser('~/.faber')):
+        config(expanduser('~/.faber'))
 
 
 @pytest.fixture()
