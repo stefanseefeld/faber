@@ -58,17 +58,20 @@ class makedep_wrapper(action):
                 status = False
         stderr = err.getvalue()
         if status is False:
-            # on error make sure to report stderr
+            # on error make sure to report stderr,
+            # but only after stripping off the inclusion notes
+            stderr = '\n'.join([l for l in stderr.split('\n')
+                                if not l.startswith('Note: including file: ')])
             print(stderr, file=sys.stderr)
             return status
         # skip 'Note: including file: ', and remove dupliates
-        headers = set([l[22:].lstrip() for l in stderr
+        headers = set([l[22:].lstrip() for l in stderr.split('\n')
                        if l.startswith('Note: including file: ')])
         # header paths are relative to the toplevel srcdir,
         # while we need them to be relative to the current module
         base = targets[0].module.srcdir
         rp = lambda f, base: f if isabs(f) else relpath(f, base)
-        headers = [rp(h, base) for h in headers]
+        headers = [rp(h, base) + '\n' for h in headers]
         dfile = targets[0]._filename
         with open(dfile, 'w') as f:
             f.writelines(headers)
