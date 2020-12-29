@@ -25,6 +25,7 @@ from collections import OrderedDict
 from subprocess import *
 from xml.dom.minidom import parseString
 import logging
+import os
 import sys
 
 logger = logging.getLogger('tools')
@@ -199,13 +200,15 @@ class msvc(cc, cxx):
     def discover(cls):
 
         # start with versions reported by `vswhere`
+        root = os.environ['ProgramFiles(x86)']
+        vswhere = join(root, 'Microsoft Visual Studio', 'Installer', 'vswhere.exe')
         try:
-            vswhere = ['vswhere',
-                       '-products', '*',
-                       '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-                       '-format', 'xml']
-            logger.debug(f"executing {' '.join(vswhere)}")
-            output = check_output(vswhere).decode()
+            vswhere_cmd = [vswhere,
+                           '-products', '*',
+                           '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+                           '-format', 'xml']
+            logger.debug(f"executing {' '.join(vswhere_cmd)}")
+            output = check_output(vswhere_cmd).decode()
             instances = parseString(output).getElementsByTagName('instance')
             for i in instances:
                 installation_path = i.getElementsByTagName('installationPath')[0].childNodes[0].data
