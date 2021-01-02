@@ -16,8 +16,10 @@ import sys
 import logging
 import os
 import re
+import locale
 
 logger = logging.getLogger('scheduler')
+encoding = locale.getpreferredencoding(False)
 
 
 def command_string(func, targets, sources, kwds):
@@ -131,8 +133,8 @@ class recipe(object):
                                                                 stderr=asyncio.subprocess.PIPE)
             try:
                 stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=recipe.timeout)
-                stdout = stdout and stdout.decode('utf-8').strip()
-                stderr = stderr and stderr.decode('utf-8').strip()
+                stdout = stdout and stdout.decode(encoding).strip()
+                stderr = stderr and stderr.decode(encoding).strip()
                 status = process.returncode == 0
             except TimeoutError:
                 status, stdout, stderr = False, '', ''
@@ -161,8 +163,8 @@ class recipe(object):
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        stdout = stdout and stdout.decode('utf-8').strip()
-        stderr = stderr and stderr.decode('utf-8').strip()
+        stdout = stdout and stdout.decode(encoding).strip()
+        stderr = stderr and stderr.decode(encoding).strip()
         status = process.returncode == 0
         if bat:
             os.unlink(bat.name)
