@@ -1,0 +1,24 @@
+name: publish release
+
+on: push
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      uses: actions/setup-python@v2
+    - name: build
+      run: python setup.py sdist
+    - name: Publish snapshot to Test PyPI
+      if: startsWith(github.ref, 'refs/tags/snapshot/')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository_url: https://test.pypi.org/legacy/
+    - name: Publish release package to PyPI
+      if: startsWith(github.ref, 'refs/tags/release/')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
