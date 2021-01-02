@@ -1,0 +1,49 @@
+name: publish release
+
+on:
+  push:
+    tags:
+      - 'release/*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      uses: actions/setup-python@v2
+    - name: build
+      run: |
+        python -c "import versioneer as V; print(f'version={V.get_version()}')" >> $GITHUB_ENV
+        python setup.py sdist
+    - name: release snapshot on github
+      if: contains(github.ref, 'dev')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ env.version }}
+        draft: false
+        prerelease: true
+    - name: publish snapshot to Test PyPI
+      if: contains(github.ref, 'dev')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository_url: https://test.pypi.org/legacy/
+    - name: release on github
+      if: ${{ !contains(github.ref, 'dev') }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ env.version }}
+        draft: false
+        prerelease: false
+    - name: publish release package to PyPI
+      if: ${{ !contains(github.ref, 'dev') }}
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
