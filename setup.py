@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2016 Stefan Seefeld
+# Copyright (c) 2021 Stefan Seefeld
 # All rights reserved.
 #
 # This file is part of Faber. It is made available under the
@@ -68,7 +68,7 @@ setup(name='faber',
                    'Programming Language :: Python'],
       cmdclass=versioneer.get_cmdclass({'build_doc': build_doc}),
       package_dir={'': 'src'},
-      packages=find_packages(where='src'),
+      packages=find_packages(where='src', exclude=['faber_bench*']),
       entry_points=dict(console_scripts=['faber=faber.cli:cli_main']),
       data_files=data + docs,
       setup_requires=['pytest-runner'],

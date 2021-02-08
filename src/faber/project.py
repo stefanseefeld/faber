@@ -60,42 +60,45 @@ class buildinfo(object):
     retrieved from there."""
 
     def __init__(self, builddir, srcdir=None):
-        filename = join(builddir, '.faber', 'info') if builddir else None
+        self.builddir = builddir
+        self._config = ConfigParser(allow_no_value=True)
+        filename = join(self.builddir, '.faber', 'info') if self.builddir else None
         if filename and exists(filename):  # this is an existing build directory
-            self.builddir = builddir
-            c = ConfigParser(allow_no_value=True)
-            c.read(filename)
-            self.srcdir = c['general']['srcdir']
+            self._config.read(filename)
+            self.srcdir = self._config['general']['srcdir']
             if srcdir and abspath(srcdir) != abspath(self.srcdir):
                 raise Exception('incompatible source directory')
-            self.options = dict(c.items('options'))
-            self.parameters = dict(c.items('parameters'))
-        elif builddir and exists(join(builddir, 'fabscript')):  # it's a source directory
-            self.builddir = builddir
+        elif self.builddir and exists(join(self.builddir, 'fabscript')):  # it's a source directory
             if srcdir and abspath(self.builddir) != abspath(srcdir):
                 raise Exception('incompatible source directory')
             else:
                 self.srcdir = srcdir or self.builddir
-                self.options = {}
-                self.parameters = {}
         else:  # it's a new builddir
-            self.builddir = builddir
             self.srcdir = srcdir
-            self.options = {}
-            self.parameters = {}
+        # if this is a new info, populate options and parameters
+        if not self._config.has_section('options'):
+            self._config.add_section('options')
+            self._config.add_section('parameters')
 
     def store(self):
         if not exists(join(self.builddir, '.faber')):
             os.makedirs(join(self.builddir, '.faber'))
         filename = join(self.builddir, '.faber', 'info')
-        config = ConfigParser(allow_no_value=True)
-        config['general'] = dict(srcdir=self.srcdir)
-        config['options'] = self.options
-        config['parameters'] = self.parameters
+        self._config['general'] = dict(srcdir=self.srcdir)
         with open(filename, 'w') as info:
-            config.write(info)
+            self._config.write(info)
 
     def valid(self): return self.srcdir is not None
+
+    @property
+    def options(self): return self._config['options']
+    @options.setter
+    def options(self, value): self._config['options'] = value
+
+    @property
+    def parameters(self): return self._config['parameters']
+    @parameters.setter
+    def parameters(self, value): self._config['parameters'] = value
 
 
 class options(dict):
