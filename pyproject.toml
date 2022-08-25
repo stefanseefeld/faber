@@ -50,3 +50,4 @@ dependencies = {file = ['requirements.txt']}
 [tool.pytest.ini_options]
 addopts = "-v"
 testpaths = ["tests"]
+asyncio_mode = "strict"
