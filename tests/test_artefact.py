@@ -24,3 +24,20 @@ yield the same object."""
         s2 = source('foo')
         assert s1 is s2
     define.assert_called_once()
+
+
+@pytest.mark.usefixtures('module')
+def test_graph():
+    from faber.artefact import artefact, notfile
+    from faber.rule import depend
+    from faber.scheduler.graph import walk
+    from faber.scheduler.asyncio import artefacts
+    a = artefact('a', attrs=notfile)
+    b = artefact('b', attrs=notfile)
+    c = artefact('c', attrs=notfile)
+    d = artefact('d', attrs=notfile)
+    depend(b, a)
+    depend(c, a)
+    depend(d, [b, c])
+    for x, y in walk(artefacts[d]):
+        print(x.frontend, y.frontend if y else None)

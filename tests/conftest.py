@@ -38,8 +38,9 @@ def pytest_generate_tests(metafunc):
 def session():
     # reset global state
     init()
-    if exists(expanduser('~/.faber')):
-        config(expanduser('~/.faber'))
+    # disregard user configurations during testing
+    #if exists(expanduser('~/.faber')):
+    #    config(expanduser('~/.faber'))
 
 
 @pytest.fixture()

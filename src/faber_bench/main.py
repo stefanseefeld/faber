@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QMenu, QMainWindow, QComboBox, QPushButton, QMessage
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
+artefacts = {}
 
 class Main(QMainWindow):
 
@@ -32,22 +33,35 @@ class Main(QMainWindow):
     class adapter:
         """Receive updates from the scheduler and forward them to the Main instance."""
         def __init__(self, main):
+            print('adapter init')
             self.main = main
+            self._artefacts = {a:None for a in artefact.iter()}
+            arts = [a for a in self._artefacts if a.name == 'numpy/ufunc.py']
+            print([repr(a) for a in arts])
+            #print('numpy/ufunc.py' in arts)
+            #print([a.frontend for a in self._artefacts if a.frontend.name == 'numpy/ufunc.py'])
 
         def add_prerequisite(self, _, p):
             a = p.frontend
+            if a not in self._artefacts:
+                self._artefacts[a] = None
             if a not in self.main.current_artefacts:
                 self.main.current_artefacts.add(a)
                 self.main.ui.tree.model().insert(a)
+                artefacts[a] = False
                 self.main.ui.progress.increment_max()
 
         def status(self, a):
+            if self._artefacts[a.frontend] != None:
+                print(f'{a.name} already updated !!')
+            self._artefacts[a.frontend] = a.frontend.status
             self.main.update_status(a.frontend)
 
     def __init__(self, module, config):
 
         super().__init__()
         self.config = config
+        print('set callback')
         A.callback = Main.adapter(self)
         self.setWindowIcon(QIcon(':images/logo_small.ico'))
         self.root = module
@@ -129,13 +143,17 @@ class Main(QMainWindow):
         self.ui.tree.model().set_filter(None if all else is_internal)
 
     def about(self):
-        from . import version
+        from . import __version__ as version
         win = QMessageBox()
         win.setWindowTitle('About Faber Bench')
         win.setTextFormat(Qt.RichText)
         win.setText('<p><b>Faber Bench version {}</b></p>'
                     '<p>Copyright (c) 2021 Stefan Seefeld</p>'.format(version))
         win.exec_()
+        print('remaining artefacts')
+        for a in artefacts:
+            if artefacts[a] is False:
+                print(a, a.name)
 
     def set_logging(self, index):
         level = logging.INFO if self.ui.log.itemChecked(index) else logging.ERROR
@@ -167,7 +185,13 @@ class Main(QMainWindow):
 
         async def update(a):
             self.ui.stop.setEnabled(True)
-            self.current_artefacts = {a.frontend for a in asyncio.collect(a)}
+            self.current_artefacts = {c.frontend for c in asyncio.collect(a)}
+            #print(self.current_artefacts)
+            for c in self.current_artefacts:
+                if c.name == 'numpy/ufunc.py':
+                    print(f'update !!!')
+            for aa in self.current_artefacts:
+                artefacts[aa] = False
             self.ui.progress.start(len(self.current_artefacts))
             await asyncio.async_update(a)
             asyncio.reset()
@@ -196,6 +220,11 @@ class Main(QMainWindow):
 
     def update_status(self, a):
         self.ui.tree.model().update(a)
+        if a not in artefacts:
+            print(f'Error: updating unregistered artefact {repr(a)} ({a.name})')
+        elif artefacts[a] is True:
+            print(f'Error: {a} ({a.name}) already updated')
+        artefacts[a] = True
         self.ui.progress.increment()
         p = self.ui.progress
         self.ui.statusbar.showMessage(f'{p.value}/{p.max} artefacts updated')
