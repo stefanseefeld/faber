@@ -65,6 +65,7 @@ class compiler(tool):
     def try_instantiate(cls, name, fs=None):
         """Try to instantiate the given compiler, but fail silently."""
 
+        #return
         try:
             mod = import_module('.{}'.format(name), 'faber.tools')
             getattr(mod, name)(features=fs)

@@ -10,16 +10,18 @@ from .artefact import flag
 import os
 
 
-def walk(a, d=None, visited=None):
+def walk(a, parent=None, visited=None):
     """Traverse the prerequisites of `a`."""
 
     visited = set() if visited is None else visited
     # This of course assumes the graph not to have any cycles.
-    yield a, d
+    yield a, parent
     for p in a.prerequisites:
         if p not in visited:
             visited.add(p)
             yield from walk(p, a, visited)
+        else:
+            yield p, a
 
 
 def collect(a):

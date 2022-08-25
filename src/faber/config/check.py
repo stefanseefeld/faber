@@ -117,8 +117,7 @@ class check(artefact):
         key = str((self.name, str(self.features))).encode('utf-8')
         self._cache_key = hashlib.md5(key).hexdigest()
         self.cached = self._cache_key in check.cache
-        if self.cached:
-            self.status, self.result = check.cache[self._cache_key]
+        self.status, self.result = check.cache[self._cache_key] if self.cached else None, None
 
     def __status__(self, status):
         logger.debug('check.__status__({})'.format(status))

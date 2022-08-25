@@ -7,7 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from .artefact import inspect_artefact
-from faber.scheduler.graph import walk
+from faber.scheduler.graph import walk, collect
 from PyQt5.QtCore import Qt, QRectF, QLineF
 from PyQt5.QtGui import QColor, QBrush, QPen, QPainter, QIcon, QLinearGradient
 from PyQt5.QtWidgets import *
@@ -21,12 +21,13 @@ Rect = namedtuple('Rect', ['x', 'y', 'w', 'h'])
 
 
 class Node(QGraphicsRectItem):
-
-    def __init__(self, artefact, parent, rect):
-        self.rect = rect
-        super().__init__(*self.rect)
+    """A Node represents an artefact in a dependency graph. While it may have more than one prerequisite,
+    for layout purposes only one is considered the parent."""
+    def __init__(self, artefact, parent):
+        self.rect = None
+        super().__init__()
         self.artefact = artefact
-        self.parent = parent
+        self._parents = []
         self.name = self.artefact.name
         self.label = self.artefact.name
         gradient = QLinearGradient(0, 0, 1, 1)
@@ -40,53 +41,59 @@ class Node(QGraphicsRectItem):
             gradient.setColorAt(0, QColor('#e5941d'))
             gradient.setColorAt(1, QColor('#f7cf94'))
         self.setBrush(QBrush(gradient))
-        text = QGraphicsTextItem(self.label, self)
-        text.setPos(self.rect.x, self.rect.y)
+        self.text = QGraphicsTextItem(self.label, self)
         self.setToolTip(f'{self.label}')
 
         self._children = []
         self._edges = {}
-        self._collapsed_parents = False
+        self._hide_parents = False
         self._collapsed = False
         if parent:
             parent.add_child(self)
 
+    def setRect(self, rect):
+        self.rect = rect
+        self.setPos(0, 0)
+        super().setRect(*self.rect)
+        self.text.setPos(self.rect.x, self.rect.y)
+
     def add_child(self, node):
         self._children.append(node)
-        start = self.rect.x + self.rect.w / 2, self.rect.y + self.rect.h / 2
-        end = node.rect.x + node.rect.w / 2, node.rect.y + node.rect.h / 2
-        edge = QGraphicsLineItem(start[0], start[1], end[0], end[1])
+        node._parents.append(self)
+        edge = QGraphicsLineItem()
         self.scene().addItem(edge)
         edge.setZValue(-1000)
         self._edges[node.name] = edge
 
-    def collapse_parents(self, keep=None):
-        if self.parent:
-            # collapse parents recursively...
-            self.parent.collapse_parents(keep)
-            self.parent.hide()
+    def hide_parents(self, keep=None):
+        for p in self._parents:
+            # hide parents recursively...
+            p.hide_parents(keep)
+            p.hide()
             # ...as well as siblings
-            self.parent.collapse(keep)
-            for e in self.parent._edges.values():
+            p.collapse(keep)
+            for e in p._edges.values():
                 e.hide()
-        self._collapsed_parents = True
+        self._hide_parents = True
 
-    def expand_parents(self, keep=None):
-        if self.parent:
-            # expand parents recursively...
-            self.parent.expand_parents(keep)
-            self.parent.show()
+    def show_parents(self, keep=None):
+        for p in self._parents:
+            # show parents recursively...
+            p.show_parents(keep)
+            p.show()
             # ...as well as siblings
-            self.parent.expand(keep)
-            for e in self.parent._edges.values():
+            p.expand(keep)
+            for e in p._edges.values():
                 e.show()
-        self._collapsed_parents = False
+        self._hide_parents = False
 
     def collapse(self, keep=None):
         for c in self._children:
             if c is not keep:
                 c.collapse(keep)
                 c.hide()
+                for p in c._parents:
+                    p._edges[c.name].hide()
         for e in self._edges.values():
             e.hide()
         self._collapsed = True
@@ -100,17 +107,6 @@ class Node(QGraphicsRectItem):
             e.show()
         self._collapsed = False
 
-    def moveBy(self, x, y, child=True):
-        super().moveBy(x, y)
-        for c in self._children:
-            c.moveBy(x, y)
-        for e in self._edges:
-            self._edges[e].moveBy(x, y)
-        if self.parent and not child:
-            e = self.parent._edges[self.name]
-            line = QLineF(e.line().x1(), e.line().y1(), e.line().x2() + x, e.line().y2() + y)
-            e.setLine(line)
-
     def mousePressEvent(self, event):
         if (event.button() == Qt.RightButton):
             menu = self.scene().main.make_context_menu(self.artefact.frontend)
@@ -119,16 +115,62 @@ class Node(QGraphicsRectItem):
 
     def mouseMoveEvent(self, event):
         diff = event.pos() - event.lastPos()
-        self.moveBy(diff.x(), diff.y(), child=False)
+        self._move_subgraph(diff.x(), diff.y())
         self._moved = True
 
     def mouseReleaseEvent(self, event):
         if (event.button() == Qt.LeftButton and not self._moved):
             if qApp.keyboardModifiers() == Qt.ShiftModifier:
-                self.expand_parents(self) if self._collapsed_parents else self.collapse_parents(self)
+                self.expand_parents(self) if self._hide_parents else self.hide_parents(self)
             else:
                 self.expand() if self._collapsed else self.collapse()
         self._moved = False
+
+    def adjust_edges(self):
+        nodes, edges = self._collect_subgraph()
+        for e in edges:
+            e.setPos(0, 0)
+        # iterate over all graph-internal edges
+        for n in nodes:
+            start = n.rect.x + n.rect.w / 2, n.rect.y + n.rect.h / 2
+            for c in n._children:
+                end = c.rect.x + c.rect.w / 2, c.rect.y + c.rect.h / 2
+                line = QLineF(start[0], start[1], end[0], end[1])
+                n._edges[c.name].setLine(line)
+        # iterate over all outward edges
+        for n in nodes:
+            end = n.rect.x + n.rect.w / 2, n.rect.y + n.rect.h / 2
+            for p in n._parents:
+                if p not in nodes:
+                    start = p.rect.x + p.rect.w / 2, p.rect.y + p.rect.h / 2
+                    line = QLineF(start[0], start[1], end[0], end[1])
+                    p._edges[n.name].setLine(line)
+
+    def _move_subgraph(self, x, y):
+        nodes, edges = self._collect_subgraph()
+        # move all child nodes...
+        for n in nodes:
+            n.moveBy(x, y)
+        # ...as well as child edges...
+        for e in edges:
+            e.moveBy(x, y)
+        # ... then adjust upward edges
+        for n in nodes:
+            for p in n._parents:
+                if p not in nodes:
+                    e = p._edges[n.name]
+                    line = QLineF(e.line().x1(), e.line().y1(), e.line().x2() + x, e.line().y2() + y)
+                    e.setLine(line)
+
+    def _collect_subgraph(self):
+        nodes = set((self,))
+        nodes |= set(self._children)
+        edges = set(self._edges[e] for e in self._edges)
+        for child in self._children:
+            sn, se = child._collect_subgraph()
+            nodes |= sn
+            edges |= se
+        return nodes, edges
 
 
 class Scene(QGraphicsScene):
@@ -136,21 +178,52 @@ class Scene(QGraphicsScene):
     def __init__(self, main, a):
         super().__init__()
         self.main = main
-        layout = self._layout(a)
         self.nodes = {}
         for n, p in walk(a):
-            node = Node(n, self.nodes[p] if p else None, layout[n])
-            self.nodes[n] = node
-            self.addItem(node)
+            if n not in self.nodes:
+                node = Node(n, self.nodes[p] if p else None)
+                self.nodes[n] = node
+                self.addItem(node)
+            else:
+                self.nodes[p].add_child(self.nodes[n])
+        self.root = self.nodes[a]
+        self.layout()
 
-    def _layout(self, artefact):
+    def layout(self):
+        positions = self._layout(self.root)
+        for n in positions:
+            n.setRect(positions[n])
+        self.root.adjust_edges()
+        
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        if self.mouseGrabberItem() is None:
+            if (event.button() == Qt.RightButton):
+                menu = QMenu()
+                menu.addAction(self.tr('layout'), lambda: self.layout())
+                menu.exec_(event.screenPos())
+        
+    @staticmethod
+    def _walk(node, parent=None, visited=None):
+        visited = set() if visited is None else visited
+        yield node, parent
+        for c in node._children:
+            if c not in visited:
+                visited.add(c)
+                yield from Scene._walk(c, node, visited)
+            else:
+                yield c, node
+
+    def _layout(self, node):
 
         hash = lambda a: repr(id(a))
         nodes, edges = [], []
-        for n, p in walk(artefact):
-            nodes.append(n)
-            if p:
-                edges.append((p, n))
+        for n, p in Scene._walk(node):
+            if n.isVisible():
+                if n not in nodes:
+                    nodes.append(n)
+                if p:
+                    edges.append((p, n))
 
         g = pydot.Dot('', graph_type='digraph', strict=True)
 
@@ -165,11 +238,13 @@ class Scene(QGraphicsScene):
         graph = pydot.graph_from_dot_data(dot)[0]
 
         layout = {}
-        for n, _ in walk(artefact):
-            node = graph.get_node(hash(n))[0]
-            x, y = node.get_pos()[1:-1].split(',')
+        for n, _ in Scene._walk(node):
+            if not n.isVisible():
+                continue
+            gn = graph.get_node(hash(n))[0]
+            x, y = gn.get_pos()[1:-1].split(',')
             # convert from inches to points (72 dpi)
-            w, h = float(node.get_width()) * 72, float(node.get_height()) * 72
+            w, h = float(gn.get_width()) * 72, float(gn.get_height()) * 72
             x, y = float(x) - w / 2, h / 2 - float(y)
             layout[n] = Rect(x, y, w, h)
         return layout

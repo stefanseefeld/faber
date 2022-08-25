@@ -156,7 +156,8 @@ class artefact(object):
         This may fail for different reasons:
         * the prerequisite set is immutable once the artefact is bound.
         * the new prerequisite must not introduce a dependency cycle."""
-
+        if p.frontend.name == 'numpy/ufunc.py':
+            print('yes !!!')
         if self.progress >= progress.BOUND:
             raise dependency_error(f'can not add {p.frontend}: '
                                    f'{self.frontend.boundname} already bound')
@@ -168,8 +169,10 @@ class artefact(object):
                                    f'{self.frontend} -> {p.frontend}')
         if self._pqueue:
             self._pqueue.put_nowait(p)
-            if self.callback:
-                self.callback.add_prerequisite(self, p)
+        if p.frontend.name == 'numpy/ufunc.py':
+            print(f'yes !!! {self.callback}')
+        if self.callback:
+            self.callback.add_prerequisite(self, p)
 
     async def process(self, parent=None):
         """Process this artefact:
