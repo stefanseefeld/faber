@@ -19,13 +19,13 @@ import subprocess
 
 # known architectures for each machine type
 marchs = dict(x86_64=['x86_64', 'x86'],
-              arm=['eabi'],
+              arm64=['arm64'],
               w64=['w64', 'w32'])
 
 # compiler flags per architecture
 arch_flags = dict(x86_64=['-m64'],
                   x86=['-m32'],
-                  eabi=[],
+                  arm64=[],
                   w64=['-m64'],
                   w32=['-m32'])
 
