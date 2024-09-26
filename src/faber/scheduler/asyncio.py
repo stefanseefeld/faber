@@ -78,14 +78,23 @@ def run(command):
     return recipe.run_subprocess(command)
 
 
+async def async_update(aa):
+    aa = [artefacts[a] for a in aslist(aa)]
+    await asyncio.gather(*[a.process() for a in aa])
+
+
 def update(aa):
     try:
         loop = asyncio.get_event_loop()
-        aa = [artefacts[a] for a in aslist(aa)]
-        loop.run_until_complete(asyncio.gather(*[a.process() for a in aa]))
-        return all([a.status for a in aa])
+        loop.run_until_complete(async_update(aa))
+        return all([a.status for a in aslist(aa)])
     except Exception:
         raise
+
+
+def collect(a):
+    from . import graph
+    return graph.collect(artefacts[a])
 
 
 def print_dependency_graph(aa=[]):
