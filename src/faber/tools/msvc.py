@@ -34,7 +34,7 @@ logger = logging.getLogger('tools')
 class makedep(action):
 
     # /showIncludes emits to stderr !
-    command = 'cl /nologo $(cppflags) /showIncludes /EP $(>)'
+    command = 'cl /nologo $(cppflags) /showIncludes /EP "$(>)"'
     cppflags = map(compiler.cppflags)
     cppflags += map(compiler.define, translate, prefix='/D')
     cppflags += map(compiler.include, translate, prefix='/I"', suffix='"')
@@ -80,7 +80,7 @@ class makedep_wrapper(action):
 
 class compile(action):
 
-    command = 'cl /nologo $(cppflags) $(cflags) $(cxxflags) /GR /MD /EHsc /c /Fo$(<) $(>)'
+    command = 'cl /nologo $(cppflags) $(cflags) $(cxxflags) /GR /MD /EHsc /c /Fo"$(<)" "$(>)"'
     cppflags = map(compiler.cppflags)
     cppflags += map(compiler.define, translate, prefix='/D')
     cppflags += map(compiler.include, translate, prefix='/I"', suffix='"')
@@ -91,7 +91,7 @@ class compile(action):
 
 class link(action):
 
-    command = 'link /nologo $(ldflags) /out:$(<) $(>) $(libs)'
+    command = 'link /nologo $(ldflags) /out:"$(<)" "$(>)" $(libs)'
     ldflags = map(compiler.ldflags)
     ldflags += map(compiler.linkpath, translate, prefix='/libpath:"', suffix='"')
     ldflags += map(compiler.link, select_if, 'shared', '/DLL')
@@ -112,7 +112,7 @@ class link(action):
 
 class archive(action):
 
-    command = 'lib /nologo /out:$(<) $(>)'
+    command = 'lib /nologo /out:"$(<)" "$(>)"'
 
 
 class msvc(cc, cxx):
