@@ -21,6 +21,10 @@ command_logger = logging.getLogger('commands')
 output_logger = logging.getLogger('output')
 
 
+def quote(token):
+    return '"{}"'.format(token)
+
+
 class CallError(Exception):
     """CallErrors may be used to pass the command string back
     up the call chain so it can be reported."""
@@ -146,14 +150,14 @@ class action(object):
             cmd = self.command
             # substitute $(<[N])
             for m in re.findall(r'(\$\(<\[(\d+)\]\))', cmd):
-                cmd = cmd.replace(m[0], tnames[int(m[1])])
+                cmd = cmd.replace(m[0], quote(tnames[int(m[1])]))
             # substitute $(>[N])
             for m in re.findall(r'(\$\(>\[(\d+)\]\))', cmd):
-                cmd = cmd.replace(m[0], snames[int(m[1])])
+                cmd = cmd.replace(m[0], quote(snames[int(m[1])]))
             # substitute $(<)
-            cmd = cmd.replace('$(<)', ' '.join(tnames))
+            cmd = cmd.replace('$(<)', ' '.join([quote(t) for t in tnames]))
             # substitute $(>)
-            cmd = cmd.replace('$(>)', ' '.join(snames))
+            cmd = cmd.replace('$(>)', ' '.join(quote(s) for s in snames))
             if targets:
                 vars = self.map(targets[0].features)
                 for v in self.vars:

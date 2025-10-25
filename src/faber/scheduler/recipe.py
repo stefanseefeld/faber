@@ -22,6 +22,10 @@ logger = logging.getLogger('scheduler')
 encoding = locale.getpreferredencoding(False)
 
 
+def quote(token):
+    return '"{}"'.format(token)
+
+
 def command_string(func, targets, sources, kwds):
     """Make a string of the command to be executed,
     for reporting purposes."""
@@ -109,13 +113,13 @@ class recipe(object):
             cmd = self.action.command
             # substitute $(<[N])
             for m in re.findall(r'(\$\(<\[(\d+)\]\))', cmd):
-                cmd = cmd.replace(m[0], self.targets[int(m[1])].boundname)
+                cmd = cmd.replace(m[0], quote(self.targets[int(m[1])].boundname))
             # substitute $(>[N])
             for m in re.findall(r'(\$\(>\[(\d+)\]\))', cmd):
-                cmd = cmd.replace(m[0], self.sources[int(m[1])].boundname)
+                cmd = cmd.replace(m[0], quote(self.sources[int(m[1])].boundname))
 
-            vars.update([('<', [t.boundname for t in self.targets])])
-            vars.update([('>', [s.boundname for s in self.sources])])
+            vars.update([('<', [quote(t.boundname) for t in self.targets])])
+            vars.update([('>', [quote(s.boundname) for s in self.sources])])
             for v in vars:
                 cmd = cmd.replace('$({})'.format(v), ' '.join(vars.get(v, [])))
             # cmd.exe can't deal with multi-line commands, so use a temporary bat file.
