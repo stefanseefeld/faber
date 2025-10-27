@@ -117,8 +117,8 @@ class python(tool):
         flags += ' ' + self.check_sysconfig('get_config_var("SHLIBS")')
         flags = [f[2:] for f in flags.strip().split() if f.startswith('-l')]
         self.libs += libs(*flags)
-        version = self.check_sysconfig('get_config_var("py_version")')
-        if version >= '3.5':
-            self.ext_suffix = self.check_sysconfig('get_config_var("EXT_SUFFIX")')
-        else:
-            self.ext_suffix = self.check_sysconfig('get_config_var("SO")')
+        self.ext_suffix = self.check_sysconfig('get_config_var("EXT_SUFFIX")')
+        if not self.ext_suffix:
+            hexversion = int(self.check_python('import sys; print(sys.hexversion)'))
+            if hexversion < 0x3050000:
+                self.ext_suffix = self.check_sysconfig('get_config_var("SO")')
