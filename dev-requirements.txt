@@ -1,0 +1,8 @@
+build
+codecov
+flake8
+mock
+pytest
+pytest-asyncio
+pytest-cov
+pyyaml
