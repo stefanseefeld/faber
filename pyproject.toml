@@ -1,0 +1,54 @@
+[build-system]
+requires = [ "setuptools", "wheel", "setuptools-git-versioning", "pytest-runner"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "faber"
+authors = [
+  {name = "Stefan Seefeld", email = "stefan@seefeld.name"}
+]
+maintainers = [
+  {name = "Stefan Seefeld", email = "stefan@seefeld.name"}
+]
+description = "Faber is a construction tool."
+requires-python = ">= 3.6"
+dependencies = []
+dynamic = ["version"]
+license = "BSL-1.0"
+license-files = ["LICENSE"]
+classifiers = ["Environment :: Console",
+               "Intended Audience :: Developers",
+               "Operating System :: OS Independent",
+               "Topic :: Software Development :: Build Tools",
+               "Topic :: Software Development :: Testing",
+               "Programming Language :: Python"]
+
+[project.urls]
+Homepage = "https://stefanseefeld.github.io/faber"
+Repository = "https://github.com/stefanseefeld/faber"
+Issues = "https://github.com/stefanseefeld/faber/issues"
+
+[project.scripts]
+faber = "faber.cli:cli_main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+script-files = []
+
+[tool.setuptools-git-versioning]
+enabled = true
+version_callback = "setup:get_version_from_git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["faber*"]
+
+[tool.setuptools.package-data]
+schemas=['schemas/*.rnc', 'schemas/*.sql']
+
+[tool.setuptools.dynamic]
+dependencies = {file = ['requirements.txt']}
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["tests"]

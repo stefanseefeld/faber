@@ -24,7 +24,7 @@ jobs:
     - name: prerequisites
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest pytest-asyncio mock flake8 pyyaml codecov pytest-cov
+        python -m pip install -r dev-requirements.txt
     - name: lint
       run: |
         flake8 src/faber tests
