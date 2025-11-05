@@ -19,6 +19,13 @@ __all__ = ['init', 'reset', 'clean', 'finish',
            'variables', 'define_artefact', 'add_dependency', 'define_recipe',
            'run', 'update', 'print_dependency_graph', 'DependencyError']
 
+if sys.platform == 'win32':
+    loop = asyncio.ProactorEventLoop()
+    asyncio.set_event_loop(loop)
+else:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
 
 artefacts = {}  # map frontends to backends
 
@@ -75,15 +82,8 @@ def run(command):
 
 
 def update(aa):
-    if sys.version_info >= (3, 10):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    elif sys.platform == 'win32':
-        loop = asyncio.ProactorEventLoop()
-        asyncio.set_event_loop(loop)
-    else:
-        loop = asyncio.get_event_loop()
     try:
+        loop = asyncio.get_event_loop()
         aa = [artefacts[a] for a in aslist(aa)]
         loop.run_until_complete(asyncio.gather(*[a.process() for a in aa]))
         return all([a.status for a in aa])
