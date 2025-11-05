@@ -14,6 +14,7 @@ from faber.rule import rule
 from faber.utils import capture_output
 from test.common import pyecho
 from os.path import exists
+import sys
 import pytest
 try:
     from unittest.mock import patch
@@ -33,7 +34,7 @@ def test_call():
     with capture_output() as (out, err):
         a = action('echo', 'echo $(<)')
         a([b])
-    assert out.getvalue().strip() == 'test.b'
+    assert out.getvalue().strip(' \t\n"') == 'test.b'
     assert err.getvalue() == ''
 
 
@@ -46,7 +47,10 @@ def test_call_index():
     with capture_output() as (out, err):
         a = action('echo', 'echo $(<[1]) $(>[0])')
         a([b, c], [d])
-    assert out.getvalue().strip() == 'test.c test.d'
+    if sys.platform == 'win32':
+        assert out.getvalue().strip() == '"test.c" "test.d"'
+    else:
+        assert out.getvalue().strip() == 'test.c test.d'
     assert err.getvalue() == ''
 
 

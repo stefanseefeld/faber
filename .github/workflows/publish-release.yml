@@ -28,7 +28,7 @@ jobs:
         prerelease: true
     - name: publish snapshot to Test PyPI
       if: contains(github.ref, 'dev')
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
@@ -44,6 +44,6 @@ jobs:
         prerelease: false
     - name: publish release package to PyPI
       if: ${{ !contains(github.ref, 'dev') }}
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}

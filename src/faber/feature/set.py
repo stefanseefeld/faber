@@ -31,7 +31,8 @@ class set(object):
     def instantiate(features):
         """Convert the argument into a set."""
         if isinstance(features, set):
-            return features
+            # return a clone of the input
+            return ior(set(), features)
         elif not features:
             return set()
         else:
