@@ -31,6 +31,7 @@ class filecache(object):
 
     def __del__(self):
         self.conn.commit()
+        self.conn.close()
 
     def append(self, filename):
         with self.conn:
