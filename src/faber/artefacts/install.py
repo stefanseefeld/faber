@@ -11,10 +11,12 @@ from ..tools.installer import installer, prefix, stage  # noqa F401
 from ..rule import rule, alias
 from .. import platform
 from os.path import normpath, join, splitdrive
+import os
 
-default_prefix = prefix('/usr/local')
 if platform.os == 'Windows':
-    default_prefix = prefix(r'C:/Program Files')
+    default_prefix = prefix(os.environ['ProgramFiles'])
+else:
+    default_prefix = prefix('/usr/local')
 
 
 class _installed(artefact):
