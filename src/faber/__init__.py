@@ -6,7 +6,12 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from . import _version
-__version__ = _version.get_versions()['version']
+from importlib import metadata
+
+try:
+    version = metadata.version('faber')
+except metadata.PackageNotFoundError:
+    version = 'dev'
+__version__ = version
 
 debug = False
