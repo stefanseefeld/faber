@@ -50,5 +50,5 @@ if os.path.exists('doc/html'):
                     [os.path.join(root, file) for file in files
                      if os.path.isfile(os.path.join(root, file))]))
 
-
-setup(data_files=data + docs)
+if __name__ == '__main__':
+    setup(data_files=data + docs)

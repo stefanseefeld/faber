@@ -18,8 +18,8 @@ jobs:
         python -m pip install -r dev-requirements.txt
     - name: build
       run: |
-        python -c "import versioneer as V; print(f'version={V.get_version()}')" >> $GITHUB_ENV
-        python setup.py sdist
+        python -c "from setup import get_version_from_git; print(f'version={get_version_from_git()}')" >> $GITHUB_ENV
+        python -m build
     - name: release snapshot on github
       if: contains(github.ref, 'dev')
       uses: actions/create-release@v1
