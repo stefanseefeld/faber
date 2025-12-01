@@ -31,7 +31,9 @@ class run(action):
 set PYTHONPATH=$(pythonpath)
 python $(>)"""
     else:
-        command = 'LD_LIBRARY_PATH=$(runpath) PYTHONPATH=$(pythonpath) python $(>)'
+        command = ('LD_LIBRARY_PATH=$(runpath):$LD_LIBRARY_PATH '
+                   'PYTHONPATH=$(pythonpath) '
+                   'python $(>)')
 
 
 class python(tool):
