@@ -22,7 +22,7 @@ def test_touch():
     """Check that 'touch' and 'rm' actions work across platforms."""
 
     a = rule(fileutils.touch, 'empty-file')
-    with patch('faber.action.action.__status__'):
+    with patch('faber.action.Action.__status__'):
         assert a.update()
         assert exists(a._filename)
 
@@ -33,7 +33,7 @@ def test_copy():
 
     a = rule(fileutils.touch, 'empty-file')
     b = rule(fileutils.copy, 'clone', a)
-    with patch('faber.action.action.__status__'):
+    with patch('faber.action.Action.__status__'):
         assert b.update()
         assert exists(b._filename)
 
@@ -44,7 +44,7 @@ def test_remove():
 
     a = rule(fileutils.touch, 'empty-file')
     b = rule(fileutils.remove, 'cleanup', a, attrs=notfile|always)
-    with patch('faber.action.action.__status__'):
+    with patch('faber.action.Action.__status__'):
         assert a.update()
         assert exists(a._filename)
         assert b.update()

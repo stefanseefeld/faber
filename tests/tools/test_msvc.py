@@ -13,15 +13,15 @@ import pytest
 import sys
 if not sys.platform.startswith("win"):
     pytest.skip('skipping windows-only tests', allow_module_level=True)
-from faber.tools.msvc import msvc  # noqa E402
+from faber.tools.msvc import MSVC  # noqa E402
 
 
 @pytest.fixture
 def cxx():
-    if not msvc.instances():
+    if not MSVC.instances():
         pytest.skip('no MSVC compiler found')
     else:
-        yield msvc.instance()
+        yield MSVC.instance()
 
 
 def test_makedep(cxx):

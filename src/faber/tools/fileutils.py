@@ -6,12 +6,12 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
+from ..action import Action
 from ..platform import os
 
 if os == 'Windows':
 
-    touch = action('touch', """
+    touch = Action('touch', """
 @echo off
     setlocal enableextensions disabledelayedexpansion
 
@@ -21,10 +21,10 @@ if os == 'Windows':
         type nul > "%%~fa"
     )) >nul 2>&1""")
 
-    copy = action('copy', 'copy /b $(>) $(<)')
-    remove = action('remove', 'del $(>)')
+    copy = Action('copy', 'copy /b $(>) $(<)')
+    remove = Action('remove', 'del $(>)')
 
 else:
-    touch = action('touch', 'touch $(<)')
-    copy = action('copy', 'cp -r $(>) $(<)')
-    remove = action('remove', 'rm -rf $(>)')
+    touch = Action('touch', 'touch $(<)')
+    copy = Action('copy', 'cp -r $(>) $(<)')
+    remove = Action('remove', 'rm -rf $(>)')

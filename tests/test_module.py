@@ -6,7 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.module import module
+from faber.module import Module
 from test.common import tempdir, write_fabscript
 import os
 import os.path
@@ -22,7 +22,7 @@ i = include('.')"""
 
     with tempdir() as dirpath:
         write_fabscript(dirpath, script)
-        m = module(dirpath)
+        m = Module(dirpath)
         assert dirpath in m.i
 
 
@@ -33,21 +33,21 @@ def test_paths():
 from faber.tools.compiler import include, linkpath
 i = include('.')
 l = linkpath('.', base=builddir)
-inner = module('inner')"""
+inner = Module('inner')"""
 
     inner="""
 from faber.tools.compiler import include, linkpath
 i = include('.')
 l = linkpath('.', base=builddir)
-outer = module('..')
+outer = Module('..')
 """
 
-    srcdir = module.current.srcdir
+    srcdir = Module.current.srcdir
     subdir = os.path.join(srcdir, 'inner')
     os.mkdir(subdir)
     write_fabscript(srcdir, outer)
     write_fabscript(subdir, inner)
-    m = module(srcdir, builddir='build')
+    m = Module(srcdir, builddir='build')
     assert m.i == [srcdir]
     assert m.l == [m.builddir]
     assert m.inner.i == [subdir]
@@ -62,7 +62,7 @@ def test_kwds():
     outer="""
 from faber.tools.compiler import include, linkpath
 value = 24
-inner = module('inner', value=value)"""
+inner = Module('inner', value=value)"""
 
     inner="""
 """
@@ -72,5 +72,5 @@ inner = module('inner', value=value)"""
         os.mkdir(subdir)
         write_fabscript(root, outer)
         write_fabscript(subdir, inner)
-        m = module(root, builddir='build')
+        m = Module(root, builddir='build')
         assert m.inner.value == m.value

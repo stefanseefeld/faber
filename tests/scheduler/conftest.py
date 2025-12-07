@@ -6,8 +6,8 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.scheduler.artefact import artefact
-from faber.scheduler.recipe import recipe
+from faber.scheduler.artefact import Artefact
+from faber.scheduler.recipe import Recipe
 import pytest
 import tempfile
 import shutil
@@ -15,11 +15,11 @@ import shutil
 
 @pytest.fixture()
 def scheduler():
-    artefact.init()
-    recipe.init()
+    Artefact.init()
+    Recipe.init()
     yield
-    recipe.finish()
-    artefact.finish()
+    Recipe.finish()
+    Artefact.finish()
 
 
 @pytest.fixture()

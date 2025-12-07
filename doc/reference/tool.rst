@@ -1,4 +1,4 @@
-The `tool` class
+The `Tool` class
 ================
 
 .. py:currentmodule:: faber.tool
@@ -31,7 +31,7 @@ actions.
 Constructor
 -----------
 
-.. method:: tool(name='', version='')
+.. method:: Tool(name='', version='')
 
    The tool name defaults to its class name.
 
@@ -68,19 +68,19 @@ Examples
 
 Given a simple fabscript such as::
 
-   from faber.tools.cxx import cxx
+   from faber.tools.cxx import CXX
    
-   rule(cxx.compile, 'hello.o', source='hello.cpp')
+   rule(CXX.compile, 'hello.o', source='hello.cpp')
 
 it becomes possible to configure your build environment by instantiating
 different compilers::
 
-  from faber.tools.gxx import gxx
+  from faber.tools.gxx import GXX
 
-  gxx = gxx()
-  gxx11 = gxx(name='g++11', features=cxxflags('--std=c++11'))
-  gxx03 = gxx(name='g++03', features=cxxflags('--std=c++03'))
-  mingwxx = gxx(name='mingw++', command='/usr/bin/x86_64-w64-mingw32-g++')
+  gxx = GXX()
+  gxx11 = GXX(name='g++11', features=cxxflags('--std=c++11'))
+  gxx03 = GXX(name='g++03', features=cxxflags('--std=c++03'))
+  mingwxx = GXX(name='mingw++', command='/usr/bin/x86_64-w64-mingw32-g++')
   
 Now you can invoke a build by selecting either of these to compile `hello.o`:
 

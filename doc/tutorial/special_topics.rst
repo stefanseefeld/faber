@@ -13,14 +13,14 @@ The `faber.config` subpackage provides facilities to perform such checks (akin
 to those in the `GNU autoconf tool`). They define conditional features that
 can be set either globally or for specific artefacts. For example::
 
-  from faber.config import cxx_checks, report
+  from faber.config import cxx_checks, Report
 
   checks = [cxx_checks.has_cxx11(c.features, define('HAS_CXX11')),
             cxx_checks.has_cxx14(c.features, define('HAS_CXX14')),
             cxx_checks.has_cxx17(c.features, define('HAS_CXX17'))]
 
-  config = report('config', checks)
-  check = binary('check', 'main.cpp', features=config.use)
+  config = Report('config', checks)
+  check = Binary('check', 'main.cpp', features=config.use)
   ...
 
 The `check` binary gets its features from the `config` report, which performs
@@ -40,15 +40,15 @@ into the construction tool itself.
 
 Consider this fabscript snippet::
 
-  from faber.artefacts.binary import binary
-  from faber.test import test, report, fail
+  from faber.artefacts.binary import Binary
+  from faber.test import Test, Report, fail
 
-  passing = binary('passing', 'passing.cpp')
-  failing = binary('failing', 'failing.cpp')
+  passing = Binary('passing', 'passing.cpp')
+  failing = Binary('failing', 'failing.cpp')
 
-  test1 = test('test1', passing, run=True)
-  test2 = test('test2', failing, run=True)
-  test3 = test('test3', failing, run=True, expected=fail)
+  test1 = Test('test1', passing, run=True)
+  test2 = Test('test2', failing, run=True)
+  test3 = Test('test3', failing, run=True, expected=fail)
 
   ...
 
@@ -62,7 +62,7 @@ While it is of course possible to run the tests explicitly from the command line
 the built-in report mechanism. In addition to executing the selected tests this
 may produce a test summary, or even a more elaborate test report::
 
-  report('test-report', [test1, test2, test3])
+  Report('test-report', [test1, test2, test3])
 
 Invoking `faber test-report` will now generate output such as
 

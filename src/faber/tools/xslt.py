@@ -6,27 +6,27 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
-from ..tool import tool
-from ..feature import feature, multi, incidental, map
+from ..action import Action
+from ..tool import Tool
+from ..feature import Feature, multi, incidental, Map
 
 
-xsltflags = feature('xsltflags', attributes=multi|incidental)
+xsltflags = Feature('xsltflags', attributes=multi|incidental)
 
 
-class process(action):
+class Process(Action):
 
     command = 'xsltproc $(xsltflags) -o $(<) $(stylesheet) $(>)'
 
-    xsltflags = map(xsltflags)
+    xsltflags = Map(xsltflags)
 
 
-class xsltproc(tool):
+class XSLTProc(Tool):
 
-    process = process()
+    process = Process()
 
     def __init__(self, name='xsltproc', command=None, version='', features=()):
-        tool.__init__(self, name=name, version=version)
+        Tool.__init__(self, name=name, version=version)
         self.features |= features
         if command:
             self.process.subst('xsltproc', command)

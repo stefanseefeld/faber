@@ -6,33 +6,33 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
-from ..feature import set
-from ..tool import tool
-from .xslt import process
+from ..action import Action
+from ..feature import Set
+from ..tool import Tool
+from .xslt import Process
 import os
 from os.path import join
 
 
-class quickbook(tool):
+class QuickBook(Tool):
 
-    process = action('quickbook --input-file=$(>) --output-file=$(<)')
+    process = Action('quickbook --input-file=$(>) --output-file=$(<)')
 
     def __init__(self, name='quickbook', command=None, version='', features=()):
-        tool.__init__(self, name=name, version=version)
+        Tool.__init__(self, name=name, version=version)
         self.features |= features
         if command:
             self.process.subst('quickbook', command)
 
 
-class boostbook(tool):
+class BoostBook(Tool):
 
-    db = process()  # bb -> db
-    html = process()  # db -> html
+    db = Process()  # bb -> db
+    html = Process()  # db -> html
 
     def __init__(self, name='boostbook', command=None, version='', prefix='', features=()):
-        tool.__init__(self, name=name, version=version)
-        self.features |= set.instantiate(features)
+        Tool.__init__(self, name=name, version=version)
+        self.features |= Set.instantiate(features)
         if command:
             self.db.subst('xsltproc', command)
             self.html.subst('xsltproc', command)

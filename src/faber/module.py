@@ -7,9 +7,9 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from __future__ import absolute_import
-from .feature import lazy_set
-from .artefact import artefact
-from .tool import tool
+from .feature import LazySet
+from .artefact import Artefact
+from .tool import Tool
 from .utils import add_metaclass
 from .error import error_reporter
 from os.path import join, exists
@@ -19,50 +19,50 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class proxy(object):
+class Proxy(object):
     """A module as seen when cross-referenced."""
     def __init__(self, module):
         self.__dict__.update(module._env)
 
 
-class module_type(type):
+class ModuleType(type):
     def __call__(cls, name, srcdir=None, builddir=None, process=True, **kwds):
         """Make sure to construct (and process) modules only once."""
 
         if name.startswith('.'):  # relative import
             if srcdir or builddir:
                 raise ValueError('invalid arguments for relative imports')
-            name, base = name[1:], module.current
+            name, base = name[1:], Module.current
             while name.startswith('.') and base:
                 name, base = name[1:], base._parent
             if name.startswith('.'):
                 raise ValueError('{} has no parent module'.format(base.name))
             name = '.'.join([base.name, name]) if base.name and name else \
                    name if name else base.name
-            return proxy(cls._instances[name])
+            return Proxy(cls._instances[name])
         elif name in cls._instances:
-            return proxy(cls._instances[name])
+            return Proxy(cls._instances[name])
         else:
-            m = super(module_type, cls).__call__(name, srcdir, builddir, process, **kwds)
+            m = super(ModuleType, cls).__call__(name, srcdir, builddir, process, **kwds)
             return m
 
 
-@add_metaclass(module_type)
-class module(object):
+@add_metaclass(ModuleType)
+class Module(object):
 
     _instances = {}
     current = None
 
     @staticmethod
     def init(options, params):
-        module.options = options
-        module.params = params
+        Module.options = options
+        Module.params = params
 
     @staticmethod
     def finish():
-        tool.finish()
-        artefact.finish()
-        module._instances.clear()
+        Tool.finish()
+        Artefact.finish()
+        Module._instances.clear()
 
     def __init__(self, name, srcdir=None, builddir=None, process=True, **kwds):
         """Create a new module."""
@@ -70,20 +70,20 @@ class module(object):
         if 'features' in kwds:
             self._features = kwds.pop('features').copy()
         else:
-            self._features = lazy_set(module.params.copy())
+            self._features = LazySet(Module.params.copy())
         from . import builtin
         self._env = builtin.__dict__.copy()
-        self._env['options'] = module.options
+        self._env['options'] = Module.options
         self._env['features'] = self._features
         self._env.update(kwds)
-        self._parent = module.current
+        self._parent = Module.current
         if self._parent:
             self.srcdir = join(self._parent.srcdir, srcdir or name)
             self.builddir = join(self._parent.builddir, builddir or name)
         else:
             self.srcdir = srcdir or name
             self.builddir = builddir or name
-        module._instances[name] = self
+        Module._instances[name] = self
         if process:
             with self:
                 self.process()
@@ -98,11 +98,11 @@ class module(object):
             self._env['__name__'] = self.name
         self._env['srcdir'] = self.srcdir
         self._env['builddir'] = self.builddir
-        module.current = self
+        Module.current = self
         return self
 
     def __exit__(self, type, value, traceback):
-        module.current = self._parent
+        Module.current = self._parent
 
     @property
     def features(self):

@@ -8,10 +8,10 @@
 
 from __future__ import absolute_import
 from . import scheduler
-from .action import action
-from .feature import set
-from .feature.condition import expr as fexpr
-from .artefact import artefact, source, conditional, notfile
+from .action import Action
+from .feature import Set
+from .feature.condition import Expression as fexpr
+from .artefact import Artefact, Source, Conditional, notfile
 from .utils import aslist
 from types import FunctionType, MethodType
 import logging
@@ -36,8 +36,8 @@ def conditional_dependency(a, d):
         # postpone eval using feature.condition
         feature_logger.info('postponing evaluation of condition "{}"'
                             .format(d.condition))
-        if not isinstance(d, conditional):
-            d = conditional(d, d.condition)
+        if not isinstance(d, Conditional):
+            d = Conditional(d, d.condition)
         d.dependent.append(a)
         return d
 
@@ -57,15 +57,15 @@ def _rule(recipe, targets, sources, deps, attrs, features, module, path_spec, lo
     targets = aslist(targets)
     sources = aslist(sources)
     logger.info('rule: {} <- {} with {}'.format(targets, sources, recipe))
-    if not features and isinstance(targets[0], artefact):
+    if not features and isinstance(targets[0], Artefact):
         features = targets[0].features.copy()
     else:
-        features = module.features | set.instantiate(features)
+        features = module.features | Set.instantiate(features)
 
     if recipe:
         # instantiate recipe
         if type(recipe) in (FunctionType, MethodType):
-            recipe = action(recipe.__name__, recipe)
+            recipe = Action(recipe.__name__, recipe)
         elif recipe and recipe.abstract:
             # look up an appropriate tool providing the action
             recipe = recipe.instantiate(features.essentials())
@@ -74,18 +74,18 @@ def _rule(recipe, targets, sources, deps, attrs, features, module, path_spec, lo
 
     deps = aslist(deps)
     # instantiate artefacts for sources and dependencies
-    sources = [source.instantiate(s, module) for s in sources]
-    deps = [artefact.instantiate(d, module) for d in deps]
+    sources = [Source.instantiate(s, module) for s in sources]
+    deps = [Artefact.instantiate(d, module) for d in deps]
 
     # instantiate artefacts for targets
     def instantiate(a):
-        if isinstance(a, artefact):
+        if isinstance(a, Artefact):
             a.attrs |= attrs
             a.features |= features
-            a.features |= artefact.combine_use(sources)
+            a.features |= Artefact.combine_use(sources)
             a.path_spec = path_spec if path_spec else a.path_spec
         else:
-            a = artefact(a, attrs, features=features, path_spec=path_spec,
+            a = Artefact(a, attrs, features=features, path_spec=path_spec,
                          module=module, logfile=logfile)
         return a
     targets = [instantiate(t) for t in targets]
@@ -118,8 +118,8 @@ def rule(recipe, targets, sources=[], dependencies=[],
       * features: a set of features
       * module: the module to instantiate the artefact in"""
 
-    from .module import module as M
-    module = module or M.current
+    from .module import Module
+    module = module or Module.current
     targets = _rule(recipe, targets, sources, dependencies, attrs, features, module,
                     path_spec, logfile)
     return targets[0] if len(targets) == 1 else targets

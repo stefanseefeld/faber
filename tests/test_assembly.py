@@ -6,9 +6,9 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.artefact import artefact, intermediate
+from faber.artefact import Artefact, intermediate
 from faber import assembly
-from faber.action import action
+from faber.action import Action
 from faber.types import *
 import pytest
 try:
@@ -20,13 +20,13 @@ except ImportError:
 @pytest.mark.usefixtures('module')
 def test_implicit_rule():
 
-    a1 = action('a1', 'something')
-    a2 = action('a2', 'something')
-    a3 = action('a3', 'something')
-    c_ = artefact('c', type=c)
-    cc = artefact('cc', type=cxx)
-    o = artefact('o', type=obj)
-    l = artefact('l', type=lib)
+    a1 = Action('a1', 'something')
+    a2 = Action('a2', 'something')
+    a3 = Action('a3', 'something')
+    c_ = Artefact('c', type=c)
+    cc = Artefact('cc', type=cxx)
+    o = Artefact('o', type=obj)
+    l = Artefact('l', type=lib)
     assembly.implicit_rule(a1, obj, c)
     assembly.implicit_rule(a2, obj, cxx)
     assembly.implicit_rule(a3, lib, obj)

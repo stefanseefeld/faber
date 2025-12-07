@@ -15,7 +15,7 @@ class InvalidState(Exception):
         self.artefact = a
 
 
-class delayed(object):
+class Delayed(object):
     """A delayed value may only be used after a prerequisite artefact has
     been updated."""
 
@@ -25,7 +25,7 @@ class delayed(object):
 
     def apply(self, f):
         """Create a new delayed object representing the value `f(self.result())`"""
-        return delayed(lambda: f(self._func()), self._artefact)
+        return Delayed(lambda: f(self._func()), self._artefact)
 
     def result(self):
         if self._artefact.status is None:
@@ -37,7 +37,7 @@ class delayed(object):
         return f'<{cln} func={self._func} artefact={self._artefact}>'
 
 
-class delayed_property(property):
+class DelayedProperty(property):
 
     def __init__(*args, **kwds):
         property.__init__(*args, **kwds)
@@ -45,4 +45,4 @@ class delayed_property(property):
     def __get__(self, instance, cls=None):
         if instance is None:
             return self
-        return delayed(lambda: self.fget(instance), instance)
+        return Delayed(lambda: self.fget(instance), instance)

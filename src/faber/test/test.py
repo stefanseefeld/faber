@@ -6,9 +6,9 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact, notfile, nocare, always
-from ..action import action
-from ..feature import map, join
+from ..artefact import Artefact, notfile, nocare, always
+from ..action import Action
+from ..feature import Map, join
 from ..rule import rule, depend
 from ..tools import compiler
 from .. import platform
@@ -20,13 +20,13 @@ import logging
 logger = logging.getLogger('actions')
 
 
-class test(artefact):
+class Test(Artefact):
     """A test is an artefact that is typically performed as part of a test suite, with
     special support to collect and report the test outcome."""
 
-    class run(action):
+    class Run(Action):
 
-        runpath = map(compiler.runpath, join)
+        runpath = Map(compiler.runpath, join)
         if platform.os == 'Windows':
             command = """set PATH=$(runpath);%PATH%
 $(>)"""
@@ -51,14 +51,14 @@ $(>)"""
           * condition: either a boolean or a feature condition to indicate if this test is to be performed or skipped.
           * expected: the expected outcome"""
 
-        artefact.__init__(self, name, attrs=notfile|nocare|always, features=features, condition=condition, module=module)
+        Artefact.__init__(self, name, attrs=notfile|nocare|always, features=features, condition=condition, module=module)
         sources = aslist(sources)
         self.xoutcome = expected
         self.outcome = None
         self.command = ''
         self.output = ('', '')
         if run is True:
-            rule(test.run(), self, sources, dependencies=dependencies)
+            rule(Test.Run(), self, sources, dependencies=dependencies)
         elif run is False:
             depend(self, sources + dependencies)
         else:
@@ -66,7 +66,7 @@ $(>)"""
 
     def __status__(self, status):
 
-        artefact.__status__(self, status)
+        Artefact.__status__(self, status)
         if self.status is True:
             self.outcome = xpass if self.xoutcome == fail else pass_
         else:

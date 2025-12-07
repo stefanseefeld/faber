@@ -6,20 +6,20 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from .check import check
+from .check import Check
 from ..artefact import intermediate, always
-from ..tools.compiler import compiler
+from ..tools.compiler import Compiler
 from ..rule import rule, alias
-from ..artefacts.binary import binary
+from ..artefacts.binary import Binary
 
 
-class try_link(check):
+class TryLink(Check):
     """Try to compile and link a chunk of source code."""
 
     def __init__(self, name, source, type, features=(), if_=(), ifnot=()):
 
-        check.__init__(self, name, features, if_, ifnot)
-        compiler.check_instance_for_type(type, features)
+        Check.__init__(self, name, features, if_, ifnot)
+        Compiler.check_instance_for_type(type, features)
         if not self.cached:
             # create source file
             src = type.synthesize_name(self.name)
@@ -29,6 +29,6 @@ class try_link(check):
                     os.write(source)
             src = rule(generate, src, attrs=intermediate|always,
                        logfile=self.logfile)
-            bin = binary(self.name, src, attrs=intermediate,
+            bin = Binary(self.name, src, attrs=intermediate,
                          features=self.features, logfile=self.logfile)
             alias(self, bin)

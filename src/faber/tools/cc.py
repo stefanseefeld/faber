@@ -7,15 +7,15 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from . import compiler
-from ..feature import set
-from ..action import action
+from ..feature import Set
+from ..action import Action
 import logging
 import sys
 
 logger = logging.getLogger('tools')
 
 
-class cc(compiler.compiler):
+class CC(compiler.Compiler):
     """C compiler base-class.
     As an abstract base-class it declares the actions all subclasses need to provide, without implementing them.
 
@@ -23,38 +23,38 @@ class cc(compiler.compiler):
     compiler instance, if available (or fail to build)."""
 
     # Scan source files for header dependencies
-    makedep = action()
+    makedep = Action()
     # Build object files from C source files.
-    compile = action()
+    compile = Action()
     # Build (static) library archives from object files.
-    archive = action()
+    archive = Action()
     # Link binaries (executables or shared libraries).
-    link = action()
+    link = Action()
 
     @classmethod
     def instances(cls, fs=None):
         """Return all known C compiler instances for the current platform."""
-        if cls is cc:
+        if cls is CC:
             if sys.platform == 'win32':
                 from .msvc import msvc
                 msvc.instances(fs)
-        return super(cc, cls).instances(fs)
+        return super(CC, cls).instances(fs)
 
     @classmethod
     def instance(cls, fs=None):
         """Try to find a compiler instance for the current platform."""
 
-        fs = set.instantiate(fs)
-        if cls is cc and not cc.instantiated(fs):
+        fs = Set.instantiate(fs)
+        if cls is CC and not CC.instantiated(fs):
             # we can't instantiate this class directly, so try to find
             # a subclass...
             logger.info('trying to instantiate a default C compiler')
             if sys.platform == 'win32':
-                cc.try_instantiate('msvc', fs)
-            cc.try_instantiate('gcc', fs)
-            cc.try_instantiate('clang', fs)
-            if not cc.instantiated(fs):
+                CC.try_instantiate('msvc.MSVC', fs)
+            CC.try_instantiate('gcc.GCC', fs)
+            CC.try_instantiate('clang.CLang', fs)
+            if not CC.instantiated(fs):
                 msg = 'no C compiler found'
                 msg += ' matching {}.'.format(fs.essentials()) if fs else '.'
                 raise RuntimeError(msg)
-        return super(cc, cls).instance(fs)
+        return super(CC, cls).instance(fs)

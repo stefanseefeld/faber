@@ -7,19 +7,19 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.artefacts.binary import binary
-from faber.artefacts.library import library
+from faber.artefacts.binary import Binary
+from faber.artefacts.library import Library
 from faber.tools.compiler import *
 
 shared=link('shared')
 static=link('static')
 
 # greet uses dynamic linking by default...
-greet = library('greet', 'greet.cpp', version=(1, 0, 0), features=define('GREET_EXPORTS'))
-hello1 = binary('hello1', ['hello.cpp', greet], features=define('GREET_IMPORTS'))
+greet = Library('greet', 'greet.cpp', version=(1, 0, 0), features=define('GREET_EXPORTS'))
+hello1 = Binary('hello1', ['hello.cpp', greet], features=define('GREET_IMPORTS'))
 # ...which can be overridden
 # (We need to specify this also for the binary so its intermediate file(s) don't
 # clash with the above.)
-hello2 = binary('hello2', ['hello.cpp', greet(features=static)], features=static)
+hello2 = Binary('hello2', ['hello.cpp', greet(features=static)], features=static)
 
 default = [hello1, hello2]

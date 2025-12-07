@@ -6,16 +6,16 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
-from ..feature import set
-from ..tool import tool
+from ..action import Action
+from ..feature import Set
+from ..tool import Tool
 import subprocess
 import re
 
 
 def validate(cls, command, version, features):
 
-    features = set.instantiate(features)
+    features = Set.instantiate(features)
     version = version or cls.find_version_requirement(features)
     v = subprocess.check_output([command, '--version']).decode().strip()
     v = re.match('.* ([0-9.]+)', v).group(1)
@@ -27,15 +27,15 @@ def validate(cls, command, version, features):
     return command, version, features
 
 
-class sphinx(tool):
+class Sphinx(Tool):
 
-    html = action('sphinx-build -b html $(>) $(<)')
+    html = Action('sphinx-build -b html $(>) $(<)')
 
     def __init__(self, name='sphinx', command=None, version='', features=()):
 
         command, version, features = validate(self.__class__, command or 'sphinx-build',
                                               version, features)
-        tool.__init__(self, name=name, version=version)
+        Tool.__init__(self, name=name, version=version)
         self.features |= features
         if command:
             self.html.subst('sphinx-build', command)

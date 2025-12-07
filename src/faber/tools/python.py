@@ -6,10 +6,10 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
-from ..feature import feature, multi, path, incidental
-from ..feature import set, map, join as fjoin
-from ..tool import tool
+from ..action import Action
+from ..feature import Feature, multi, path, incidental
+from ..feature import Set, Map, join as fjoin
+from ..tool import Tool
 from .compiler import include, ldflags, linkpath, libs, target, runpath
 from .. import platform
 from os.path import join
@@ -19,13 +19,13 @@ import logging
 
 logger = logging.getLogger('tools')
 
-pythonpath = feature('pythonpath', attributes=multi|path|incidental)
+pythonpath = Feature('pythonpath', attributes=multi|path|incidental)
 
 
-class run(action):
+class Run(Action):
 
-    pythonpath = map(pythonpath, fjoin)
-    runpath = map(runpath, fjoin)
+    pythonpath = Map(pythonpath, fjoin)
+    runpath = Map(runpath, fjoin)
     if platform.os == 'Windows':
         command = """set PATH=$(runpath);%PATH%
 set PYTHONPATH=$(pythonpath)
@@ -34,9 +34,9 @@ python $(>)"""
         command = 'LD_LIBRARY_PATH=$(runpath) PYTHONPATH=$(pythonpath) python $(>)'
 
 
-class python(tool):
+class Python(Tool):
 
-    run = run()
+    run = Run()
 
     def check_python(self, cmd):
         return subprocess.check_output([self.command, '-c', cmd], universal_newlines=True).strip()
@@ -46,8 +46,8 @@ class python(tool):
         return r if r != 'None' else ''
 
     def __init__(self, name='python', command=None, version='', features=()):
-        if not isinstance(features, set):
-            features = set(features)
+        if not isinstance(features, Set):
+            features = Set(features)
         self.command = command or 'python'
         v = self.check_python('import platform; print(platform.python_version())')
         if version and v != version:
@@ -64,7 +64,7 @@ class python(tool):
                 raise ValueError(f'{self.command} architecture mismatch: expected {arch}, got {a}')
         else:
             features += target(arch=a)
-        tool.__init__(self, name=name, version=v)
+        Tool.__init__(self, name=name, version=v)
         self.features |= features
         self.run.subst('python ', self.command + ' ')
         # Now determine all the flags we may need to compile C / C++ extensions

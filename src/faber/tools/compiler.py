@@ -6,10 +6,10 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact
-from ..artefacts.library import library
-from ..tool import tool
-from ..feature import feature, multi, path, incidental
+from ..artefact import Artefact
+from ..artefacts.library import Library
+from ..tool import Tool
+from ..feature import Feature, multi, path, incidental
 from .. import types
 from ..error import ArgumentError
 from os.path import basename
@@ -18,23 +18,23 @@ import logging
 
 logger = logging.getLogger('tools')
 
-cppflags = feature('cppflags', attributes=multi|incidental)
-define = feature('define', attributes=multi|incidental)
-include = feature('include', attributes=multi|path|incidental)
-cflags = feature('cflags', attributes=multi|incidental)
-cxxflags = feature('cxxflags', attributes=multi|incidental)
-ldflags = feature('ldflags', attributes=multi|incidental)
-link = feature('link', ['static', 'shared'])
-linkpath = feature('linkpath', attributes=multi|path|incidental)
-libs = feature('libs', attributes=multi|incidental)
-target = feature('target', feature(name='os', sub=True), feature(name='arch', sub=True))
-runpath = feature('runpath', attributes=multi|path|incidental)
-soname = feature('soname', attributes=incidental)
+cppflags = Feature('cppflags', attributes=multi|incidental)
+define = Feature('define', attributes=multi|incidental)
+include = Feature('include', attributes=multi|path|incidental)
+cflags = Feature('cflags', attributes=multi|incidental)
+cxxflags = Feature('cxxflags', attributes=multi|incidental)
+ldflags = Feature('ldflags', attributes=multi|incidental)
+link = Feature('link', ['static', 'shared'])
+linkpath = Feature('linkpath', attributes=multi|path|incidental)
+libs = Feature('libs', attributes=multi|incidental)
+target = Feature('target', Feature(name='os', sub=True), Feature(name='arch', sub=True))
+runpath = Feature('runpath', attributes=multi|path|incidental)
+soname = Feature('soname', attributes=incidental)
 
 
-class compiler(tool):
+class Compiler(Tool):
 
-    path_spec = '{compiler.name}-{compiler.version}/{target.arch}/{link}/'
+    path_spec = '{Compiler.name}-{Compiler.version}/{target.arch}/{link}/'
 
     @classmethod
     def split_libs(cls, sources):
@@ -44,10 +44,10 @@ class compiler(tool):
         libs = []
         linkpath = set()
         for s in sources:
-            if isinstance(s, library):
+            if isinstance(s, Library):
                 libs.append(basename(s.libname))
                 linkpath.add(s.path)
-            elif isinstance(s, artefact):
+            elif isinstance(s, Artefact):
                 src.append(s)
             else:
                 raise ValueError('Unknown type of source {}'.format(s))
@@ -56,9 +56,9 @@ class compiler(tool):
     @staticmethod
     def check_instance_for_type(type, features=None):
         """Make sure we have a matching compiler for the given type."""
-        name = {types.c: 'cc',
-                types.cxx: 'cxx'}[type]
-        mod = import_module('.{}'.format(name), 'faber.tools')
+        name = {types.c: 'CC',
+                types.cxx: 'CXX'}[type]
+        mod = import_module(f'.{name.lower()}', 'faber.tools')
         return getattr(mod, name).instance(features)
 
     @classmethod
@@ -66,8 +66,9 @@ class compiler(tool):
         """Try to instantiate the given compiler, but fail silently."""
 
         try:
-            mod = import_module('.{}'.format(name), 'faber.tools')
-            getattr(mod, name)(features=fs)
+            module_, class_ = name.rsplit('.', 1)
+            mod = import_module(f'.{module_}', 'faber.tools')
+            getattr(mod, class_)(features=fs)
         except (SyntaxError, ArgumentError):  # these errors need to be reported.
             raise
         except Exception as e:

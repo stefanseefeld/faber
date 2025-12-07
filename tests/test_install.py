@@ -9,8 +9,8 @@
 from faber.artefacts import install
 from faber.rule import rule
 from faber.tools import fileutils
-from faber.feature import set
-from faber.module import module
+from faber.feature import Set
+from faber.module import Module
 from os import mkdir
 from os.path import join, exists, splitdrive
 import pytest
@@ -33,7 +33,7 @@ def test_installation(stage, prefix):
     """Install a (source) file, directory, as well as a generated
     file, using different stage and prefix settings."""
 
-    srcdir = module.current.srcdir
+    srcdir = Module.current.srcdir
     filename = 'file'
     with open(join(srcdir, filename), 'w') as o:
         o.write('something')
@@ -43,16 +43,16 @@ def test_installation(stage, prefix):
     assert exists(join(srcdir, filename))
     assert exists(join(srcdir, dirname))
 
-    fs = set()
+    fs = Set()
     if prefix is not None:
         fs += install.prefix(prefix, base='')
     if stage is not None:
-        stage = join(module.current.builddir, stage)
+        stage = join(Module.current.builddir, stage)
         fs += install.stage(stage, base='')
     a = install.installed(rule(fileutils.touch, 'empty-file'), 'bin', features=fs)
     b = install.installed(filename, 'src', features=fs)
     c = install.installed(dirname, 'src', features=fs)
-    i = install.installation('install', [a, b, c], features=fs)
+    i = install.Installation('install', [a, b, c], features=fs)
     assert i.update()
     manifest = [relpath(stage, f.strip())
                 for f in open(i.manifest._filename).readlines()]

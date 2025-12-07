@@ -6,9 +6,9 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.test import test, report, pass_, fail, xpass, xfail
+from faber.test import Test as _Test, Report, pass_, fail, xpass, xfail
 from faber.artefact import always, notfile
-from faber.action import action
+from faber.action import Action
 from faber.rule import rule
 from faber import cli
 from test.common import tempdir, write_fabscript, argv
@@ -17,12 +17,12 @@ import pytest
 
 @pytest.mark.usefixtures('module')
 def test_outcome():
-    passing = rule(action('true', 'echo 1'), 'passing', attrs=always|notfile)
-    failing = rule(action('false', 'unknown'), 'failing', attrs=always|notfile)
-    test1 = test('test1', passing)
-    test2 = test('test2', failing)
-    test3 = test('test3', passing, expected=fail)
-    test4 = test('test4', failing, expected=fail)
+    passing = rule(Action('true', 'echo 1'), 'passing', attrs=always|notfile)
+    failing = rule(Action('false', 'unknown'), 'failing', attrs=always|notfile)
+    test1 = _Test('test1', passing)
+    test2 = _Test('test2', failing)
+    test3 = _Test('test3', passing, expected=fail)
+    test4 = _Test('test4', failing, expected=fail)
     assert not all([t.update() for t in [test1, test2, test3, test4]])
     assert test1.outcome == pass_
     assert test2.outcome == fail
@@ -32,14 +32,14 @@ def test_outcome():
 
 @pytest.mark.usefixtures('module')
 def test_report():
-    passing = rule(action('true', 'echo 1'), 'passing', attrs=always|notfile)
-    failing = rule(action('false', 'unknown'), 'failing', attrs=always|notfile)
-    test1 = test('t1', passing)
-    test2 = test('t2', failing)
-    test3 = test('t3', passing, expected=fail)
-    test4 = test('t4', failing, expected=fail)
-    test5 = test('t5', failing, condition=False)
-    r = report('report', [test1, test2, test3, test4, test5])
+    passing = rule(Action('true', 'echo 1'), 'passing', attrs=always|notfile)
+    failing = rule(Action('false', 'unknown'), 'failing', attrs=always|notfile)
+    test1 = _Test('t1', passing)
+    test2 = _Test('t2', failing)
+    test3 = _Test('t3', passing, expected=fail)
+    test4 = _Test('t4', failing, expected=fail)
+    test5 = _Test('t5', failing, condition=False)
+    r = Report('report', [test1, test2, test3, test4, test5])
     assert r.update()
     assert test1.outcome == pass_
     assert test2.outcome == fail
@@ -52,12 +52,12 @@ def test_report():
 def test_failure(fail):
 
     script="""
-from faber.test import test, report
-passing = rule(action('true', 'echo 1'), 'passing', attrs=always|notfile)
-failing = rule(action('false', 'unknown'), 'failing', attrs=always|notfile)
-test1 = test('t1', passing)
-test2 = test('t2', failing)
-r = report('report', [test1, test2], fail_on_failures={})
+from faber.test import Test, Report
+passing = rule(Action('true', 'echo 1'), 'passing', attrs=always|notfile)
+failing = rule(Action('false', 'unknown'), 'failing', attrs=always|notfile)
+test1 = Test('t1', passing)
+test2 = Test('t2', failing)
+r = Report('report', [test1, test2], fail_on_failures={})
 default = r
 """.format(fail)
 

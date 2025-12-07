@@ -10,7 +10,7 @@ from . import multi
 import os
 
 
-class map(object):
+class Map(object):
     """A map maps a feature-set to variables."""
 
     def __init__(self, feature, func=None, *args, **kwds):

@@ -8,8 +8,8 @@
 
 from __future__ import absolute_import
 from . import types
-from .feature import set
-from .artefact import source, intermediate
+from .feature import Set
+from .artefact import Source, intermediate
 from .rule import rule as explicit_rule
 from .utils import aslist
 from collections import defaultdict
@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger('rules')
 
 
-class _candidate(object):
+class Candidate(object):
 
     def __init__(self, recipe, type, target, sources, features, intermediate, scan=None, logfile=None):
         self.recipe = recipe
@@ -38,19 +38,19 @@ class _candidate(object):
                           features=self.features,
                           attrs=intermediate if self.intermediate else 0, module=module, logfile=self.logfile)
         if self.scan:
-            from .artefacts.include_scan import scan
+            from .artefacts.include_scan import Scan
             for s in sources:
-                scan(s, t, self.scan, features=self.features, module=module)
+                Scan(s, t, self.scan, features=self.features, module=module)
         return t
 
     def __repr__(self):
         return '{} <- {}'.format(self.target, self.sources)
 
 
-class _noop(_candidate):
+class Noop(Candidate):
 
     def __init__(self, type, target):
-        _candidate.__init__(self, None, type, target, [], None, False)
+        Candidate.__init__(self, None, type, target, [], None, False)
 
     def instantiate(self, module):
         return self.target
@@ -59,7 +59,7 @@ class _noop(_candidate):
         return repr(self.target)
 
 
-class _implicit_rule(object):
+class ImplicitRule(object):
     """An implicit rule instantiates transformations by binding artefact and
     sources."""
 
@@ -86,8 +86,8 @@ class _implicit_rule(object):
         * logfile:
         """
         # unwrap artefact and source
-        target = t.name if type(t) is types.typed_name else t
-        src = [s.name if type(s) is types.typed_name else s for s in source]
+        target = t.name if type(t) is types.TypedName else t
+        src = [s.name if type(s) is types.TypedName else s for s in source]
         logger.info('bind {}: {} <- {}'.format(self.recipe.qname, target, src))
 
         fs = self.features.copy()
@@ -98,7 +98,7 @@ class _implicit_rule(object):
         if source[0].type in (types.c, types.cxx) and t.type is types.obj:
             tool = self.recipe.tool
             scan = tool.makedep if tool else None
-        return _candidate(self.recipe, t.type, target, src, fs, intermediate, scan=scan, logfile=logfile)
+        return Candidate(self.recipe, t.type, target, src, fs, intermediate, scan=scan, logfile=logfile)
 
     def __repr__(self):
         return '<{} {} <- {}>'.format(self.recipe.qname,
@@ -131,7 +131,7 @@ def connect(target, source, features, intermediate=False, logfile=None):
             # now transform the sources to the expected input type(s).
             def recurse(e, s, f):
                 if s.type in e:
-                    return _noop(s.type, s.name if type(s) is types.typed_name else s)
+                    return Noop(s.type, s.name if type(s) is types.TypedName else s)
                 else:
                     # try to generate the first expected type from the source
                     etype = e[0]
@@ -152,28 +152,28 @@ def connect(target, source, features, intermediate=False, logfile=None):
 def implicit_rule(recipe, target, source):
     """Define an implicit rule to build target type from source type using recipe."""
 
-    fs = recipe._tool.features if recipe._tool else set()
-    r = _implicit_rule(recipe, target, source, fs)
+    fs = recipe._tool.features if recipe._tool else Set()
+    r = ImplicitRule(recipe, target, source, fs)
     _repository[target].append(r)
     logger.info('irule {}: {} <- {} ({})'
                 .format(recipe.qname, target, source, fs))
 
 
-def rule(target, sources, features=set(), intermediate=False, module=None):
+def rule(target, sources, features=Set(), intermediate=False, module=None):
     """Construct a rule using a chain of implicit rules to build target from source."""
 
     # convert target and source to the proper types...
     sources = aslist(sources)
-    sources = [source.instantiate(s, module) for s in sources]
-    features = set.instantiate(features)
-    target = types.type.typed_name(target) if type(target) is str else target
+    sources = [Source.instantiate(s, module) for s in sources]
+    features = Set.instantiate(features)
+    target = types.Type.typed_name(target) if type(target) is str else target
 
     logger.info('assembly rule: {} <- {}'.format(target, sources))
     # now look at the source types to see what tools we may need.
     for t in (types.c, types.cxx):
         if any([s.type is t for s in sources]):
-            from .tools.compiler import compiler
-            compiler.check_instance_for_type(t)
+            from .tools.compiler import Compiler
+            Compiler.check_instance_for_type(t)
 
     # now build the chain
     chain = connect(target, sources, features, intermediate, logfile=target.logfile)

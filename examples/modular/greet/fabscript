@@ -8,9 +8,9 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from faber.tools.compiler import link, include
-from faber.artefacts.library import library
+from faber.artefacts.library import Library
 
-greet = library('greet', 'greet.cpp',
+greet = Library('greet', 'greet.cpp',
                 features=link('static'),
                 use=include('.'))
 

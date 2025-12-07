@@ -12,7 +12,7 @@ import fnmatch
 from glob import glob
 
 
-class manifest(set):
+class Manifest(set):
 
     def __init__(self, base, source):
 

@@ -116,7 +116,7 @@ def main():
 
         if args.srcdir and os.path.exists(os.path.join(args.srcdir, '.faberrc')):
             project.config(os.path.join(args.srcdir, '.faberrc'))
-        info = project.buildinfo(args.builddir, args.srcdir)
+        info = project.BuildInfo(args.builddir, args.srcdir)
         if args.parameters and info.parameters and \
            args.parameters != info.parameters and \
            input('override existing parameters ? [y/N]:') != 'y':
@@ -127,7 +127,7 @@ def main():
             return False
         info.parameters = args.parameters
         info.options = args.options
-        proj = project.project(info,
+        proj = project.Project(info,
                                parallel=args.parallel, force=args.force,
                                intermediates=args.intermediates,
                                timeout=args.timeout,

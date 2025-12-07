@@ -6,21 +6,21 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact, notfile, always
+from ..artefact import Artefact, notfile, always
 from ..rule import rule
 from .. import output
 from .. import logging
-from .suite import suite
+from .suite import Suite
 from . import pass_, fail, xfail
 
 
-class report(artefact):
+class Report(Artefact):
     """A test report runs a set of tests and reports a summary."""
 
     def __init__(self, name, tests, fail_on_failures=False):
         """Construct a report. Arguments are the tests to be performed."""
 
-        artefact.__init__(self, name, attrs=notfile|always)
+        Artefact.__init__(self, name, attrs=notfile|always)
         rule(self.print_summary, self, tests)
         self._tests = tests
         self.fail_on_failures = fail_on_failures
@@ -28,7 +28,7 @@ class report(artefact):
     @property
     def tests(self):
         for t in self._tests:
-            if isinstance(t, suite):
+            if isinstance(t, Suite):
                 # Use `yield from` once we stop supporting Python 2.7
                 for i in t:
                     yield i

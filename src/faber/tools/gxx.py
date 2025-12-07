@@ -6,73 +6,73 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
-from ..feature import set, map, translate, select_if
+from ..action import Action
+from ..feature import Set, Map, translate, select_if
 from .. import types
 from .. import platform
 from ..assembly import implicit_rule as irule
 from . import compiler
 from .cxx import *
-from .gcc import validate, makedep_wrapper
+from .gcc import validate, MakeDepWrapper
 
 
-class makedep(action):
+class MakeDep(Action):
 
     command = 'g++ $(cppflags) -MM -o $(<) $(>)'
-    cppflags = map(compiler.cppflags)
-    cppflags += map(compiler.define, translate, prefix='-D')
-    cppflags += map(compiler.include, translate, prefix='-I')
-    cppflags += map(cxxstd, translate, prefix='-std=c++')
+    cppflags = Map(compiler.cppflags)
+    cppflags += Map(compiler.define, translate, prefix='-D')
+    cppflags += Map(compiler.include, translate, prefix='-I')
+    cppflags += Map(cxxstd, translate, prefix='-std=c++')
 
 
-class compile(action):
+class Compile(Action):
 
     command = 'g++ $(cppflags) $(cxxflags) -c -o $(<) $(>)'
-    cppflags = map(compiler.cppflags)
-    cppflags += map(compiler.define, translate, prefix='-D')
-    cppflags += map(compiler.include, translate, prefix='-I')
-    cxxflags = map(compiler.cxxflags)
-    cxxflags += map(cxxstd, translate, prefix='-std=c++')
-    cxxflags += map(compiler.link, select_if, 'shared', '-fPIC')
+    cppflags = Map(compiler.cppflags)
+    cppflags += Map(compiler.define, translate, prefix='-D')
+    cppflags += Map(compiler.include, translate, prefix='-I')
+    cxxflags = Map(compiler.cxxflags)
+    cxxflags += Map(cxxstd, translate, prefix='-std=c++')
+    cxxflags += Map(compiler.link, select_if, 'shared', '-fPIC')
 
 
-class link(action):
+class Link(Action):
 
     command = 'g++ $(ldflags) -o $(<) $(>) $(libs)'
-    ldflags = map(compiler.ldflags)
-    ldflags += map(compiler.linkpath, translate, prefix='-L')
-    ldflags += map(compiler.link, select_if, 'shared', '-shared')
+    ldflags = Map(compiler.ldflags)
+    ldflags += Map(compiler.linkpath, translate, prefix='-L')
+    ldflags += Map(compiler.link, select_if, 'shared', '-shared')
     if platform.os == 'Darwin':
-        ldflags += map(compiler.soname, translate, prefix='-Wl,-install_name -Wl,')
+        ldflags += Map(compiler.soname, translate, prefix='-Wl,-install_name -Wl,')
     else:
-        ldflags += map(compiler.soname, translate, prefix='-Wl,-soname -Wl,')
-    libs = map(compiler.libs, translate, prefix='-l')
+        ldflags += Map(compiler.soname, translate, prefix='-Wl,-soname -Wl,')
+    libs = Map(compiler.libs, translate, prefix='-l')
 
     def submit(self, targets, sources):
         # sources may contain object files as well as libraries
         # Separate the two, and add the libraries to the libs variable.
 
-        src, linkpath, libs = gxx.split_libs(sources)
+        src, linkpath, libs = GXX.split_libs(sources)
         linkpath = [compiler.linkpath(l, base='') for l in linkpath]
         libs = [compiler.libs(l) for l in libs]
-        fs = set(*libs + linkpath)
+        fs = Set(*libs + linkpath)
         for t in targets:
             t.features |= fs
-        action.submit(self, targets, src)
+        Action.submit(self, targets, src)
 
 
-class gxx(cxx):
+class GXX(CXX):
 
-    makedep = makedep_wrapper(makedep())
-    compile = compile()
-    archive = action('ar rc $(<) $(>)')
-    link = link()
+    makedep = MakeDepWrapper(MakeDep())
+    compile = Compile()
+    archive = Action('ar rc $(<) $(>)')
+    link = Link()
 
     def __init__(self, name='g++', command=None, version='', features=()):
 
         command, version, features = validate(self.__class__, command or 'g++',
                                               version, features)
-        cxx.__init__(self, name=name, version=version)
+        CXX.__init__(self, name=name, version=version)
         self.features |= features
         if command:
             # if command is of the form <prefix>-g++, make sure

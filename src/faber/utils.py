@@ -51,14 +51,15 @@ def aslist(o):
     return o if isinstance(o, list) else [o]
 
 
-class path_formatter(string.Formatter):
+class PathFormatter(string.Formatter):
 
     def format_field(self, value, spec):
         """Remove path segments corresponding to undefined features."""
         if value is None:
             return ''
         else:
-            return super(path_formatter, self).format_field(value, spec)
+            return super(PathFormatter, self).format_field(value, spec)
+
     def get_value(self, key, args, kwargs):
         """Remove path segments corresponding to non-existent features."""
         try:

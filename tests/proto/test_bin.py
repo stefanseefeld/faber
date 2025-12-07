@@ -6,7 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.artefact import artefact
+from faber.artefact import Artefact
 from faber.artefact import notfile, always, intermediate
 from faber.rule import rule, depend
 from faber.tools import fileutils
@@ -24,7 +24,7 @@ def test_composite():
     """Test the workflow of faber.artefacts.binary"""
 
     src = rule(fileutils.touch, 'src')
-    bin = artefact('bin')
+    bin = Artefact('bin')
 
     def assemble(targets, sources):
         obj = rule(fileutils.copy, 'obj', src,
@@ -43,7 +43,7 @@ def test_composite():
     # and test it
     test = rule(test, 'test', bin, attrs=notfile)
 
-    with patch('faber.action.action.__status__') as recipe:
+    with patch('faber.action.Action.__status__') as recipe:
         scheduler.update([test])
         (_, status, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output == 'testing bin\n'

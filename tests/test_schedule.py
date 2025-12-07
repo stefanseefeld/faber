@@ -6,8 +6,8 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.action import action
-from faber.artefact import artefact, notfile, always, nocare, intermediate
+from faber.action import Action
+from faber.artefact import Artefact, notfile, always, nocare, intermediate
 from faber.rule import rule, depend
 from faber.tools import fileutils
 from faber import scheduler
@@ -23,13 +23,13 @@ except ImportError:
 @pytest.mark.usefixtures('module')
 def test_action():
     """Check that an action's status is reported upon completion."""
-    a = artefact('a', attrs=notfile|always)
-    b = artefact('b', attrs=notfile)
-    c = artefact('c', attrs=notfile)
+    a = Artefact('a', attrs=notfile|always)
+    b = Artefact('b', attrs=notfile)
+    c = Artefact('c', attrs=notfile)
     a = rule(pyecho, a)
     b = rule(pyecho, b, a)
     c = rule(pyecho, c, b)
-    with patch('faber.action.action.__status__') as recipe:
+    with patch('faber.action.Action.__status__') as recipe:
         assert b.update()
         (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'b <- a'
@@ -41,10 +41,10 @@ def test_action():
 @pytest.mark.usefixtures('module')
 def test_noop():
     """Check that an artefact won't be updated if a dependent artefact is up to date."""
-    a = artefact('a', attrs=notfile)
-    b = artefact('b', attrs=notfile)
+    a = Artefact('a', attrs=notfile)
+    b = Artefact('b', attrs=notfile)
     b = rule(pyecho, b, a)
-    with patch('faber.action.action.__status__') as recipe:
+    with patch('faber.action.Action.__status__') as recipe:
         assert b.update()
         assert not recipe.called
 
@@ -52,12 +52,12 @@ def test_noop():
 @pytest.mark.usefixtures('module')
 def test_fail():
     """Check that an artefact won't be updated if a dependent artefact's recipe failed."""
-    a = artefact('a', attrs=notfile|always)
-    b = artefact('b', attrs=notfile)
-    fail = action('failing', 'fail')
+    a = Artefact('a', attrs=notfile|always)
+    b = Artefact('b', attrs=notfile)
+    fail = Action('failing', 'fail')
     a = rule(fail, a)
     b = rule(pyecho, b, a)
-    with patch('faber.action.action.__status__'):
+    with patch('faber.action.Action.__status__'):
         assert not b.update()
 
 
@@ -65,12 +65,12 @@ def test_fail():
 def test_nocare():
     """Check that an artefact will be updated if a dependent artefact's recipe failed
     but was marked as nocare."""
-    a = artefact('a', attrs=notfile|always|nocare)
-    b = artefact('b', attrs=notfile)
-    fail = action('failing', 'fail')
+    a = Artefact('a', attrs=notfile|always|nocare)
+    b = Artefact('b', attrs=notfile)
+    fail = Action('failing', 'fail')
     a = rule(fail, a)
     b = rule(pyecho, b, a)
-    with patch('faber.action.action.__status__') as recipe:
+    with patch('faber.action.Action.__status__') as recipe:
         assert b.update()
         (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'b <- a'
@@ -80,7 +80,7 @@ def test_nocare():
 def test_dynamic_dependencies():
     """Test whether it's possible to add dependencies while the scheduler is already running."""
 
-    c = artefact('c', attrs=notfile)
+    c = Artefact('c', attrs=notfile)
 
     def inject_deps(self, *args, **kwds):
         d=rule(pyecho, 'd', attrs=notfile|always)
@@ -88,9 +88,9 @@ def test_dynamic_dependencies():
         print('ddeps.b')
 
     a = rule(pyecho, 'a', attrs=notfile|always)
-    b = rule(action('dg', inject_deps), 'b', a, attrs=notfile)
+    b = rule(Action('dg', inject_deps), 'b', a, attrs=notfile)
     c = rule(pyecho, c, b)
-    with patch('faber.action.action.__status__') as recipe:
+    with patch('faber.action.Action.__status__') as recipe:
         assert b.update()
         (_, _, _, _, output, _), kwds = recipe.call_args_list[-1]
         assert output.strip() == 'ddeps.b'
@@ -104,7 +104,7 @@ def test_dynamic_dependencies():
 def test_dynamic_recipe():
     """Test whether it's possible to add a recipe while the scheduler is already running."""
 
-    c = artefact('c', attrs=notfile)
+    c = Artefact('c', attrs=notfile)
 
     def generate(*args, **kwds):
         """generate the graph for c."""
@@ -115,7 +115,7 @@ def test_dynamic_recipe():
 
     b = rule(generate, 'b', attrs=notfile|always)
     depend(c, b)
-    with patch('faber.action.action.__status__') as recipe:
+    with patch('faber.action.Action.__status__') as recipe:
         assert c.update()
         output = [i[0][4].strip() for i in recipe.call_args_list]
         assert output[-1] == 'c <- a2'
@@ -128,18 +128,18 @@ def test_multi():
     # workflow:
     # b1 needs to be updated, but doing that also updates b2
     # this means c2 (dependent on b2) will also be updated.
-    a = artefact('a', attrs=notfile)
-    b1 = artefact('b1', attrs=notfile)
-    b2 = artefact('b2', attrs=notfile|always)
-    c1 = artefact('c1', attrs=notfile)
-    c2 = artefact('c2', attrs=notfile)
-    d = artefact('d', attrs=notfile)
+    a = Artefact('a', attrs=notfile)
+    b1 = Artefact('b1', attrs=notfile)
+    b2 = Artefact('b2', attrs=notfile|always)
+    c1 = Artefact('c1', attrs=notfile)
+    c2 = Artefact('c2', attrs=notfile)
+    d = Artefact('d', attrs=notfile)
     rule(pyecho, a)
     rule(pyecho, [b1, b2], a)
     rule(pyecho, c1, b1)
     rule(pyecho, c2, b2)
     rule(pyecho, d, [c1, c2])
-    with patch('faber.action.action.__status__') as recipe:
+    with patch('faber.action.Action.__status__') as recipe:
         assert d.update()
         output = [i[0][4].strip() for i in recipe.call_args_list]
         assert output[0] == 'b1 b2 <- a'
@@ -164,10 +164,10 @@ def test_intermediate():
 def test_late():
     """Test that a "late" dependency raises an error."""
 
-    a = artefact('a', attrs=notfile|always)
+    a = Artefact('a', attrs=notfile|always)
     assert a.update()
     with pytest.raises(scheduler.DependencyError):
-        b = artefact('b', attrs=notfile)
+        b = Artefact('b', attrs=notfile)
         depend(a, b)
 
 
@@ -175,8 +175,8 @@ def test_late():
 def test_cycle():
     """Test that the scheduler detects dependency cycles."""
 
-    echo = action('echo', 'echo $(<) $(>)')
-    a = artefact('a', attrs=notfile|always)
+    echo = Action('echo', 'echo $(<) $(>)')
+    a = Artefact('a', attrs=notfile|always)
     b = rule(echo, 'b', a, attrs=notfile)
     with pytest.raises(scheduler.DependencyError):
         a = rule(echo, a, b)
@@ -187,14 +187,14 @@ def test_late_cycle():
     """Test that the scheduler detects dependency cycles
     created in recipes."""
 
-    a = artefact('a', attrs=notfile|always)
-    b = artefact('b', attrs=notfile|always)
-    c = artefact('c', attrs=notfile|always)
+    a = Artefact('a', attrs=notfile|always)
+    b = Artefact('b', attrs=notfile|always)
+    c = Artefact('c', attrs=notfile|always)
 
     def generator(targets, sources):
         depend(b, c)  # create cycle !
     b = rule(generator, b, a)
-    echo = action('echo', 'echo $(<) $(>)')
+    echo = Action('echo', 'echo $(<) $(>)')
     c = rule(echo, c, b)
     with pytest.raises(scheduler.DependencyError):
         assert c.update()

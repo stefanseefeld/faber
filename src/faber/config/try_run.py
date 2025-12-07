@@ -6,24 +6,24 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from .check import check
+from .check import Check
 from ..artefact import intermediate, always
-from ..tools.compiler import compiler
+from ..tools.compiler import Compiler
 from ..rule import rule
-from ..action import action
-from ..artefacts.binary import binary
+from ..action import Action
+from ..artefacts.binary import Binary
 import subprocess
 
 
-class try_run(check):
+class TryRun(Check):
     """Try to compile and run a chunk of source code."""
 
-    run = action('run', '$(>)')
+    run = Action('run', '$(>)')
 
     def __init__(self, name, source, type, features=(), if_=(), ifnot=()):
 
-        check.__init__(self, name, features, if_, ifnot)
-        compiler.check_instance_for_type(type, self.features)
+        Check.__init__(self, name, features, if_, ifnot)
+        Compiler.check_instance_for_type(type, self.features)
         if not self.cached:
             # create source file
             src = type.synthesize_name(self.name)
@@ -33,12 +33,12 @@ class try_run(check):
                     os.write(source)
             src = rule(generate, src, attrs=intermediate|always,
                        logfile=self.logfile)
-            bin = binary(self.name, src, features=self.features,
+            bin = Binary(self.name, src, features=self.features,
                          attrs=intermediate, logfile=self.logfile)
             rule(self.run, self, bin, logfile=self.logfile)
 
 
-class check_output(try_run):
+class CheckOutput(TryRun):
     """Compile and run a chunk of source code and check the generated output."""
 
     def post_process(self, output):

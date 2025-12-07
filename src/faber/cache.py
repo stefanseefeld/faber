@@ -12,7 +12,7 @@ import os
 import os.path
 
 
-class filecache(object):
+class FileCache(object):
     """Record all file artefacts to facilitate their cleanup."""
 
     def __init__(self, builddir, params):

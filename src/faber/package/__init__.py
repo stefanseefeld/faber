@@ -6,29 +6,29 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import source
+from ..artefact import Source
 import yaml
 
 
-class node(object):
+class Node(object):
     """Convert a (nested) dictionary into an ordinary object."""
     def __init__(self, d):
         for a, b in d.items():
             if isinstance(b, (list, tuple)):
-                setattr(self, a, [node(x) if isinstance(x, dict) else x for x in b])
+                setattr(self, a, [Node(x) if isinstance(x, dict) else x for x in b])
             else:
-                setattr(self, a, node(b) if isinstance(b, dict) else b)
+                setattr(self, a, Node(b) if isinstance(b, dict) else b)
 
 
 def load_info(filename):
     """Load a package metadata file."""
     with open(filename) as f:
         data = yaml.safe_load(f)
-        return node(data)
+        return Node(data)
 
 
-class info(source):
+class Info(Source):
 
     def __init__(self, name):
-        source.__init__(self, name)
+        Source.__init__(self, name)
         self.doc = load_info(self._filename)

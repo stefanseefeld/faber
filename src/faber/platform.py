@@ -15,7 +15,7 @@ os = P.system()
 architecture = P.machine()
 
 
-class platform(object):
+class Platform(object):
 
     @property
     def os(self):

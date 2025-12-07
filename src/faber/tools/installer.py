@@ -6,16 +6,16 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..feature import feature, path, incidental
-from ..action import action
-from ..tool import tool
+from ..feature import Feature, path, incidental
+from ..action import Action
+from ..tool import Tool
 import os
 import os.path
 import stat
 import shutil
 
-prefix = feature('prefix', attributes=path|incidental)
-stage = feature('stage', attributes=path|incidental)
+prefix = Feature('prefix', attributes=path|incidental)
+stage = Feature('stage', attributes=path|incidental)
 
 
 def copyfile(source, target):
@@ -35,10 +35,10 @@ def copydir(source, target):
     shutil.copytree(source, target, symlinks=True)
 
 
-class install(action):
+class Install(Action):
 
     def __init__(self, mode=None):
-        action.__init__(self)
+        Action.__init__(self)
         self.mode = mode
 
     @staticmethod
@@ -62,8 +62,8 @@ def create_manifest(t, sources):
             manifest.write(f + '\n')
 
 
-class installer(tool):
+class Installer(Tool):
 
-    install_exe = install()
-    install_data = install()
+    install_exe = Install()
+    install_data = Install()
     install = install_data

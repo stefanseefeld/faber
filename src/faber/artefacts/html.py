@@ -6,16 +6,16 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact
+from ..artefact import Artefact
 from ..rule import rule
 from os.path import normpath, join, sep
 
 
-class dir(artefact):
+class Dir(Artefact):
 
     def __init__(self, recipe, name, sources, *args, **kwds):
         dependencies = kwds.pop('dependencies', [])
-        artefact.__init__(self, name, *args, **kwds)
+        Artefact.__init__(self, name, *args, **kwds)
         rule(recipe, self, sources, dependencies=dependencies)
 
     @property

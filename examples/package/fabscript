@@ -7,23 +7,23 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.artefacts.binary import binary
-from faber.artefacts.library import library
-from faber.artefacts.install import installed, installation
-from faber.package.archive import archive
+from faber.artefacts.binary import Binary
+from faber.artefacts.library import Library
+from faber.artefacts.install import installed, Installation
+from faber.package.archive import Archive
 from faber.tools.compiler import *
 from faber import scheduler
 
-greet = library('greet', 'greet.cpp', version=(1, 0, 2), features=define('GREET_EXPORTS'))
-hello = binary('hello', ['hello.cpp', greet], features=define('GREET_IMPORTS'))
+greet = Library('greet', 'greet.cpp', version=(1, 0, 2), features=define('GREET_EXPORTS'))
+hello = Binary('hello', ['hello.cpp', greet], features=define('GREET_IMPORTS'))
 
-ins = installation('install', [installed(greet, 'lib'),
+ins = Installation('install', [installed(greet, 'lib'),
                                installed(hello, 'bin'),
                                installed('greet.h', 'include')])
 
-tgz = archive('hello.pkg', installation=ins, format='gztar')
+tgz = Archive('hello.pkg', installation=ins, format='gztar')
 alias('tgz', tgz)
-stgz = archive('hello.pkg', format='gztar')
+stgz = Archive('hello.pkg', format='gztar')
 alias('stgz', stgz)
 
 default = hello

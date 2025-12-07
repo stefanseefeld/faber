@@ -6,9 +6,9 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact, source, notfile, always, nopropagate
+from ..artefact import Artefact, Source, notfile, always, nopropagate
 from ..rule import rule, depend
-from ..action import action
+from ..action import Action
 from ..utils import aslist
 from .. import assembly
 from .. import output
@@ -19,10 +19,10 @@ action_logger = logging.getLogger('actions')
 command_logger = logging.getLogger('commands')
 
 
-class assemble(action):
+class Assemble(Action):
 
     def call(target, source, **kwds):
-        self = composite._targets[target[0]]
+        self = Composite._targets[target[0]]
         # create the real dependency graph...
         self._assemble()
 
@@ -44,17 +44,17 @@ class assemble(action):
             print(stderr, file=sys.stderr)
 
 
-class composite(artefact):
+class Composite(Artefact):
     """A composite artefact is built in stages using one or more intermediates."""
 
     _targets = {}  # map assembler artefact to composite
 
     def __init__(self, name, sources, *args, **kwds):
         dependencies = kwds.pop('dependencies', [])
-        artefact.__init__(self, name, *args, **kwds)
-        self.sources = [source.instantiate(a, self.module) for a in aslist(sources)]
+        Artefact.__init__(self, name, *args, **kwds)
+        self.sources = [Source.instantiate(a, self.module) for a in aslist(sources)]
         self.dependencies = aslist(dependencies)
-        self.features |= artefact.combine_use(self.sources)
+        self.features |= Artefact.combine_use(self.sources)
         if self.features.dependencies():
             # postpone assembly until after dependencies are updated
             self._submit()
@@ -67,7 +67,7 @@ class composite(artefact):
         pass
 
     def __call__(self, features):
-        c = artefact.__call__(self, features)
+        c = Artefact.__call__(self, features)
         if c.features.dependencies():
             c._submit()
         else:
@@ -75,9 +75,9 @@ class composite(artefact):
         return c
 
     def _submit(self):
-        a = rule(assemble(), 'a:' + self.name, attrs=notfile|always|nopropagate,
+        a = rule(Assemble(), 'a:' + self.name, attrs=notfile|always|nopropagate,
                  dependencies=self.sources + self.dependencies + self.features.dependencies())
-        composite._targets[a] = self
+        Composite._targets[a] = self
         depend(self, a)
 
     def _assemble(self):

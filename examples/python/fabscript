@@ -8,12 +8,12 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from faber.artefact import notfile, always
-from faber.tools.python import python, pythonpath
-from faber.artefacts.python import extension
+from faber.tools.python import Python, pythonpath
+from faber.artefacts.python import Extension
 
-python = python.instance()
+python = Python.instance()
 
-greet = extension('greet', 'greet.c', features=python.include)
+greet = Extension('greet', 'greet.c', features=python.include)
 test = rule(python.run, 'test', 'greet_test.py',
             dependencies=greet,
             attrs=notfile|always,

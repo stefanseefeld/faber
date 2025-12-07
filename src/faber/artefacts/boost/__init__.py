@@ -6,4 +6,4 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from .test import test_module  # noqa F401
+from .test import TestModule  # noqa F401

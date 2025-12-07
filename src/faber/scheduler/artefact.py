@@ -42,10 +42,10 @@ def cyclic(artefact):
     return next(_cyclic(artefact), False)
 
 
-class dependency_error(Exception): pass
+class DependencyError(Exception): pass
 
 
-class artefact(object):
+class Artefact(object):
 
     @classmethod
     def init(cls, files=[], keep_temps=False, force=False):
@@ -154,12 +154,12 @@ class artefact(object):
         * the new prerequisite must not introduce a dependency cycle."""
 
         if self.progress >= progress.BOUND:
-            raise dependency_error(f'can not add {p.frontend}: '
-                                   f'{self.frontend.boundname} already bound')
+            raise DependencyError(f'can not add {p.frontend}: '
+                                  f'{self.frontend.boundname} already bound')
         self.prerequisites.add(p)
         if cyclic(self):
-            raise dependency_error(f'dependency cycle detected while adding '
-                                   f'{self.frontend} -> {p.frontend}')
+            raise DependencyError(f'dependency cycle detected while adding '
+                                  f'{self.frontend} -> {p.frontend}')
         if self._pqueue:
             self._pqueue.put_nowait(p)
 
@@ -272,7 +272,7 @@ class artefact(object):
             elif self.flags & flag.TOUCHED:
                 self._fate = fate.TOUCHED
             # If force flag is set, make it.
-            elif artefact.force:
+            elif Artefact.force:
                 self._fate = fate.TOUCHED
             # If up-to-date temp file present, use it.
             # If target newer than non-notfile parent, mark target newer.
@@ -317,11 +317,11 @@ class artefact(object):
                     logger.info(f'update -- {self.boundname}')
                     self.status = await self.recipe()
                     if self.flags & flag.TEMP:
-                        artefact.temp_files.add(self.boundname)
+                        Artefact.temp_files.add(self.boundname)
                     elif not self.flags & flag.NOTFILE:
-                        artefact.files.append(self.boundname)
+                        Artefact.files.append(self.boundname)
                     logger.info(f'update -- {self.boundname} done (status={self.status})')
-                    artefact.counter['updated' if self.status else 'failed'] += 1
+                    Artefact.counter['updated' if self.status else 'failed'] += 1
                 else:
                     # TODO: how should we handle alias artefacts ? What if prereqs fail ? Etc.
                     self.status = True

@@ -6,20 +6,20 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from .check import check
+from .check import Check
 from ..artefact import intermediate, always
-from ..tools.compiler import compiler
+from ..tools.compiler import Compiler
 from ..rule import rule, alias
-from ..artefacts.object import object
+from ..artefacts.object import Object
 
 
-class try_compile(check):
+class TryCompile(Check):
     """Try to compile a chunk of source code."""
 
     def __init__(self, name, source, type, features=(), if_=(), ifnot=()):
 
-        check.__init__(self, name, features, if_, ifnot)
-        compiler.check_instance_for_type(type, features)
+        Check.__init__(self, name, features, if_, ifnot)
+        Compiler.check_instance_for_type(type, features)
         if not self.cached:
             # create source file
             src = type.synthesize_name(self.name)
@@ -29,6 +29,6 @@ class try_compile(check):
                     os.write(source)
             src = rule(generate, src, attrs=intermediate|always,
                        logfile=self.logfile)
-            obj = object(self.name, src, attrs=intermediate,
+            obj = Object(self.name, src, attrs=intermediate,
                          features=self.features, logfile=self.logfile)
             alias(self, obj)

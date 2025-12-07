@@ -6,23 +6,23 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..feature import set
-from ..artefacts.library import library
+from ..feature import Set
+from ..artefacts.library import Library
 from ..tools.compiler import link, ldflags
-from ..tools.python import python
+from ..tools.python import Python
 from os.path import join, normpath
 
 
-class extension(library):
+class Extension(Library):
 
     def __init__(self, *args, **kwds):
-        library.__init__(self, *args, **kwds)
-        p = python.instance(self.features)
-        self.features |= set(p.include, p.linkpath, link('shared'))
+        Library.__init__(self, *args, **kwds)
+        p = Python.instance(self.features)
+        self.features |= Set(p.include, p.linkpath, link('shared'))
         # on windows we need to link with libpython
-        self.features |= p.libs(condition=(set.cc.name=='msvc')|(set.cxx.name=='msvc'))
+        self.features |= p.libs(condition=(Set.cc.name=='msvc')|(Set.cxx.name=='msvc'))
         # on darwin we need to add `-undefined dynamic_lookup` to prevent undefined symbols errors
-        self.features |= ldflags('-undefined dynamic_lookup', condition=(set.target.os.matches('darwin.*')))
+        self.features |= ldflags('-undefined dynamic_lookup', condition=(Set.target.os.matches('darwin.*')))
         self._suffix = p.ext_suffix
 
     @property

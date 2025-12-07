@@ -6,21 +6,21 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact, notfile, always
+from ..artefact import Artefact, notfile, always
 from .. import scheduler
 
 
-class features(artefact):
+class Features(Artefact):
     def __init__(self, name, features=()):
-        artefact.__init__(self, name, attrs=notfile|always, features=features)
+        Artefact.__init__(self, name, attrs=notfile|always, features=features)
 
     def __status__(self, status):
         print(self.features.eval(update=False))
 
 
-class dependency_graph(artefact):
+class DependencyGraph(Artefact):
     def __init__(self, name, a, dependencies=[], features=()):
-        artefact.__init__(self, name, attrs=notfile|always, features=features)
+        Artefact.__init__(self, name, attrs=notfile|always, features=features)
         scheduler.declare_dependency(self, dependencies)
         self.a = a
 
