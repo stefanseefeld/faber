@@ -7,10 +7,10 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from __future__ import absolute_import
-from .artefact import artefact
-from .artefact import dependency_error as DependencyError  # noqa F401
-from .recipe import recipe
-from ..cache import filecache
+from .artefact import Artefact
+from .artefact import DependencyError  # noqa F401
+from .recipe import Recipe
+from ..cache import FileCache
 from ..utils import aslist
 import asyncio
 import sys
@@ -32,13 +32,13 @@ artefacts = {}  # map frontends to backends
 
 def init(params, builddir, readonly=False, **options):
     noexec = options.get('noexec', False)
-    files = filecache(builddir, params) if not readonly else ()
+    files = FileCache(builddir, params) if not readonly else ()
     intermediates = options.get('intermediates', False)
     jobs = options.get('parallel', 1)
     timeout = options.get('timeout', 0)
     force = options.get('force', False)
-    artefact.init(files, intermediates, force)
-    recipe.init(jobs, timeout, noexec)
+    Artefact.init(files, intermediates, force)
+    Recipe.init(jobs, timeout, noexec)
 
 
 def reset():
@@ -48,11 +48,11 @@ def reset():
 
 
 def clean(level=1):
-    artefact.clean(level)
+    Artefact.clean(level)
 
 
 def finish():
-    artefact.finish()
+    Artefact.finish()
 
 
 def variables(a):
@@ -61,7 +61,7 @@ def variables(a):
 
 
 def define_artefact(a, bind=False):
-    artefacts[a] = artefact(a)
+    artefacts[a] = Artefact(a)
 
 
 def add_dependency(a, deps):
@@ -72,13 +72,13 @@ def add_dependency(a, deps):
 def define_recipe(a, targets, sources=[]):
     targets = [artefacts[t] for t in targets]
     sources = [artefacts[s] for s in sources]
-    r = recipe(action=a, targets=targets, sources=sources)
+    r = Recipe(action=a, targets=targets, sources=sources)
     for t in targets:
         t.recipe = r
 
 
 def run(command):
-    return recipe.run_subprocess(command)
+    return Recipe.run_subprocess(command)
 
 
 def update(aa):

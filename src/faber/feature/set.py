@@ -8,41 +8,41 @@
 
 from ..utils import add_metaclass
 from . import incidental
-from .feature import feature
-from .value import value, composite_value
-from .condition import value as expr
-from ..delayed import delayed
+from .feature import Feature
+from .value import Value, CompositeValue
+from .condition import Value as expr
+from ..delayed import Delayed
 from ..error import ScriptError
 from operator import iadd, ior
 from functools import reduce
 
 
-class set_type(type):
+class SetType(type):
 
     def __getattr__(cls, name):
         # Allow the construction of expressions to support conditional values
         return expr(name)
 
 
-@add_metaclass(set_type)
-class set(object):
+@add_metaclass(SetType)
+class Set(object):
 
     @staticmethod
     def instantiate(features):
         """Convert the argument into a set."""
-        if isinstance(features, set):
+        if isinstance(features, Set):
             # return a clone of the input
-            return ior(set(), features)
+            return ior(Set(), features)
         elif not features:
-            return set()
+            return Set()
         else:
-            return set(features)
+            return Set(features)
 
     def __init__(self, *args):
 
         # if only one argument is provided and it's not a feature-value,
         # assume it's a container of values.
-        if len(args) == 1 and not isinstance(args[0], (value, delayed)):
+        if len(args) == 1 and not isinstance(args[0], (Value, Delayed)):
             args = args[0]
 
         self._features = {}
@@ -69,22 +69,22 @@ class set(object):
 
     def copy(self):
         """Create a copy of this set."""
-        return set(*list(self._features.values()) + self._delayed + self._conditionals)
+        return Set(*list(self._features.values()) + self._delayed + self._conditionals)
 
     def essentials(self):
         """Create a copy of this set containing only the essential
         (i.e., non-incidental) features."""
-        return set(*[v for v in self._features.values()
-                     if isinstance(v, composite_value) or not v._type.attributes & incidental])
+        return Set(*[v for v in self._features.values()
+                     if isinstance(v, CompositeValue) or not v._type.attributes & incidental])
 
     def update(self, other):
         """Add new features from `other`, replacing existing ones."""
-        if isinstance(other, delayed):
+        if isinstance(other, Delayed):
             self._delayed.append(other)
-        elif isinstance(other, value):
+        elif isinstance(other, Value):
             self._features[other._name] = other
         else:
-            other = set.instantiate(other)
+            other = Set.instantiate(other)
             # only ordinary values can be updated
             for k, v in other._features.items():
                 self._features[k] = v.copy()
@@ -98,7 +98,7 @@ class set(object):
             # (allow dependencies to fail)
             scheduler.update(self.dependencies())
         # compute any delayed values
-        self |= set(*[d.result() for d in self._delayed])
+        self |= Set(*[d.result() for d in self._delayed])
         self._delayed[:] = []
         if not self._conditionals:
             return self
@@ -107,9 +107,9 @@ class set(object):
         current = initial.copy()
         for i in range(len(self._conditionals) + 1):
             added = [f for c in self._conditionals for f in c.eval(current)]
-            fs = initial + set(*added)
+            fs = initial + Set(*added)
             if current._features == fs._features:
-                self |= set(*added)
+                self |= Set(*added)
                 return self  # we are done !
             else:
                 current = fs
@@ -134,7 +134,7 @@ class set(object):
         return name in self._features
 
     def matches(self, other):
-        assert isinstance(other, set)
+        assert isinstance(other, Set)
         for k, v in [(k, v) for k, v in self.items()]:
             if k in other and not other[k].matches(v):
                 return False
@@ -162,9 +162,9 @@ class set(object):
 
     def _cassign(self, op, other):
         """compound-assign: use `op` to add `other` to `self`"""
-        if isinstance(other, delayed):
+        if isinstance(other, Delayed):
             self._delayed.append(other)
-        elif isinstance(other, value):
+        elif isinstance(other, Value):
             if other._condition is not None:
                 self._conditionals.append(other)
             else:
@@ -172,7 +172,7 @@ class set(object):
                     self._features[other._name] = other.copy()
                 else:
                     op(self._features[other._name], other)
-        elif isinstance(other, set):
+        elif isinstance(other, Set):
             for k, v in other._features.items():
                 if k not in self._features:
                     self._features[k] = v.copy()
@@ -210,7 +210,7 @@ def def_lazy_set():
 
     def __init__(self, params, *args):
         self._params = params.copy()
-        set.__init__(self, *args)
+        Set.__init__(self, *args)
 
     def copy(self):
         return type(self)(self._params, *list(self._features.values()) + self._delayed + self._conditionals)
@@ -222,13 +222,13 @@ def def_lazy_set():
         for k, v in self._params.items():
             c = k.split('.')
             root = c[0]
-            if root not in feature._registry:
+            if root not in Feature._registry:
                 continue  # not defined yet, skip
             else:
                 converted.append(k)
             # get an instance of the root feature
             if root not in self._features:
-                f = feature.lookup(root)()
+                f = Feature.lookup(root)()
                 self._features[root] = f
             sf = f = self._features[root]
             # find the designated subfeature
@@ -247,7 +247,7 @@ def def_lazy_set():
         return wrapper
 
     dict = {}
-    for a, v in set.__dict__.items():
+    for a, v in Set.__dict__.items():
         if a in ('__add__',
                  '__contains__',
                  '__getattr__',
@@ -265,7 +265,7 @@ def def_lazy_set():
             dict[a] = decorator(v)
     dict['__init__'] = __init__
     dict['copy'] = copy
-    return set_type('lazy_set', (set,), dict)
+    return SetType('lazy_set', (Set,), dict)
 
 
-lazy_set = def_lazy_set()
+LazySet = def_lazy_set()

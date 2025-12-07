@@ -6,25 +6,25 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact, source
+from ..artefact import Artefact, Source
 from ..rule import rule, depend
-from ..tools.compiler import compiler
+from ..tools.compiler import Compiler
 from os.path import join, splitext
 
 
-class scan(artefact):
+class Scan(Artefact):
     """Scan a source file for dependencies and inject them into
     the dependency graph."""
 
     def __init__(self, src, obj, recipe=None, features=(), module=None):
 
-        src = source.instantiate(src, module=module)
+        src = Source.instantiate(src, module=module)
         name = join(splitext(src.name)[0] + '.d')
-        artefact.__init__(self, name, features=features, module=module,
+        Artefact.__init__(self, name, features=features, module=module,
                           logfile=obj.logfile)
         self._obj = obj
         if not recipe:
-            c = compiler.check_instance_for_type(src.type, features)
+            c = Compiler.check_instance_for_type(src.type, features)
             recipe = c.makedep
         rule(recipe, self, src)
         depend(self._obj, self)
@@ -38,5 +38,5 @@ class scan(artefact):
         # of (header) filenames
         if status:
             headers = [h.strip() for h in open(self._filename).readlines()]
-            depend(self._obj, [source.instantiate(h, module=self.module)
+            depend(self._obj, [Source.instantiate(h, module=self.module)
                                for h in headers])

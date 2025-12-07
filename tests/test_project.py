@@ -16,7 +16,7 @@ from os import mkdir
 def test_no_args():
 
     with tempdir():
-        info = buildinfo(None)
+        info = BuildInfo(None)
         assert info.srcdir is None
         assert info.builddir is None
 
@@ -31,7 +31,7 @@ def test_new_project():
         builddir = join(root, 'test-build')
 
         # test
-        info = buildinfo(builddir, srcdir)
+        info = BuildInfo(builddir, srcdir)
         assert info.srcdir == srcdir
         assert info.builddir == builddir
         info.store()
@@ -46,11 +46,11 @@ def test_existing_project():
         mkdir(srcdir)
         write_fabscript(srcdir, '')
         builddir = join(root, 'test-build')
-        info = buildinfo(builddir, srcdir)
+        info = BuildInfo(builddir, srcdir)
         info.store()
 
         # test
-        info = buildinfo(builddir, srcdir)
+        info = BuildInfo(builddir, srcdir)
         assert info.srcdir == srcdir
         assert info.builddir == builddir
 
@@ -63,12 +63,12 @@ def test_parameters():
         mkdir(srcdir)
         write_fabscript(srcdir, '')
         builddir = join(root, 'test-build')
-        info = buildinfo(builddir, srcdir)
+        info = BuildInfo(builddir, srcdir)
         info.parameters = dict(answer='42')
         info.store()
 
         # test
-        info = buildinfo(builddir, srcdir)
+        info = BuildInfo(builddir, srcdir)
         assert info.parameters == dict(answer='42')
 
 
@@ -81,7 +81,7 @@ def test_inplace_project():
         write_fabscript(srcdir, '')
 
         # test
-        info = buildinfo(srcdir)
+        info = BuildInfo(srcdir)
         assert info.srcdir == srcdir
         assert info.builddir == srcdir
 
@@ -94,9 +94,9 @@ def test_invalid_project():
         mkdir(srcdir)
         write_fabscript(srcdir, '')
         builddir = join(root, 'test-build')
-        info = buildinfo(builddir, srcdir)
+        info = BuildInfo(builddir, srcdir)
         info.store()
 
         # test
         with pytest.raises(Exception):
-            info = buildinfo(builddir, srcdir + '-other')
+            info = BuildInfo(builddir, srcdir + '-other')

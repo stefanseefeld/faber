@@ -8,8 +8,8 @@
 
 from __future__ import absolute_import
 from .utils import add_metaclass
-from .feature import feature, set
-from .action import action
+from .feature import Feature, Set
+from .action import Action
 from .error import ArgumentError
 from collections import defaultdict
 from copy import deepcopy
@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger('tools')
 
 
-class tool_type(type):
+class ToolType(type):
     def __init__(cls, name, bases, dict):
         """For any attribute of type 'action', set the action's name
         to the attribute name. Further, set the action's 'tool' attribute
@@ -27,10 +27,10 @@ class tool_type(type):
         with 'compiler=gcc', we can substitute 'gcc.link' for 'compiler.link'.
         """
 
-        cls.tool = feature(name, feature('name', sub=True), feature('version', sub=True))
+        cls.tool = Feature(name, Feature('name', sub=True), Feature('version', sub=True))
 
         for k, v in dict.items():
-            if isinstance(v, action):
+            if isinstance(v, Action):
                 v._cls = cls
                 v.name = k
 
@@ -45,28 +45,28 @@ class tool_type(type):
         respectively)."""
 
         a = type.__getattribute__(cls, name)
-        if isinstance(a, action) and a._cls is not cls:
+        if isinstance(a, Action) and a._cls is not cls:
             a = deepcopy(a)
             a._cls = cls
         return a
 
 
-@add_metaclass(tool_type)
-class tool(object):
+@add_metaclass(ToolType)
+class Tool(object):
 
     _instances = defaultdict(list)
     path_spec = ''
 
     @staticmethod
     def finish():
-        tool._instances.clear()
+        Tool._instances.clear()
 
     @classmethod
     def find_version_requirement(cls, features):
         """Find (and validate) any version requirements for 'cls' in 'features'."""
         f1 = None
         for c in cls.__mro__:
-            if issubclass(c, tool) and c != tool:
+            if issubclass(c, Tool) and c != Tool:
                 f2 = features[c.__name__] if (c.__name__ in features and
                                               features[c.__name__].version) else None
                 if f2:
@@ -81,16 +81,16 @@ class tool(object):
 
     def __init__(self, name='', version='', features=()):
         name = name or self.__class__.__name__
-        self.features = set.instantiate(features).copy()
+        self.features = Set.instantiate(features).copy()
         # Set built-in features
         for c in self.__class__.__mro__:
-            if issubclass(c, tool) and c != tool:
+            if issubclass(c, Tool) and c != Tool:
                 self.features += c.tool(name=name, version=version)
 
         # Clone all actions, so tool instances can fine-tune them individually.
         for a in dir(self):
             o = getattr(self, a)
-            if isinstance(o, action):
+            if isinstance(o, Action):
                 o = deepcopy(o)
                 o._cls = self.__class__
                 o._tool = self
@@ -98,8 +98,8 @@ class tool(object):
 
         # Register the tool with all base classes
         for c in self.__class__.__mro__:
-            if issubclass(c, tool) and c != tool:
-                tool._instances[c].append(self)
+            if issubclass(c, Tool) and c != Tool:
+                Tool._instances[c].append(self)
 
         logger.info('instantiate {} (name={}, version={})'
                     .format(self.__class__.__name__, name, version))
@@ -122,27 +122,27 @@ class tool(object):
         """Check whether a tool of the given type and feature-set
         is already instantiated."""
         if fs is None:
-            return tool._instances[cls]
+            return Tool._instances[cls]
         else:
-            fs = set.instantiate(fs)
-            return any([t for t in tool._instances[cls] if t.features.matches(fs)])
+            fs = Set.instantiate(fs)
+            return any([t for t in Tool._instances[cls] if t.features.matches(fs)])
 
     @classmethod
     def instances(cls, fs=None):
         """Return all known instances of cls that meet the feature requirements."""
 
-        fs = set.instantiate(fs)
+        fs = Set.instantiate(fs)
         try:  # Lookup failure is not an error
             cls.instance(fs)
         except Exception:
             pass
-        return [t for t in tool._instances[cls] if t.features.matches(fs)]
+        return [t for t in Tool._instances[cls] if t.features.matches(fs)]
 
     @classmethod
     def instance(cls, fs=None):
         """Find an instance of cls that meets the feature requirements."""
 
-        fs = set.instantiate(fs)
+        fs = Set.instantiate(fs)
         if not cls.instantiated(fs):
             try:
                 cls(features=fs)
@@ -153,7 +153,7 @@ class tool(object):
                 if debug:
                     import traceback
                     traceback.print_exc()
-        tools = [t for t in tool._instances[cls] if t.features.matches(fs)]
+        tools = [t for t in Tool._instances[cls] if t.features.matches(fs)]
         if tools:
             return tools[0]
         else:

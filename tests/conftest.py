@@ -7,8 +7,8 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from __future__ import absolute_import, print_function
-from faber.project import init, config, project, buildinfo
-from faber.module import module as M
+from faber.project import init, config, Project, BuildInfo
+from faber.module import Module as M
 from faber import logging
 from test.common import tempdir
 from os.path import join, exists, expanduser
@@ -48,7 +48,7 @@ def module():
         srcdir = join(root, 'test-source')
         mkdir(srcdir)
         builddir = join(root, 'test-build')
-        info = buildinfo(builddir, srcdir)
-        with project(info):
+        info = BuildInfo(builddir, srcdir)
+        with Project(info):
             with M('test', srcdir, builddir, process=False):
                 yield

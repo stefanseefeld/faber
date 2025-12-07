@@ -20,11 +20,11 @@
 #
 #   * `faber .config-clean`
 
-from faber.artefacts.binary import binary
+from faber.artefacts.binary import Binary
 from faber.tools.compiler import define, include, linkpath, libs
 from faber.types import cxx, c
 from faber.config.try_link import *
-from faber.config import report, c_checks, cxx_checks, try_run
+from faber.config import Report, c_checks, cxx_checks, try_run
 from faber import scheduler
 
 python_inc = options.get_with('python-inc')
@@ -44,17 +44,17 @@ int main()
   Py_Initialize();
 }
 """
-checks = [c_checks.sizeof('char', cxx, features=features),
-          c_checks.sizeof('long', cxx, features=features),
-          try_link('pytest', pysrc, cxx, features,
+checks = [c_checks.SizeOf('char', cxx, features=features),
+          c_checks.SizeOf('long', cxx, features=features),
+          TryLink('pytest', pysrc, cxx, features,
                    define('HAS_PYTHON=1'),
                    define('HAS_PYTHON=0')),
-          cxx_checks.has_cxx11(features, define('HAS_CXX11')),
-          cxx_checks.has_cxx14(features, define('HAS_CXX14')),
-          cxx_checks.has_cxx17(features, define('HAS_CXX17'))]
+          cxx_checks.HasCXX11(features, define('HAS_CXX11')),
+          cxx_checks.HasCXX14(features, define('HAS_CXX14')),
+          cxx_checks.HasCXX17(features, define('HAS_CXX17'))]
 
-config = report('config', checks)
-bin = binary('check', 'main.cpp', dependencies=config, features=config.use)
-report = rule(action('run', '$(>)'), 'report', bin, attrs=notfile|always)
+config = Report('config', checks)
+bin = Binary('check', 'main.cpp', dependencies=config, features=config.use)
+report = rule(Action('run', '$(>)'), 'report', bin, attrs=notfile|always)
 
 default = report

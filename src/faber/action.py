@@ -9,7 +9,7 @@
 from __future__ import absolute_import
 from .utils import add_metaclass
 from . import scheduler
-from .feature import set, map
+from .feature import Set, Map
 from .utils import aslist
 from . import output
 import re
@@ -34,17 +34,17 @@ class CallError(Exception):
         self.cmd = cmd
 
 
-class action_type(type):
+class ActionType(type):
     def __new__(cls, name, bases, dict):
         """Collect all maps in a private dict so we don't have to
         look them up each time we need them."""
-        dict['_maps'] = {k: v for k, v in dict.items() if isinstance(v, map)}
-        return super(action_type, cls).__new__(cls, name, bases, dict)
+        dict['_maps'] = {k: v for k, v in dict.items() if isinstance(v, Map)}
+        return super(ActionType, cls).__new__(cls, name, bases, dict)
 
 
-@add_metaclass(action_type)
-class action(object):
-    """An action is executed in order to (re-)generate an 'artefact'."""
+@add_metaclass(ActionType)
+class Action(object):
+    """An Action is executed in order to (re-)generate an 'Artefact'."""
 
     var_ex = re.compile(r'\$\((?P<variable>\w+)\)')
 
@@ -66,7 +66,7 @@ class action(object):
     def qname(self):
         """The qualified name of this action."""
         if self._cls:
-            return '{}.{}'.format(self._cls.__name__, self.name)
+            return f'{self._cls.__name__.lower()}.{self.name}'
         else:
             return self.name
 
@@ -88,7 +88,7 @@ class action(object):
 
     @property
     def features(self):
-        return self._tool.features if self._tool else set()
+        return self._tool.features if self._tool else Set()
 
     @property
     def path_spec(self):
@@ -113,7 +113,7 @@ class action(object):
         else:
             self.name, self.command, self.vars = args[:3]
         if type(self.command) is str and not self.vars:
-            self.vars = action.var_ex.findall(self.command) if self.command else []
+            self.vars = Action.var_ex.findall(self.command) if self.command else []
         self._cls = None
         self._tool = None
 
@@ -143,7 +143,7 @@ class action(object):
         elif callable(self.command):
             status = self.command(targets, sources, **kwds)
             if status is False:
-                cmd = action.command_string(self.command, tnames, snames, kwds)
+                cmd = Action.command_string(self.command, tnames, snames, kwds)
                 raise CallError(cmd)
             return status
         elif type(self.command) is str:

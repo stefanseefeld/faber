@@ -6,7 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.tools.gcc import gcc
+from faber.tools.gcc import GCC
 from faber.action import CallError
 from faber.utils import capture_output
 from test.compiler import make_source, check_makedep, check_compile
@@ -15,10 +15,10 @@ import pytest
 
 @pytest.fixture
 def cc():
-    if not gcc.instances():
+    if not GCC.instances():
         pytest.skip('no gcc compiler found')
     else:
-        return gcc.instance()
+        return GCC.instance()
 
 
 def test_makedep(cc):

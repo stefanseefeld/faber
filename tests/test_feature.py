@@ -12,7 +12,7 @@ import pytest
 
 def test_link():
 
-    link = feature('link', ('shared', 'static'))
+    link = Feature('link', ('shared', 'static'))
 
     l1 = link('shared')
     l2 = link('static')
@@ -25,7 +25,7 @@ def test_link():
 
 def test_include():
 
-    include = feature('include', attributes=multi|incidental)
+    include = Feature('include', attributes=multi|incidental)
     i1 = include('a', 'b')
     i2 = include('c')
     i1 += i2
@@ -36,7 +36,7 @@ def test_include():
 
 def test_composite():
 
-    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
+    tool = Feature('tool', Feature('name', sub=True), Feature('version', sub=True))
     t1 = tool(name='g++')
     t2 = tool(name='g++', version='6.3')
     assert t1 != t2
@@ -49,9 +49,9 @@ def test_composite():
     assert t1.name != t3.name
     assert not t1.matches(t3)
 
-    some = feature('some', feature('include', sub=True, attributes=multi))
+    some = Feature('some', Feature('include', sub=True, attributes=multi))
     s1 = some(include=('a', 'b'))
-    include = feature('include', attributes=multi)
+    include = Feature('include', attributes=multi)
     i1 = include('a', 'b')
     assert s1.include != i1
 
@@ -62,19 +62,19 @@ def test_composite():
 
 def test_parsing():
 
-    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
-    include = feature('include', attributes=multi)
-    define = feature('define', attributes=multi)
+    tool = Feature('tool', Feature('name', sub=True), Feature('version', sub=True))
+    include = Feature('include', attributes=multi)
+    define = Feature('define', attributes=multi)
     gxx = tool(name='g++', version='6.3')
     clangxx = tool(name='clang++', version='3.9')
-    variant = feature('variant', ('release', 'debug'))  # noqa F841
+    variant = Feature('variant', ('release', 'debug'))  # noqa F841
 
     o1 = {'tool.name': 'g++', 'variant': 'release'}
     o2 = {'tool.name': 'clang++', 'tool.version': '3.9', 'variant': 'release'}
-    fs = lazy_set(o1)
+    fs = LazySet(o1)
     t1 = fs.tool
     v1 = fs.variant
-    fs = lazy_set(o2)
+    fs = LazySet(o2)
     t2 = fs.tool
     v2 = fs.variant
     assert gxx.matches(t1)
@@ -85,32 +85,32 @@ def test_parsing():
     assert v2 == 'release'
 
     o3 = {'include': 'AB'}
-    fs = lazy_set(o3)
+    fs = LazySet(o3)
     assert fs.include == ('AB',)
     o4 = {'include': ['A', 'B']}
-    fs = lazy_set(o4)
+    fs = LazySet(o4)
     assert fs.include == ('A', 'B')
 
     o5 = {'define': 'C', 'new_tool.name': 'g++', 'new_tool.version': '6.3'}
-    lazy = lazy_set(o5, define('A', 'B'), include('I'))
+    lazy = LazySet(o5, define('A', 'B'), include('I'))
     assert 'define' in lazy
     assert lazy.define == ('C', 'A', 'B')
     assert 'new_tool' not in lazy
-    tool = feature('new_tool', feature('name', sub=True), feature('version', sub=True))
+    tool = Feature('new_tool', Feature('name', sub=True), Feature('version', sub=True))
     assert 'new_tool' in lazy
     assert lazy.new_tool.name == 'g++'
 
     o6 = {'tool': 'g++-7'}
-    fs = lazy_set(o6)
+    fs = LazySet(o6)
     assert fs.tool.name == 'g++' and fs.tool.version == '7'
 
 
 def test_parsing_conflict():
 
-    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))  # noqa F841
+    tool = Feature('tool', Feature('name', sub=True), Feature('version', sub=True))  # noqa F841
 
     o1 = {'tool': 'g++-2', 'tool.version': '1'}
-    fs = lazy_set(o1)
+    fs = LazySet(o1)
     with pytest.raises(ValueError):
         # trying to instantiate the values should fail
         fs.tool.name == 'g++' and fs.tool.version == 2
@@ -118,18 +118,18 @@ def test_parsing_conflict():
 
 def test_serialize():
 
-    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))  # noqa F841
-    variant = feature('variant', ('release', 'debug'))  # noqa F841
+    tool = Feature('tool', Feature('name', sub=True), Feature('version', sub=True))  # noqa F841
+    variant = Feature('variant', ('release', 'debug'))  # noqa F841
     o = {'tool.name': 'clang++', 'tool.version': '3.9', 'variant': 'release'}
-    fs = lazy_set(o)
+    fs = LazySet(o)
     d = fs._serialize()
     assert d == o
 
 
 def test_mix():
 
-    link1 = feature('link1', ('shared', 'static'))
-    link2 = feature('link2', ('shared', 'static'))
+    link1 = Feature('link1', ('shared', 'static'))
+    link2 = Feature('link2', ('shared', 'static'))
     l1 = link1('shared')
     l2 = link2('shared')
     l3 = link1('shared')
@@ -143,14 +143,14 @@ def test_mix():
 
 def test_feature_set():
 
-    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
-    target = feature('target', feature('arch', sub=True))
-    link = feature('link', ('shared', 'static'))
-    include = feature('include', attributes=multi|incidental)
-    linkpath = feature('linkpath', attributes=multi|incidental)
+    tool = Feature('tool', Feature('name', sub=True), Feature('version', sub=True))
+    target = Feature('target', Feature('arch', sub=True))
+    link = Feature('link', ('shared', 'static'))
+    include = Feature('include', attributes=multi|incidental)
+    linkpath = Feature('linkpath', attributes=multi|incidental)
 
-    fs = set(link('shared'), include('a', 'b'))
-    fs += set(include('c'), linkpath('d'))
+    fs = Set(link('shared'), include('a', 'b'))
+    fs += Set(include('c'), linkpath('d'))
     fs += tool(name='g++', version='6.3')
     fs += target(arch='A')
 
@@ -183,11 +183,11 @@ def test_feature_set():
 
 def test_fs_copy():
 
-    include = feature('include', attributes=multi)
-    link = feature('link', ['shared', 'static'])
-    define = feature('define', attributes=multi)
-    fs = set(include('a', 'b'), link('shared'))
-    fs += define('SHARED', condition=set.link == 'shared')
+    include = Feature('include', attributes=multi)
+    link = Feature('link', ['shared', 'static'])
+    define = Feature('define', attributes=multi)
+    fs = Set(include('a', 'b'), link('shared'))
+    fs += define('SHARED', condition=Set.link == 'shared')
     assert fs.include == ('a', 'b')
     fs2 = fs.copy()
     fs2 += include('c')
@@ -195,7 +195,7 @@ def test_fs_copy():
     assert fs2.include == ('a', 'b', 'c')
 
     i = include('a')
-    ls = lazy_set({})
+    ls = LazySet({})
     ls |= i
     ls2 = ls.copy()
     ls |= include('c')
@@ -203,7 +203,7 @@ def test_fs_copy():
     assert ls2.include == 'a'
 
     i = include('a')
-    ls = lazy_set({})
+    ls = LazySet({})
     ls |= i
     ls2 = ls.copy()
     print(id(ls.include._value), id(ls2.include._value))
@@ -215,18 +215,18 @@ def test_fs_copy():
 
 def test_mapping():
 
-    define = feature('define', attributes=multi)
-    include = feature('include', attributes=multi)
-    link = feature('link', ('shared', 'static'))
-    linkpath = feature('linkpath', attributes=multi)
-    libs = feature('libs', attributes=multi)
+    define = Feature('define', attributes=multi)
+    include = Feature('include', attributes=multi)
+    link = Feature('link', ('shared', 'static'))
+    linkpath = Feature('linkpath', attributes=multi)
+    libs = Feature('libs', attributes=multi)
 
-    fs = set(link('shared'), include('a', 'b'), linkpath('c'), libs('foo', 'bar'))
+    fs = Set(link('shared'), include('a', 'b'), linkpath('c'), libs('foo', 'bar'))
 
-    cppflags = map(include, translate, prefix='-I') + map(define, translate, prefix='-D')
-    cxxflags = map(link, select_if, 'shared', '-fPIC')
-    linkpath = map(linkpath, translate, prefix='-L')
-    libs = map(libs, translate, prefix='-l', suffix='.lib')
+    cppflags = Map(include, translate, prefix='-I') + Map(define, translate, prefix='-D')
+    cxxflags = Map(link, select_if, 'shared', '-fPIC')
+    linkpath = Map(linkpath, translate, prefix='-L')
+    libs = Map(libs, translate, prefix='-l', suffix='.lib')
 
     assert cppflags(fs) == '-Ia -Ib'
     assert cxxflags(fs) == '-fPIC'
@@ -236,21 +236,21 @@ def test_mapping():
 
 def test_delayed():
 
-    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
-    define = feature('define', attributes=multi)
-    include = feature('include', attributes=multi)
-    link = feature('link', ['shared', 'static'])
-    fs = set(define('MACRO'), include('a', 'b'), link('shared'),
+    tool = Feature('tool', Feature('name', sub=True), Feature('version', sub=True))
+    define = Feature('define', attributes=multi)
+    include = Feature('include', attributes=multi)
+    link = Feature('link', ['shared', 'static'])
+    fs = Set(define('MACRO'), include('a', 'b'), link('shared'),
              tool(name='g++', version='6.3'))
-    c1 = set.link == 'shared'
-    c2 = set.link == 'static'
-    c3 = set.tool.name == 'g++'
-    c4 = set.tool.name == 'clang++'
+    c1 = Set.link == 'shared'
+    c2 = Set.link == 'static'
+    c3 = Set.tool.name == 'g++'
+    c4 = Set.tool.name == 'clang++'
     # doesn't work due to language restrictions
     # c5 = 'MACRO' in set.define
-    c5 = set.define.contains('MACRO')
+    c5 = Set.define.contains('MACRO')
     c6 = c5.not_()
-    c7 = set.nonexistent.contains('nothing')
+    c7 = Set.nonexistent.contains('nothing')
     with pytest.raises(ValueError):
         r1 = c3 or c4
     with pytest.raises(ValueError):
@@ -271,15 +271,15 @@ def test_delayed():
     assert cc1(fs) is True
     assert cc2(fs) is False
 
-    c3 = set.foo == 'bar'
+    c3 = Set.foo == 'bar'
     assert c3(fs) is False
 
-    fs += define('SHARED', condition=set.link == 'shared')
-    fs += define('GXX', condition=set.tool.name == 'g++')
-    fs += define('CLANGXX', condition=set.tool.name == 'clang++')
-    fs += define('CXX', condition=((set.tool.name == 'clang++') |
-                                   (set.tool.name == 'g++')))
-    fs += include('/some/path', condition=set.tool.name == 'g++')
+    fs += define('SHARED', condition=Set.link == 'shared')
+    fs += define('GXX', condition=Set.tool.name == 'g++')
+    fs += define('CLANGXX', condition=Set.tool.name == 'clang++')
+    fs += define('CXX', condition=((Set.tool.name == 'clang++') |
+                                   (Set.tool.name == 'g++')))
+    fs += include('/some/path', condition=Set.tool.name == 'g++')
     assert fs.define == ('MACRO',)
     fs.eval()
     assert fs.define == ('MACRO', 'SHARED', 'GXX', 'CXX')
@@ -288,10 +288,10 @@ def test_delayed():
 
 def test_condition():
 
-    tool = feature('tool', feature('name', sub=True), feature('version', sub=True))
-    target = feature('target', feature('os', sub=True), feature('arch', sub=True))
-    define = feature('define', attributes=multi)
-    fs = set(tool(name='g++', version='6.3'), target(os='gnu-linux', arch='x86_64'))
-    fs += define('LINUX', condition=set.target.os.matches('.*-linux'))
+    tool = Feature('tool', Feature('name', sub=True), Feature('version', sub=True))
+    target = Feature('target', Feature('os', sub=True), Feature('arch', sub=True))
+    define = Feature('define', attributes=multi)
+    fs = Set(tool(name='g++', version='6.3'), target(os='gnu-linux', arch='x86_64'))
+    fs += define('LINUX', condition=Set.target.os.matches('.*-linux'))
     fs.eval()
     assert fs.define == ('LINUX',)

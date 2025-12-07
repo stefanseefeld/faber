@@ -6,12 +6,12 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.artefact import source, artefact
+from faber.artefact import Source, Artefact
 
 
 def make_source(name, content):
     """Create and return a source artefact with the specified content."""
-    src = source(name)
+    src = Source(name)
     with open(src._filename, 'w') as out:
         out.write(content)
     return src
@@ -20,7 +20,7 @@ def make_source(name, content):
 def check_makedep(compiler, src, num_deps):
     """Generic makedep test. Call with a specific compiler instance."""
 
-    dependencies = artefact('dependencies.d')
+    dependencies = Artefact('dependencies.d')
     targets, sources = [dependencies], [src]
     compiler.makedep(targets, sources)
     with open(dependencies._filename, 'r') as d:
@@ -30,6 +30,6 @@ def check_makedep(compiler, src, num_deps):
 def check_compile(compiler, src):
     """Generic compile test. Call with a specific compiler instance."""
 
-    obj = artefact('out.o')
+    obj = Artefact('out.o')
     targets, sources = [obj], [src]
     compiler.compile(targets, sources)

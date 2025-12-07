@@ -13,20 +13,20 @@ the build logic encoded in the fabscript is strictly platform-agnostic.
 Let's augment the original `Hello World !` example to illustrate this. Faber provides
 a few built-in tools, such as C and C++ compilers. The abstract interface may look like::
 
-  class cxx(object):
+  class CXX:
 
-      compile = action()
-      link = action()
+      compile = Action()
+      link = Action()
 
 which allows fabscripts to reference `cxx.compile` when defining rules::
 
-  obj = rule(cxx.compile, 'hello.o', 'hello.cpp')
+  obj = rule(CXX.compile, 'hello.o', 'hello.cpp')
 
 `faber` also provides specific compilers implementing the above interface, for example::
 
-  class gxx(cxx):
+  class GXX(CXX):
 
-      compile = action('g++ -c -o $(<) $(>)')
+      compile = Action('g++ -c -o $(<) $(>)')
       ...
 
 allowing the build system to later substitute `gxx.compile` where `cxx.compile` was
@@ -41,7 +41,7 @@ to request a specific compiler on the command line:
 Tools may also be instantiated explicitly in a config file, allowing for additional
 configuration (such as specific paths or flags)::
 
-  gxx11 = gxx(name='g++11', features=cxxflags('--std=c++11'))
+  gxx11 = GXX(name='g++11', features=cxxflags('--std=c++11'))
 
 Here, we defined a new `gxx` instance using an additional flag `==std=c++11`, and
 gave it the name `g++11`. To select that from the command line, we would invoke:
@@ -52,7 +52,7 @@ gave it the name `g++11`. To select that from the command line, we would invoke:
 
 You may also want to set up a `gxx` instance to configure a cross-compiler::
 
-  mingwxx = gxx(name='mingw++', command=`/usr/bin/x86_64-w64-mingw32-g++`)
+  mingwxx = GXX(name='mingw++', command=`/usr/bin/x86_64-w64-mingw32-g++`)
   
 and then cross-compile by invoking:
 
@@ -73,7 +73,7 @@ Higher-order artefacts such as `library` or `binary` can then request that the a
 implicit rules are instantiated into ordinary rules to make a library or a binary without
 the user having to spell out all the intermediate artefacts.
 
-This is done in a tool's constructor. For example, the `gxx` constructor calls::
+This is done in a tool's constructor. For example, the `GXX` constructor calls::
   
   implicit_rule(self.compile, types.obj, types.cxx)
   implicit_rule(self.archive, types.lib, types.obj)
@@ -103,9 +103,9 @@ we use a composite artefact to encapsulate those details.
 We use a new `library` rule to define it::
 
   from faber.artefacts.library import *
-  greet = library('greet', 'greet.cpp')
+  greet = Library('greet', 'greet.cpp')
 
-The `library()` call looks similar to the `rule()` call: xxx
+The `Library()` call looks similar to the `rule()` call: xxx
 `artefact` and a `sources` argument, and returns the artefact instance.
 However, the artefact's name (`greet.name`) doesn't necessarily correspond
 to the filename.
@@ -118,7 +118,7 @@ rule or artefact, and the build logic will determine the precise action sequence
 to use it::
 
   from faber.artefacts.binary import *
-  hello = binary('hello', ['hello.cpp', greet])
+  hello = Binary('hello', ['hello.cpp', greet])
 
 Then, to build this with `greet` as shared library (`.so` on UNIX, `.dll` on
 Windows), call `faber link=shared`. To build this as a static library
@@ -147,23 +147,23 @@ our previous version, as it now only builds the `greet` library::
 
   from faber.artefacts.library import *
 
-  greet = library('greet', 'greet.cpp')
+  greet = Library('greet', 'greet.cpp')
 
   default = greet
 
 The toplevel fabscript now includes that sub-project by virtue of a :term:`module`::
 
-  from faber.artefacts.binary import binary
+  from faber.artefacts.binary import Binary
 
-  subdir = module('subdir')
+  subdir = Module('subdir')
 
-  hello = binary('hello', ['hello.cpp', subdir.greet])
+  hello = Binary('hello', ['hello.cpp', subdir.greet])
 
-  rule(action('test', '$(>)'), 'test', hello, attrs=notfile|always)
+  rule(Action('test', '$(>)'), 'test', hello, attrs=notfile|always)
 
   default = hello
 
-Notice how the call to `module('subdir')` returns the module object,
+Notice how the call to `Module('subdir')` returns the module object,
 through which we can access nested artefacts (and other variables).
 The binary rule can now directly reference the `subdir.greet`
 library as one of its sources, and the right thing will happen.

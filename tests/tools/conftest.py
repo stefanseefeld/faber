@@ -6,8 +6,8 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.project import project, buildinfo
-from faber.module import module as M
+from faber.project import Project, BuildInfo
+from faber.module import Module as M
 from os.path import join
 from test.common import tempdir
 from os import mkdir
@@ -20,7 +20,7 @@ def module():
         srcdir = join(root, 'test-source')
         mkdir(srcdir)
         builddir = join(root, 'test-build')
-        info = buildinfo(builddir, srcdir)
-        with project(info):
+        info = BuildInfo(builddir, srcdir)
+        with Project(info):
             with M('test', srcdir, builddir, process=False):
                 yield

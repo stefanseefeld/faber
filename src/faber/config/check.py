@@ -6,9 +6,9 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..feature import set
-from ..artefact import artefact, notfile, nocare
-from ..delayed import delayed
+from ..feature import Set
+from ..artefact import Artefact, notfile, nocare
+from ..delayed import Delayed
 import sqlite3
 import hashlib
 import os
@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger('config')
 
 
-class cache(object):
+class Cache(object):
 
     def __init__(self, builddir):
         fdir = join(builddir, '.faber')
@@ -73,7 +73,7 @@ class cache(object):
         return status, value
 
 
-class logfiles(dict):
+class Logfiles(dict):
 
     def __getitem__(self, m):
         if m not in self:
@@ -96,7 +96,7 @@ class logfiles(dict):
             f.truncate(0)
 
 
-class check(artefact):
+class Check(Artefact):
     """A check is an artefact that performs some tests (typically involving compilation),
     then stores the result in a cache, so it doesn't need to be performed again,
     until the cache is explicitly cleared."""
@@ -107,24 +107,24 @@ class check(artefact):
     def __init__(self, name, features=(), if_=(), ifnot=()):
 
         self.result = None
-        artefact.__init__(self, name, attrs=notfile|nocare, features=features)
-        self.logfile = check.logfiles[self.module]
+        Artefact.__init__(self, name, attrs=notfile|nocare, features=features)
+        self.logfile = Check.logfiles[self.module]
         # The 'condition' here is simply the value of the check's status member.
-        self.use = delayed(lambda: set.instantiate(if_) if self.status else set.instantiate(ifnot), self)
+        self.use = Delayed(lambda: Set.instantiate(if_) if self.status else Set.instantiate(ifnot), self)
         self.reset()
 
     def reset(self):
         key = str((self.name, str(self.features))).encode('utf-8')
         self._cache_key = hashlib.md5(key).hexdigest()
-        self.cached = self._cache_key in check.cache
+        self.cached = self._cache_key in Check.cache
         if self.cached:
-            self.status, self.result = check.cache[self._cache_key]
+            self.status, self.result = Check.cache[self._cache_key]
 
     def __status__(self, status):
         logger.debug('check.__status__({})'.format(status))
         if self.cached:
             return  # the cached value takes precedence
-        artefact.__status__(self, status)
+        Artefact.__status__(self, status)
         if not self.status or self.result is None:
             self.result = self.status
-        check.cache[self._cache_key] = (self.status, self.result)
+        Check.cache[self._cache_key] = (self.status, self.result)

@@ -8,14 +8,14 @@
 
 from .. import types
 from os.path import join, normpath
-from . import composite
+from . import Composite
 
 
-class binary(composite):
+class Binary(Composite):
     """Build a binary from one or more source files."""
 
     def __init__(self, *args, **kwds):
-        composite.__init__(self, *args, type=types.bin, **kwds)
+        Composite.__init__(self, *args, type=types.bin, **kwds)
 
     @property
     def _filename(self):

@@ -1,4 +1,4 @@
-The `artefact` class
+The `Artefact` class
 ====================
 
 .. currentmodule:: faber.artefact
@@ -29,7 +29,7 @@ attributes
 Constructor
 -----------
 
-.. method:: artefact(name, attrs=0, features=(), use=(), condition=None)
+.. method:: Artefact(name, attrs=0, features=(), use=(), condition=None)
 
    Construct an artefact.
 
@@ -43,7 +43,7 @@ Constructor
 Call operator
 -------------
 
-.. automethod:: faber.artefact.artefact.__call__
+.. automethod:: faber.artefact.Artefact.__call__
 
 Attributes
 ----------
@@ -63,7 +63,7 @@ Attributes
 Methods
 -------
 
-.. automethod:: artefact.__status__
+.. automethod:: Artefact.__status__
 		   
 
 Examples

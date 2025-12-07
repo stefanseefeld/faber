@@ -7,7 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from ..utils import capture_output
-from .artefact import dependency_error
+from .artefact import DependencyError
 import asyncio
 from concurrent.futures import TimeoutError
 import subprocess
@@ -40,7 +40,7 @@ def command_string(func, targets, sources, kwds):
     return '{}({})'.format(func.__name__, ', '.join(args))
 
 
-class recipe(object):
+class Recipe(object):
 
     @classmethod
     def init(cls, jobs=1, timeout=0, noexec=False):
@@ -74,7 +74,7 @@ class recipe(object):
 
         from ..action import CallError
         # Setting '__noexec__' allows a function to be run even in noexec mode.
-        if recipe.noexec and not hasattr(self.action.command, '__noexec__'):
+        if Recipe.noexec and not hasattr(self.action.command, '__noexec__'):
             return True, '', ''
         targets = [t.frontend for t in self.targets]
         sources = [s.frontend for s in self.sources]
@@ -87,7 +87,7 @@ class recipe(object):
                 # let users indicate failure by explicitly returning 'False'
                 if status is not False:
                     status = True
-            except dependency_error:
+            except DependencyError:
                 # dependency errors are fatal - there is no point
                 # in carrying on...
                 raise
@@ -109,7 +109,7 @@ class recipe(object):
 
     async def run_async_subprocess(self):
         vars = self.variables()
-        async with recipe.semaphore:
+        async with Recipe.semaphore:
             cmd = self.action.command
             # substitute $(<[N])
             for m in re.findall(r'(\$\(<\[(\d+)\]\))', cmd):
@@ -136,7 +136,7 @@ class recipe(object):
                                                                 stdout=asyncio.subprocess.PIPE,
                                                                 stderr=asyncio.subprocess.PIPE)
             try:
-                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=recipe.timeout)
+                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=Recipe.timeout)
                 stdout = stdout and stdout.decode(encoding).strip()
                 stderr = stderr and stderr.decode(encoding).strip()
                 status = process.returncode == 0

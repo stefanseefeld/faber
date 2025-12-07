@@ -9,21 +9,21 @@
 from ... import test
 from ...artefact import notfile, always, internal
 from ...rule import rule, depend
-from ...action import action
+from ...action import Action
 from ...tools import compiler
-from ...feature import map, join
+from ...feature import Map, join
 from ... import platform
 from ...utils import capture_output
 import re
 
 
-class test_module(test.suite):
+class TestModule(test.Suite):
     """A test module represents all the test cases contained
     in a single Boost.Test executable."""
 
-    class run(action):
+    class Run(Action):
 
-        runpath = map(compiler.runpath, join)
+        runpath = Map(compiler.runpath, join)
         if platform.os == 'Windows':
             command = """set PATH=$(runpath);%PATH%
 $(>)"""
@@ -31,10 +31,10 @@ $(>)"""
             command = 'LD_LIBRARY_PATH=$(runpath) $(>)'
 
         def __init__(self, args):
-            super(test_module.run, self).__init__(test_module.run.command + ' ' + ' '.join(args))
+            super(TestModule.Run, self).__init__(TestModule.Run.command + ' ' + ' '.join(args))
 
     def __init__(self, name, exe, **kwds):
-        super(test_module, self).__init__(name, [], **kwds)
+        super(TestModule, self).__init__(name, [], **kwds)
         self.exe = exe
         a = rule(self.query, 't:' + self.name, sources=self.exe,
                  attrs=notfile|always|internal)
@@ -47,13 +47,13 @@ $(>)"""
 
         runpath = 'linkpath' in target[0].features and compiler.runpath(str(target[0].features.linkpath))
         target[0].features += runpath
-        a = self.run(['--list_content'])
+        a = self.Run(['--list_content'])
         with capture_output() as (out, err):
             result = a(target, source)
         if result:
             stdout = out.getvalue()
             for name in self.parse(stdout):
-                t = test.test(name, self.exe, run=self.run(['-x', 'no', '-t', name]),
+                t = test.Test(name, self.exe, run=self.Run(['-x', 'no', '-t', name]),
                               module=self.module,
                               features=runpath)
                 self.tests.append(t)

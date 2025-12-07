@@ -15,32 +15,32 @@ import logging
 logger = logging.getLogger('features')
 
 
-class feature(object):
+class Feature(object):
 
     _registry = dict()
 
     def _constr(self, v):
-        from .value import value
-        if type(v) is value:
+        from .value import Value
+        if type(v) is Value:
             return v
         elif type(v) is tuple:
-            return value(self, v, None)
+            return Value(self, v, None)
         else:
-            return value(self, v, None)
+            return Value(self, v, None)
 
     def _register(self):
-        feature._registry[self.name] = self
+        Feature._registry[self.name] = self
         logger.info('defining feature "{}"'.format(self.name))
 
     @staticmethod
     def lookup(name):
-        return feature._registry[name]
+        return Feature._registry[name]
 
     def __new__(cls, *args, **kwds):
         # if any of the keyword arguments are features, construct a compound-feature
-        composite = any([isinstance(a, feature) for a in args])
+        composite = any([isinstance(a, Feature) for a in args])
         if composite:
-            cls = composite_feature
+            cls = CompositeFeature
         inst = object.__new__(cls)
         return inst
 
@@ -55,15 +55,15 @@ class feature(object):
 
     def __call__(self, *args, **kwds):
         """Instantiate a feature value."""
-        from .value import value
-        from ..delayed import delayed
+        from .value import Value
+        from ..delayed import Delayed
         cond = kwds.pop('condition', None)
         # HACK: we need to define what argument types to allow
-        if args and isinstance(args[0], delayed):
+        if args and isinstance(args[0], Delayed):
             # simply resubmit the value in the delayed's `eval`
             return args[0].apply(partial(self.__call__, **kwds))
         else:
-            return value(self, self._validate(*args, **kwds), cond)
+            return Value(self, self._validate(*args, **kwds), cond)
 
     def _join(self, values):
         # create a new value by joining the given arguments
@@ -75,13 +75,13 @@ class feature(object):
 
     def _cassign(self, op, v1, v2):
 
-        from .value import value
+        from .value import Value
         assert v1._type is self
-        t2 = v2._type if isinstance(v2, value) else self
+        t2 = v2._type if isinstance(v2, Value) else self
         if self is not t2:
             raise ValueError('cannot assign values from different features "{}" and "{}"'
                              .format(self.name, t2.name))
-        v2 = v2._value if isinstance(v2, value) else v2
+        v2 = v2._value if isinstance(v2, Value) else v2
         if v2 is not None:
             if self.attributes & multi:
                 if op is iadd:
@@ -113,8 +113,8 @@ class feature(object):
             elif self.attributes & path:
                 base = kwds.get('base', None)
                 if base is None:
-                    from ..module import module
-                    base = module.current.srcdir if module.current else None
+                    from ..module import Module
+                    base = Module.current.srcdir if Module.current else None
                 value = [adjust_path(a, base) for a in args]
             else:
                 value = args[:]
@@ -127,8 +127,8 @@ class feature(object):
             elif self.attributes & path:
                 base = kwds.get('base', None)
                 if base is None:
-                    from ..module import module
-                    base = module.current.srcdir if module.current else None
+                    from ..module import Module
+                    base = Module.current.srcdir if Module.current else None
                 value = adjust_path(args[0], base)
             else:
                 value = args[0]
@@ -137,7 +137,7 @@ class feature(object):
         return value
 
 
-class composite_feature(feature):
+class CompositeFeature(Feature):
 
     def __init__(self, name, *args, **kwds):
         """Create a composite feature."""
@@ -148,14 +148,14 @@ class composite_feature(feature):
         self.subfeatures = []
         # ...then handle the keyword arguments as subfeatures.
         for s in args:
-            assert isinstance(s, feature)
+            assert isinstance(s, Feature)
             self.subfeatures.append(s)
         if not sub:
             self._register()
 
     def __call__(self, *args, **kwds):
         """Instantiate a feature value."""
-        from .value import composite_value
+        from .value import CompositeValue
         if args:
             assert len(args) == 1 and not kwds
             sf = args[0].split('-')
@@ -163,7 +163,7 @@ class composite_feature(feature):
         else:
             values = {s.name: None for s in self.subfeatures}
             values.update({s.name: s._constr(kwds.get(s.name)) for s in self.subfeatures})
-        return composite_value(self, **values)
+        return CompositeValue(self, **values)
 
     def _join(self, values):
         # create a new value by joining the given arguments
@@ -172,13 +172,13 @@ class composite_feature(feature):
 
     def _cassign(self, op, v1, v2):
 
-        from .value import value
+        from .value import Value
         assert v1._type is self
-        t2 = v2._type if isinstance(v2, value) else self
+        t2 = v2._type if isinstance(v2, Value) else self
         if self is not t2:
             raise ValueError('cannot join values from different features "{}" and "{}"'
                              .format(self.name, t2.name))
-        assert isinstance(v2, value)
+        assert isinstance(v2, Value)
         for s in self.subfeatures:
             s._cassign(op, getattr(v1, s.name), getattr(v2, s.name))
         return v1

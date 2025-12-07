@@ -6,15 +6,15 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
-from ..tool import tool
+from ..action import Action
+from ..tool import Tool
 import shutil
 
 
-class archive(action):
+class Archive(Action):
 
     def __init__(self, format=None):
-        action.__init__(self)
+        Action.__init__(self)
         if format:
             self.format = format
         elif shutil._BZ2_SUPPORTED:
@@ -31,7 +31,7 @@ class archive(action):
         shutil.make_archive(archive.name, self.format, stage)
 
 
-class archiver(tool):
+class Archiver(Tool):
 
     @staticmethod
     def extension(format):
@@ -46,4 +46,4 @@ class archiver(tool):
         else:
             raise ValueError('unsupported archive format {}'.format(format))
 
-    archive = archive
+    archive = Archive

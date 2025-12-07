@@ -7,12 +7,12 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.artefacts.binary import binary
+from faber.artefacts.binary import Binary
 
-greet = module('greet')
+greet = Module('greet')
 
-hello = binary('hello', ['hello.cpp', greet.greet])
+hello = Binary('hello', ['hello.cpp', greet.greet])
 
-rule(action('test', '$(>)'), 'test', hello, attrs=notfile|always)
+rule(Action('test', '$(>)'), 'test', hello, attrs=notfile|always)
 
 default = hello

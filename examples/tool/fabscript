@@ -7,10 +7,10 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.tools.cxx import cxx
+from faber.tools.cxx import CXX
 
 # make targets from source using a pre-defined C++ compiler tool
-obj = rule(cxx.compile, 'hello.o', 'hello.cpp')
-hello = rule(cxx.link, 'hello', obj)
+obj = rule(CXX.compile, 'hello.o', 'hello.cpp')
+hello = rule(CXX.link, 'hello', obj)
 
 default = hello

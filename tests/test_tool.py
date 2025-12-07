@@ -13,9 +13,9 @@ import pytest
 
 def test_tool():
 
-    class A(tool):
+    class A(Tool):
         def __init__(self, name=None, features=()):
-            tool.__init__(self, name=name, features=features)
+            Tool.__init__(self, name=name, features=features)
 
     class B(A):
         pass
@@ -27,34 +27,34 @@ def test_tool():
     # just generate an A
     assert isinstance(A.instance(), A)
     # make sure A instances have a feature 'A' with A.name='A'
-    assert isinstance(A.instance(set(A.tool(name='A'))), A)
+    assert isinstance(A.instance(Set(A.tool(name='A'))), A)
 
     # test simple inheritance
     assert isinstance(B.instance(), A)
     assert isinstance(B.instance(), B)
-    assert isinstance(B.instance(set(A.tool(name='B'))), B)
-    assert isinstance(B.instance(set(B.tool(name='B'))), B)
+    assert isinstance(B.instance(Set(A.tool(name='B'))), B)
+    assert isinstance(B.instance(Set(B.tool(name='B'))), B)
 
     # test tools with explicit name
     assert isinstance(C.instance(), C)
-    assert isinstance(C.instance(set(A.tool(name='CC'))), C)
+    assert isinstance(C.instance(Set(A.tool(name='CC'))), C)
 
     c1 = C('C1')  # noqa F841
     c2 = C('C2')  # noqa F841
-    cc1 = C.instance(set(A.tool(name='C1')))
-    cc2 = C.instance(set(A.tool(name='C2')))
+    cc1 = C.instance(Set(A.tool(name='C1')))
+    cc2 = C.instance(Set(A.tool(name='C2')))
     assert cc1.features.A.name == 'C1'
     assert cc2.features.A.name == 'C2'
-    cc3 = C.instance(set(A.tool(name='CC')))  # noqa F841
+    cc3 = C.instance(Set(A.tool(name='CC')))  # noqa F841
     with pytest.raises(ValueError):
-        cc = C.instance(set(A.tool(name='CCCC')))  # noqa F841
+        cc = C.instance(Set(A.tool(name='CCCC')))  # noqa F841
 
 
 def test_action():
 
-    class A(tool):
+    class A(Tool):
 
-        a = action('some command')
+        a = Action('some command')
 
     class B(A): pass
 

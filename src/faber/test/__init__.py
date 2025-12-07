@@ -11,6 +11,6 @@ fail = 0x2
 xpass = 0x3
 xfail = 0x4
 
-from .test import test  # noqa F401
-from .suite import suite  # noqa F401
-from .report import report  # noqa F401
+from .test import Test  # noqa F401
+from .suite import Suite  # noqa F401
+from .report import Report  # noqa F401

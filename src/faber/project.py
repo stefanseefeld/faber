@@ -8,11 +8,11 @@
 
 from __future__ import absolute_import
 from . import scheduler
-from .feature import lazy_set
-from .feature.condition import expr as fexpr
-from .artefact import artefact, init as artefact_init
+from .feature import LazySet
+from .feature.condition import Expression as fexpr
+from .artefact import Artefact, init as artefact_init
 from .assembly import init as assembly_init
-from .module import module
+from .module import Module
 from .error import error_reporter
 from .utils import aslist
 from . import config as C
@@ -54,7 +54,7 @@ def config(script):
     return env
 
 
-class buildinfo(object):
+class BuildInfo(object):
     """The collection of build-related information, initially provided
     via command-line arguments, stored in the build directory and later
     retrieved from there."""
@@ -98,7 +98,7 @@ class buildinfo(object):
     def valid(self): return self.srcdir is not None
 
 
-class options(dict):
+class Options(dict):
     def __readonly__(self, *args, **kwargs):
         raise RuntimeError('options is immutable')
     __setitem__ = __readonly__
@@ -117,7 +117,7 @@ class options(dict):
         return self.get('without-' + value)
 
 
-class project(object):
+class Project(object):
 
     def __init__(self, info, **kwds):
         """Construct a project. Parameters:
@@ -129,7 +129,7 @@ class project(object):
 
         self.srcdir = info.srcdir
         self.builddir = info.builddir
-        self.options = options(info.options)
+        self.options = Options(info.options)
         self.parameters = dict(info.parameters.items())
         info.store()
         self.sched_opts = kwds
@@ -137,23 +137,23 @@ class project(object):
     def __enter__(self):
         artefact_init()
         scheduler.init(self.parameters, self.builddir, **self.sched_opts)
-        module.init(self.options, self.parameters)
+        Module.init(self.options, self.parameters)
         C.init(self.builddir)
         return self
 
     def __exit__(self, type, value, traceback):
         C.finish()
-        module.finish()
+        Module.finish()
         scheduler.finish()
 
     def build(self, goals):
         """build the project, updating the given goals or any defaults if None."""
 
         with self:
-            m = module('', self.srcdir, self.builddir)
+            m = Module('', self.srcdir, self.builddir)
             if goals:
                 try:
-                    goals = [a for g in goals for a in artefact.lookup(g)]
+                    goals = [a for g in goals for a in Artefact.lookup(g)]
                 except KeyError as e:
                     print('don\'t know how to make {}'.format(e))
                     goals = []
@@ -187,7 +187,7 @@ class project(object):
         """Clean up file artefacts."""
 
         with self:
-            m = module('', self.srcdir, self.builddir)  # noqa F841
+            m = Module('', self.srcdir, self.builddir)  # noqa F841
             scheduler.clean(level)
             C.clean(level)
         if level > 1:
@@ -201,13 +201,13 @@ class project(object):
         with self:
             result = True
             if what == 'goals':
-                m = module('', self.srcdir, self.builddir)
+                m = Module('', self.srcdir, self.builddir)
                 print('known artefacts:')
-                for a in sorted(artefact.iter(), key=lambda a: a.qname):
+                for a in sorted(Artefact.iter(), key=lambda a: a.qname):
                     print('  {}'.format(a.qname))
                 if items:
                     try:
-                        goals = [a for i in items for a in artefact.lookup(i)]
+                        goals = [a for i in items for a in Artefact.lookup(i)]
                     except KeyError as e:
                         print('don\'t know how to make {}'.format(e))
                         goals = []
@@ -218,7 +218,7 @@ class project(object):
                     scheduler.print_dependency_graph(goals)
             elif what == 'tools':
                 from . import tool
-                features = lazy_set(module.params.copy())
+                features = LazySet(Module.params.copy())
                 for i in items:
                     tool.info(i, features)
         return result
@@ -254,17 +254,17 @@ To get a list of available artefacts or features, type
 
             def listartefacts(self):
                 self.list([k for k, v in self._env.items()
-                           if isinstance(v, artefact)])
+                           if isinstance(v, Artefact)])
 
             def listfeatures(self):
-                from .feature import feature
-                self.list(feature._registry.keys())
+                from .feature import Feature
+                self.list(Feature._registry.keys())
 
         with self:
-            m = module('', self.srcdir, self.builddir)
+            m = Module('', self.srcdir, self.builddir)
             # Use the module's environment, but inject a few helper functions
             env = m._env.copy()
-            env['artefacts'] = list(artefact.iter())
+            env['artefacts'] = list(Artefact.iter())
             pydoc.help = Helper(env)
             history = None
             import code

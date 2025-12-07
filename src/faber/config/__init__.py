@@ -6,46 +6,46 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact, notfile
+from ..artefact import Artefact, notfile
 from ..rule import depend
 from .. import output
 from .. import logging
 
 
 def init(builddir):
-    from .check import cache, logfiles, check
-    check.cache = cache(builddir)
-    check.logfiles = logfiles()
+    from .check import Cache, Logfiles, Check
+    Check.cache = Cache(builddir)
+    Check.logfiles = Logfiles()
 
 
 def finish():
-    from .check import check
-    if check.cache:
-        check.cache.finish()
-        check.cache = None
-    check.logfiles.clear()
+    from .check import Check
+    if Check.cache:
+        Check.cache.finish()
+        Check.cache = None
+    Check.logfiles.clear()
 
 
 def reset(level):
-    from .check import check
-    check.logfiles.reset()
-    if check.cache:
-        check.cache.reset(level)
+    from .check import Check
+    Check.logfiles.reset()
+    if Check.cache:
+        Check.cache.reset(level)
 
 
 def clean(level):
-    from .check import check
+    from .check import Check
     if level > 1:
-        check.logfiles.clean()
-        if check.cache:
-            check.cache.clean()
+        Check.logfiles.clean()
+        if Check.cache:
+            Check.cache.clean()
 
 
-class report(artefact):
+class Report(Artefact):
 
     def __init__(self, name, checks):
         use = [c.use for c in checks]
-        artefact.__init__(self, name, attrs=notfile, use=use)
+        Artefact.__init__(self, name, attrs=notfile, use=use)
         depend(self, checks)
         self.checks = checks
 
@@ -60,5 +60,5 @@ class report(artefact):
                         .format(c.qname, max_name_length, c.result, '(cached)' if c.cached else ''))
 
     def __status__(self, status):
-        artefact.__status__(self, status)
+        Artefact.__status__(self, status)
         self._report()

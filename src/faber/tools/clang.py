@@ -6,14 +6,14 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action
-from ..feature import set, map, translate, select_if
+from ..action import Action
+from ..feature import Set, Map, translate, select_if
 from .. import types
 from .. import platform
 from ..assembly import implicit_rule as irule
 from . import compiler
 from .cc import *
-from .gcc import makedep_wrapper
+from .gcc import MakeDepWrapper
 import subprocess
 import re
 
@@ -32,7 +32,7 @@ arch_flags = dict(x86_64=['-m64'],
 
 def validate(cls, command, version, features):
 
-    features = set.instantiate(features)
+    features = Set.instantiate(features)
     version = version or cls.find_version_requirement(features)
     v = subprocess.check_output([command, '--version']).decode()
     v = re.match('.* version ([0-9.]+)', v).group(1)
@@ -61,61 +61,61 @@ def validate(cls, command, version, features):
     return command, version, features
 
 
-class makedep(action):
+class MakeDep(Action):
 
     command = 'clang $(cppflags) -MM -o $(<) $(>)'
-    cppflags = map(compiler.cppflags)
-    cppflags += map(compiler.define, translate, prefix='-D')
-    cppflags += map(compiler.include, translate, prefix='-I')
+    cppflags = Map(compiler.cppflags)
+    cppflags += Map(compiler.define, translate, prefix='-D')
+    cppflags += Map(compiler.include, translate, prefix='-I')
 
 
-class compile(action):
+class Compile(Action):
 
     command = 'clang $(cppflags) $(cflags) -c -o $(<) $(>)'
-    cppflags = map(compiler.cppflags)
-    cppflags += map(compiler.define, translate, prefix='-D')
-    cppflags += map(compiler.include, translate, prefix='-I')
-    cflags = map(compiler.cflags)
-    cflags += map(compiler.link, select_if, 'shared', '-fPIC')
+    cppflags = Map(compiler.cppflags)
+    cppflags += Map(compiler.define, translate, prefix='-D')
+    cppflags += Map(compiler.include, translate, prefix='-I')
+    cflags = Map(compiler.cflags)
+    cflags += Map(compiler.link, select_if, 'shared', '-fPIC')
 
 
-class link(action):
+class Link(Action):
 
     command = 'clang $(ldflags) -o $(<) $(>) $(libs)'
-    ldflags = map(compiler.ldflags)
-    ldflags += map(compiler.linkpath, translate, prefix='-L')
-    ldflags += map(compiler.link, select_if, 'shared', '-shared')
+    ldflags = Map(compiler.ldflags)
+    ldflags += Map(compiler.linkpath, translate, prefix='-L')
+    ldflags += Map(compiler.link, select_if, 'shared', '-shared')
     if platform.os == 'Darwin':
-        ldflags += map(compiler.soname, translate, prefix='-Wl,-install_name -Wl,')
+        ldflags += Map(compiler.soname, translate, prefix='-Wl,-install_name -Wl,')
     else:
-        ldflags += map(compiler.soname, translate, prefix='-Wl,-soname -Wl,')
-    libs = map(compiler.libs, translate, prefix='-l')
+        ldflags += Map(compiler.soname, translate, prefix='-Wl,-soname -Wl,')
+    libs = Map(compiler.libs, translate, prefix='-l')
 
     def submit(self, targets, sources):
         # sources may contain object files as well as libraries
         # Separate the two, and add the libraries to the libs variable.
 
-        src, linkpath, libs = clang.split_libs(sources)
+        src, linkpath, libs = CLang.split_libs(sources)
         linkpath = [compiler.linkpath(l, base='') for l in linkpath]
         libs = [compiler.libs(l) for l in libs]
-        fs = set(*libs + linkpath)
+        fs = Set(*libs + linkpath)
         for t in targets:
             t.features |= fs
-        action.submit(self, targets, src)
+        Action.submit(self, targets, src)
 
 
-class clang(cc):
+class CLang(CC):
 
-    makedep = makedep_wrapper(makedep())
-    compile = compile()
-    archive = action('ar rc $(<) $(>)')
-    link = link()
+    makedep = MakeDepWrapper(MakeDep())
+    compile = Compile()
+    archive = Action('ar rc $(<) $(>)')
+    link = Link()
 
     def __init__(self, name='clang', command=None, version='', features=()):
 
         command, version, features = validate(self.__class__, command or 'clang',
                                               version, features)
-        cc.__init__(self, name=name, version=version)
+        CC.__init__(self, name=name, version=version)
         self.features |= features
         if command:
             self.makedep.subst('clang', command)

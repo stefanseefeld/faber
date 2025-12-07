@@ -15,8 +15,8 @@ foundational building blocks. Consider this `fabscript`::
 
   
   # define some actions
-  compile = action('c++.compile', 'c++ -c -o $(<) $(>)')
-  link = action('c++.link', 'c++ -o $(<) $(>)')
+  compile = Action('c++.compile', 'c++ -c -o $(<) $(>)')
+  link = Action('c++.link', 'c++ -o $(<) $(>)')
 
   # bind artefacts to sources using the above recipes
   obj = rule(compile, 'hello.o', 'hello.cpp')
@@ -33,7 +33,7 @@ Actions and recipes
 
 The following line defines a very simple action called `c++.compile`::
 
-   compile = action('c++.compile', 'c++ -c -o $(<) $(>)')
+   compile = Action('c++.compile', 'c++ -c -o $(<) $(>)')
 
 It can be used as a recipe in a rule to compile an object::
 
@@ -66,7 +66,7 @@ previous chapter where we defined a `run_test` action to update a `test` artefac
 
 We could adorn this action with some output to indicate whether the test passed or failed::
 
-  run = action('run', './$(>)')
+  run = Action('run', './$(>)')
 
   # python functions may be actions, too
   def run_test(target, source):
@@ -139,7 +139,7 @@ Values may be defined globally, for example as command-line options:
 
 or per artefact::
 
-  lib=library('greet', sources='greet.cpp', features=link('shared'))
+  lib=Library('greet', sources='greet.cpp', features=link('shared'))
 
 An individual feature corresponds to a variable (e.g. 'variant', 'target.os',
 or 'link', in the above examples), which may hold different values (e.g.
@@ -155,7 +155,7 @@ for a given target artefact. Consider the `compile` action we already encountere
 now augmented by a flag to set an include path. A somewhat more advanced version
 suitable to be used with `g++` on Linux may look somewhat like::
 
-  class compile(action):
+  class Compile(Action):
 
       command = 'g++ $(cppflags) -c -o $(<) $(>)'
       cppflags = map(compiler.include, translate, prefix='-I')
@@ -176,7 +176,7 @@ resulting complexities of such data flows in a later chapter.
 Artefacts
 ---------
 
-An :term:`artefact` is the central concept at the heart of `faber`. Typically,
+An :term:`Artefact` is the central concept at the heart of `faber`. Typically,
 artefacts are declared using `rules` as described in earlier sections, or as
 `aliases` to other artefacts. While we leave the full description of the
 associated API to the reference manual, here are a few frequently used properties:

@@ -1,4 +1,4 @@
-The `action` class
+The `Action` class
 ==================
 
 .. py:currentmodule:: faber.action
@@ -11,15 +11,15 @@ a Python callable.
 Constructor
 -----------
 
-.. method:: action()
+.. method:: Action()
 
    Construct an empty (abstract) action. This is useful to define an abstract `tool`.
 
-.. method:: action(command)
+.. method:: Action(command)
 
    Construct an action from the given command (string).
 
-.. method:: action(name, command)
+.. method:: Action(name, command)
 
    Construct an action with the given name, from the given command (string).
 
@@ -37,9 +37,9 @@ Examples
 ::
 
    # define some actions
-   compile = action('c++.compile', 'c++ -c -o $(<) $(>)')
-   link = action('c++.link', 'c++ -o $(<) $(>)')
-   test = action('run_test', '$(>)')
+   compile = Action('c++.compile', 'c++ -c -o $(<) $(>)')
+   link = Action('c++.link', 'c++ -o $(<) $(>)')
+   test = Action('run_test', '$(>)')
 
    # this demonstrates how to compound actions
    def run_test(target, source):

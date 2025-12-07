@@ -20,7 +20,7 @@ def test_cli_mixed_args():
     # (see https://bugs.python.org/issue14191) and requires a
     # workaround. Make sure it works as expected...
 
-    with patch('faber.project.project.build'):
+    with patch('faber.project.Project.build'):
         with tempdir() as b:
             build = '--builddir={}'.format(b)
             with argv(['faber', build, 'a', 'a=b', '-s']):

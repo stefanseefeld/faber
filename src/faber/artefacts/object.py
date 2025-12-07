@@ -7,15 +7,15 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from .. import types
-from . import composite
+from . import Composite
 from os.path import join, normpath
 
 
-class object(composite):
+class Object(Composite):
     """Compile an object from one or more source files."""
 
     def __init__(self, *args, **kwds):
-        composite.__init__(self, *args, type=types.obj, **kwds)
+        Composite.__init__(self, *args, type=types.obj, **kwds)
 
     @property
     def _filename(self):

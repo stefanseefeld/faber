@@ -6,7 +6,7 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from faber.tools.clang import clang
+from faber.tools.clang import CLang
 from faber.action import CallError
 from faber.utils import capture_output
 from test.compiler import make_source, check_makedep, check_compile
@@ -15,10 +15,10 @@ import pytest
 
 @pytest.fixture
 def cc():
-    if not clang.instances():
+    if not CLang.instances():
         pytest.skip('no clang compiler found')
     else:
-        return clang.instance()
+        return CLang.instance()
 
 
 def test_makedep(cc):

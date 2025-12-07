@@ -7,7 +7,7 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from faber.scheduler.artefact import *
-from faber.scheduler.recipe import recipe
+from faber.scheduler.recipe import Recipe
 import os
 
 
@@ -42,6 +42,6 @@ class action(object):
 
 
 def make_artefact(name, attrs=0, touch=False, prerequisites=[]):
-    a = artefact(frontend(name, attrs), prerequisites=prerequisites)
-    a.recipe = recipe(action(), [a], []) if touch else None
+    a = Artefact(frontend(name, attrs), prerequisites=prerequisites)
+    a.recipe = Recipe(action(), [a], []) if touch else None
     return a

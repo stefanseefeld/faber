@@ -11,7 +11,7 @@ from operator import iadd, ior
 import copy
 
 
-class value(object):
+class Value(object):
 
     def __init__(self, type, v, condition, **kwds):
         """Construct a feature value.
@@ -24,7 +24,7 @@ class value(object):
         self._type = type
         self._name = type.name
         self._value = v
-        assert not isinstance(v, value)
+        assert not isinstance(v, Value)
         self._condition = condition
 
     def __bool__(self):
@@ -34,7 +34,7 @@ class value(object):
 
     def __copy__(self):
         v = copy.copy(self._value)
-        return value(self._type, v, self._condition)
+        return Value(self._type, v, self._condition)
 
     def copy(self):
         return self.__copy__()
@@ -52,7 +52,7 @@ class value(object):
         return self._type._cassign(ior, self, other)
 
     def __eq__(self, other):
-        if type(other) is value:
+        if type(other) is Value:
             if self._type != other._type:
                 return False
             return self._value == other._value
@@ -74,13 +74,13 @@ class value(object):
         For incidental features this unconditionally returns True.
         Otherwise this reports true iff all defined values in self equal
         the corresponding values in 'other'."""
-        if isinstance(other, value):
+        if isinstance(other, Value):
             assert self._type == other._type
 
         if self._type.attributes & incidental:
             return True
         else:
-            if not isinstance(other, value):
+            if not isinstance(other, Value):
                 return other in self._value if self._type.attributes & multi else other == self._value
             else:
                 return (self._value is None or
@@ -111,7 +111,7 @@ class value(object):
             return ()
 
 
-class composite_value(value):
+class CompositeValue(Value):
 
     def __init__(self, type, **kwds):
         """Construct a feature value.
@@ -133,10 +133,10 @@ class composite_value(value):
         # make sure to copy all values
         kwds = {s.name: self.__dict__[s.name].copy() for s in self._type.subfeatures
                 if self.__dict__[s.name] is not None}
-        return composite_value(self._type, **kwds)
+        return CompositeValue(self._type, **kwds)
 
     def __eq__(self, other):
-        if isinstance(other, composite_value):
+        if isinstance(other, CompositeValue):
             for s in self._type.subfeatures:
                 if getattr(self, s.name) != getattr(other, s.name):
                     return False
@@ -152,7 +152,7 @@ class composite_value(value):
         For incidental features this unconditionally returns True.
         Otherwise this reports true iff all defined values in self equal
         the corresponding values in 'other'."""
-        if not isinstance(other, composite_value):
+        if not isinstance(other, CompositeValue):
             return False  # comparison to raw data is only allows for non-compound values.
         elif self._type != other._type:
             return False

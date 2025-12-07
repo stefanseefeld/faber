@@ -6,16 +6,16 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..action import action, CallError
-from ..feature import set as fset, map, translate, select_if
-from ..artefact import artefact
+from ..action import Action, CallError
+from ..feature import Set, Map, translate, select_if
+from ..artefact import Artefact
 from .. import types
 from ..assembly import implicit_rule as irule
 from ..utils import capture_output
 from . import compiler
-from .cc import cc
-from .cxx import cxx, cxxstd
-from ..artefacts.library import library
+from .cc import CC
+from .cxx import CXX, cxxstd
+from ..artefacts.library import Library
 from os.path import basename, splitext, join, normpath, pathsep, exists, isabs, relpath
 try:
     import winreg
@@ -31,22 +31,22 @@ import sys
 logger = logging.getLogger('tools')
 
 
-class makedep(action):
+class MakeDep(Action):
 
     # /showIncludes emits to stderr !
     command = 'cl /nologo $(cppflags) /showIncludes /EP $(>)'
-    cppflags = map(compiler.cppflags)
-    cppflags += map(compiler.define, translate, prefix='/D')
-    cppflags += map(compiler.include, translate, prefix='/I"', suffix='"')
+    cppflags = Map(compiler.cppflags)
+    cppflags += Map(compiler.define, translate, prefix='/D')
+    cppflags += Map(compiler.include, translate, prefix='/I"', suffix='"')
 
 
-class makedep_wrapper(action):
+class MakeDepWrapper(Action):
     """This is a wrapper around `cl /showIncludes ...` to normalize the output and
     make it portable across compilers."""
 
     def __init__(self):
-        self.cmd = makedep()
-        action.__init__(self, self.cmd.name, self.makedep)
+        self.cmd = MakeDep()
+        Action.__init__(self, self.cmd.name, self.makedep)
 
     def map(self, fs):
         return self.cmd.map(fs)  # just forward variables from makedep
@@ -78,44 +78,44 @@ class makedep_wrapper(action):
             f.writelines(headers)
 
 
-class compile(action):
+class Compile(Action):
 
     command = 'cl /nologo $(cppflags) $(cflags) $(cxxflags) /GR /MD /EHsc /c /Fo$(<) $(>)'
-    cppflags = map(compiler.cppflags)
-    cppflags += map(compiler.define, translate, prefix='/D')
-    cppflags += map(compiler.include, translate, prefix='/I"', suffix='"')
-    cflags = map(compiler.cflags)
-    cxxflags = map(compiler.cxxflags)
-    cxxflags += map(cxxstd, translate, prefix='/std:c++')
+    cppflags = Map(compiler.cppflags)
+    cppflags += Map(compiler.define, translate, prefix='/D')
+    cppflags += Map(compiler.include, translate, prefix='/I"', suffix='"')
+    cflags = Map(compiler.cflags)
+    cxxflags = Map(compiler.cxxflags)
+    cxxflags += Map(cxxstd, translate, prefix='/std:c++')
 
 
-class link(action):
+class Link(Action):
 
     command = 'link /nologo $(ldflags) /out:$(<) $(>) $(libs)'
-    ldflags = map(compiler.ldflags)
-    ldflags += map(compiler.linkpath, translate, prefix='/libpath:"', suffix='"')
-    ldflags += map(compiler.link, select_if, 'shared', '/DLL')
-    libs = map(compiler.libs, translate, suffix='.lib')
+    ldflags = Map(compiler.ldflags)
+    ldflags += Map(compiler.linkpath, translate, prefix='/libpath:"', suffix='"')
+    ldflags += Map(compiler.link, select_if, 'shared', '/DLL')
+    libs = Map(compiler.libs, translate, suffix='.lib')
 
     def submit(self, targets, sources):
         # sources may contain object files as well as libraries
         # Separate the two, and add the libraries to the libs variable.
 
-        src, linkpath, libs = msvc.split_libs(sources)
+        src, linkpath, libs = MSVC.split_libs(sources)
         linkpath = [compiler.linkpath(l, base='') for l in linkpath]
         libs = [compiler.libs(l) for l in libs]
-        fs = fset(*libs + linkpath)
+        fs = Set(*libs + linkpath)
         for t in targets:
             t.features |= fs
-        action.submit(self, targets, src)
+        Action.submit(self, targets, src)
 
 
-class archive(action):
+class Archive(Action):
 
     command = 'lib /nologo /out:$(<) $(>)'
 
 
-class msvc(cc, cxx):
+class MSVC(CC, CXX):
 
     # available toolchains by version
     _toolchains = OrderedDict()
@@ -123,10 +123,10 @@ class msvc(cc, cxx):
     win_archs = {'x86_64': 'x64',
                  'x86': 'x86'}
 
-    makedep = makedep_wrapper()
-    compile = compile()
-    archive = archive()
-    link = link()
+    makedep = MakeDepWrapper()
+    compile = Compile()
+    archive = Archive()
+    link = Link()
 
     @classmethod
     def split_libs(cls, sources):
@@ -137,10 +137,10 @@ class msvc(cc, cxx):
         libs = []
         linkpath = set()
         for s in sources:
-            if isinstance(s, library):
+            if isinstance(s, Library):
                 libs.append(s.filename.apply(lambda x: splitext(basename(x))[0]))
                 linkpath.add(s.path)
-            elif isinstance(s, artefact):
+            elif isinstance(s, Artefact):
                 src.append(s)
             else:
                 raise ValueError('Unknown type of source {}'.format(s))
@@ -148,23 +148,23 @@ class msvc(cc, cxx):
 
     def __init__(self, name='msvc', command=None, version='', features=()):
 
-        features = fset.instantiate(features)
+        features = Set.instantiate(features)
         if not version:
             version = self.find_version_requirement(features)
-        if not version and len(msvc._toolchains):
-            version = list(msvc._toolchains)[0]
-        if version not in msvc._toolchains:
+        if not version and len(MSVC._toolchains):
+            version = list(MSVC._toolchains)[0]
+        if version not in MSVC._toolchains:
             raise ValueError(f'unknown MSVC version {version}')
         arch = str(features.target.arch) if 'target' in features else None
-        if arch and arch not in msvc._toolchains[version]:
+        if arch and arch not in MSVC._toolchains[version]:
             raise ValueError(f'MSVC {version} does not support target architecture {arch}')
         if arch:
-            product_dir, path = msvc._toolchains[version][arch]
+            product_dir, path = MSVC._toolchains[version][arch]
             features |= compiler.target(os='Windows')
         else:
-            arch, (product_dir, path) = list(msvc._toolchains[version].items())[0]
+            arch, (product_dir, path) = list(MSVC._toolchains[version].items())[0]
             features |= compiler.target(arch=arch, os='Windows')
-        super(msvc, self).__init__(name=name, version=version)
+        super(MSVC, self).__init__(name=name, version=version)
         self.features |= features
 
         self.makedep.cmd.subst('cl', '"{}\\{}"'.format(path, 'cl'))
@@ -174,7 +174,7 @@ class msvc(cc, cxx):
 
         # Extract INCLUDE, LIB, and LIBPATH from setup script
         setup = join(product_dir, 'vcvarsall.bat')
-        output = check_output([setup, msvc.win_archs[arch], '&', 'set']).decode()
+        output = check_output([setup, MSVC.win_archs[arch], '&', 'set']).decode()
         vars = dict(line.split('=', 1) for line in output.splitlines() if '=' in line)
         self.vars = {k: vars[k] for k in ('INCLUDE', 'LIB', 'LIBPATH')}
         include = compiler.include(*[i for i in self.vars['INCLUDE'].split(pathsep) if i])
@@ -221,10 +221,10 @@ class msvc(cc, cxx):
                 # This reports a different version, though the meaning of it isn't clear:
                 # version = open(join(ipath, 'Microsoft.VCToolsVersion.default.txt')).read().strip()
                 cls._toolchains[version] = OrderedDict()
-                for arch in msvc.known_archs:
+                for arch in MSVC.known_archs:
                     product_dir, path = ipath, None
                     try:
-                        path = cls.find_path(ipath, msvc.win_archs[arch])
+                        path = cls.find_path(ipath, MSVC.win_archs[arch])
                     except Exception:
                         pass
                     if path:
@@ -271,7 +271,7 @@ class msvc(cc, cxx):
 
         for version in known_versions:
             cls._toolchains[version] = OrderedDict()
-            for arch in msvc.known_archs:
+            for arch in MSVC.known_archs:
                 product_dir, path = None, None
                 for x64elt in ('', 'Wow6432Node\\'):
                     try:
@@ -279,7 +279,7 @@ class msvc(cc, cxx):
                                             'SOFTWARE\\{}Microsoft\\{}'
                                             .format(x64elt, reg_keys[version])) as key:
                             product_dir = winreg.QueryValueEx(key, "ProductDir")[0]
-                            path = cls.find_path(product_dir, msvc.win_archs[arch])
+                            path = cls.find_path(product_dir, MSVC.win_archs[arch])
                     except Exception:
                         pass
                 if path:
@@ -293,12 +293,12 @@ class msvc(cc, cxx):
     def instances(cls, fs=None):
         """Return all known MSVC instances."""
 
-        if not msvc.instantiated():
-            for v in msvc._toolchains:
-                for a, _ in msvc._toolchains[v].items():
-                    msvc(version=v, features=compiler.target(arch=a))
-        return super(cc, cls).instances(fs)
+        if not MSVC.instantiated():
+            for v in MSVC._toolchains:
+                for a, _ in MSVC._toolchains[v].items():
+                    MSVC(version=v, features=compiler.target(arch=a))
+        return super().instances(fs)
 
 
 # If this module is imported, assume we are running inside Windows
-msvc.discover()
+MSVC.discover()

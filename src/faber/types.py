@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class typed_name(object):
+class TypedName(object):
     """adorn a (file-)name with a type"""
 
     def __init__(self, name, type):
@@ -25,14 +25,14 @@ class typed_name(object):
     def __str__(self): return '<{} {}>'.format(self.type.name, self.name)
 
 
-class type(object):
+class Type(object):
 
     # a dictionary mapping host names to extension->type mappings
     # As there are potentially multiple types using the same extension,
     # we only remember the first for reverse (extension->type) lookup.
     _register = defaultdict(dict)
 
-    class maybemethod(object):
+    class MaybeMethod(object):
         """A descritor that allows a member to be accesses as either
         a method or a classmethod"""
 
@@ -48,23 +48,23 @@ class type(object):
         ext = splitext(filename)[1]
         ext = ext and ext[1:]
         if not ext: return None
-        elif host in type._register and ext in type._register[host]:
-            return type._register[host][ext]
+        elif host in Type._register and ext in Type._register[host]:
+            return Type._register[host][ext]
         else:
-            return type._register[''].get(ext)
+            return Type._register[''].get(ext)
 
-    @maybemethod
+    @MaybeMethod
     def typed_name(self, name, host=''):
         """Create a typed object. If this is called as a classmethod,
         look up the appropriate type from the file extension. Otherwise
         use `self` as type."""
 
         host = host or platform.os
-        t = self or type.discover(name, host)
+        t = self or Type.discover(name, host)
         if not t:
             raise RuntimeError('Cannot discover type for {} on {}'
                                .format(name, host))
-        return typed_name(name, t)
+        return TypedName(name, t)
 
     def synthesize_name(self, name, host=''):
         """Synthesize a new filename from an existing filename and the given type."""
@@ -74,10 +74,10 @@ class type(object):
         host = host or platform.os
         if self:
             t = self
-        elif ext in type._register[host]:
-            t = type._register[host][ext]
+        elif ext in Type._register[host]:
+            t = Type._register[host][ext]
         else:
-            t = type._register[''][ext]
+            t = Type._register[''][ext]
         ext = t.ext(host)[0]
         return ext and stem + '.' + ext or stem
 
@@ -94,8 +94,8 @@ class type(object):
         for h in host_specific:
             for e in host_specific[h]:
                 self._ext[h].append(e)
-                if e not in type._register[h]:
-                    type._register[h][e] = self
+                if e not in Type._register[h]:
+                    Type._register[h][e] = self
                     logger.debug('registering {} on {}'.format(name, h))
                 else:
                     logger.debug('not registering {} on {}'.format(name, h))
@@ -104,24 +104,24 @@ class type(object):
         return '<type {}>'.format(self.name)
 
 
-class library(type):
+class Library(Type):
     """library names not only have a file extension, but may also be prefixed with 'lib'."""
 
     def synthesize_name(self, name, host=''):
 
         dir, base = split(name)
         host = host or platform.os
-        base = type.synthesize_name(self, base, host)
+        base = Type.synthesize_name(self, base, host)
         if host != 'Windows' or self.name == 'lib':
             # on Windows, only static libs get the 'lib' prefix
             base = 'lib' + base
         return dir and join(dir, base) or base
 
 
-c = type('c', ['c'])
-cxx = type('cxx', ['cc', 'cxx', 'cpp', 'C'])
-obj = type('obj', ['o'], Windows=['obj'])
-bin = type('bin', [''], Windows=['exe'])
-lib = library('lib', ['a'], Windows=['lib'])
-dso = library('dso', ['so'], Windows=['dll'], Darwin=['dylib'])
-pyd = type('pyd', ['so'], Windows=['pyd'])
+c = Type('c', ['c'])
+cxx = Type('cxx', ['cc', 'cxx', 'cpp', 'C'])
+obj = Type('obj', ['o'], Windows=['obj'])
+bin = Type('bin', [''], Windows=['exe'])
+lib = Library('lib', ['a'], Windows=['lib'])
+dso = Library('dso', ['so'], Windows=['dll'], Darwin=['dylib'])
+pyd = Type('pyd', ['so'], Windows=['pyd'])

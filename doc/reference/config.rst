@@ -15,11 +15,11 @@ etc.
 synopsis
 --------
 
-.. autoclass:: faber.config.check.check
+.. autoclass:: faber.config.check.Check
 
-.. autoclass:: faber.config.try_compile.try_compile
+.. autoclass:: faber.config.try_compile.TryCompile
 
-.. autoclass:: faber.config.try_link.try_link
+.. autoclass:: faber.config.try_link.TryLink
 	       
 .. autoclass:: faber.config.cxx_checks.has_cxx11
 .. autoclass:: faber.config.cxx_checks.has_cxx14
@@ -38,7 +38,7 @@ Examples
              cxx_checks.has_cxx14(features, define('HAS_CXX14')),
              cxx_checks.has_cxx17(features, define('HAS_CXX17'))]
 
-   config = report('config', checks)
+   config = Report('config', checks)
 
 Running `faber config` will perform the above checks, and print out a little report, such as:
 

@@ -30,18 +30,18 @@ Attribute flags are used to indicate how to interpret feature values.
 
    Incidental values are not considered when matching two feature values.
 
-The `feature` class
+The `Feature` class
 -------------------
 
 Constructor
 ~~~~~~~~~~~
 
-.. method:: feature()
-	    feature(name)
-	    feature(name, values)
-	    feature(name, attributes)
-	    feature(name, values, attributes)
-	    feature(name, **subfeatures)
+.. method:: Feature()
+	    Feature(name)
+	    Feature(name, values)
+	    Feature(name, attributes)
+	    Feature(name, values, attributes)
+	    Feature(name, **subfeatures)
 
    Construct a new feature.
 
@@ -64,7 +64,7 @@ Call operator
 		
    :parameter values: initial values of the feature variable
 	       
-The `value` class
+The `Value` class
 -----------------
 
 Operators
@@ -82,7 +82,7 @@ Operators
 
    Return `True` if `other` has or is the same value as self.
 	     
-The `set` class
+The `Set` class
 ---------------
 
 Class methods
@@ -95,8 +95,8 @@ Class methods
 Constructor
 ~~~~~~~~~~~
 
-.. method:: set()
-	    set(*values)
+.. method:: Set()
+	    Set(*values)
 
    Construct a feature set from the given values.
 
@@ -120,19 +120,19 @@ Operators
    `s['include']` and `s.include` give access to it.
 
 
-The `condition.expr` classes
+The `condition.Expression` classes
 ----------------------------
 
-.. class:: expr
+.. class:: Expression
 
    Base class to construct condition expressions.
 
-   .. inheritance-diagram:: faber.feature.condition.true
-			    faber.feature.condition.false
-			    faber.feature.condition.unary
-			    faber.feature.condition.binary
-			    faber.feature.condition.sub
-			    faber.feature.condition.value
+   .. inheritance-diagram:: faber.feature.condition.True_
+			    faber.feature.condition.False_
+			    faber.feature.condition.Unary
+			    faber.feature.condition.Binary
+			    faber.feature.condition.Sub
+			    faber.feature.condition.Value
       :parts: 1
 
    All relational operators are supported, and will result in compound expressions.
@@ -145,9 +145,9 @@ Assuming the following features are defined::
 
   from faber.feature import *
    
-  include = feature('include', multi|path|incidental)
-  link = feature('link', values=('shared', 'static'))
-  target = feature('target', os=feature(), arch=feature())
+  include = Feature('include', multi|path|incidental)
+  link = Feature('link', values=('shared', 'static'))
+  target = Feature('target', os=feature(), arch=feature())
 
 it is possible to define values for them globally per command-line arguments:
 
@@ -158,8 +158,8 @@ it is possible to define values for them globally per command-line arguments:
 These feature values are added to all artefact feature sets by default (but
 may be overwritten or added to by artefact-specific values::
 
-  greet = library('greet', 'greet.cpp', features=link('static'))
+  greet = Library('greet', 'greet.cpp', features=link('static'))
 
 Artefacts may be conditionalized using condition expressions::
 
-  greet = library('greet', 'greet.cpp', condition=set.define.contains('HAS_FEATURE'))
+  greet = Library('greet', 'greet.cpp', condition=set.define.contains('HAS_FEATURE'))

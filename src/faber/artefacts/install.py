@@ -6,8 +6,8 @@
 # Boost Software License, Version 1.0.
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
-from ..artefact import artefact, source, notfile
-from ..tools.installer import installer, prefix, stage  # noqa F401
+from ..artefact import Artefact, Source, notfile
+from ..tools.installer import Installer, prefix, stage  # noqa F401
 from ..rule import rule, alias
 from .. import platform
 from os.path import normpath, join, splitdrive
@@ -19,22 +19,22 @@ else:
     default_prefix = prefix('/usr/local')
 
 
-class _installed(artefact):
+class Installed(Artefact):
     """An installed artefact has a filename outside the build directory."""
 
     def __init__(self, a, subdir, features):
         """Create an installed artefact."""
-        a = source.instantiate(a)
+        a = Source.instantiate(a)
         self.a = a
         self.subdir = subdir or ''
-        artefact.__init__(self, a.name, type=a.type, module=a.module, features=features)
+        Artefact.__init__(self, a.name, type=a.type, module=a.module, features=features)
         # set a default installation prefix
         if 'prefix' not in self.features:
             self.features += default_prefix
         self._define_rule()
 
     def __call__(self, features):
-        clone = artefact.__call__(self, features)
+        clone = Artefact.__call__(self, features)
         clone._define_rule()
         return clone
 
@@ -56,7 +56,7 @@ class _installed(artefact):
         return normpath(join(self.relpath, self.a.name))
 
     def _define_rule(self):
-        rule(installer.install, self, self.a)
+        rule(Installer.install, self, self.a)
 
 
 def installed(artefact, subdir=None, features=()):
@@ -64,13 +64,13 @@ def installed(artefact, subdir=None, features=()):
 
     from . import library
     # TODO: Find an extensible mechanism to make this polymorphic
-    if isinstance(artefact, library.library):
-        return library.installed(artefact, subdir, features)
+    if isinstance(artefact, library.Library):
+        return library.InstalledLibrary(artefact, subdir, features)
     else:
-        return _installed(artefact, subdir, features)
+        return Installed(artefact, subdir, features)
 
 
-class manifest(artefact):
+class Manifest(Artefact):
 
     def create(t, sources):
         stage = str(t[0].features.stage) if 'stage' in t[0].features else ''  # noqa F811
@@ -87,21 +87,21 @@ class manifest(artefact):
         # TODO: Find a real solution for this, including establishing
         #       and documenting artefact naming requirements, etc.
         name = name.replace(':', '_')
-        artefact.__init__(self, name, features=features)
-        rule(manifest.create, self, installed)
+        Artefact.__init__(self, name, features=features)
+        rule(Manifest.create, self, installed)
 
 
-class installation(artefact):
+class Installation(Artefact):
 
     def __init__(self, name, installed, features=()):
-        artefact.__init__(self, name, attrs=notfile, features=features)
+        Artefact.__init__(self, name, attrs=notfile, features=features)
         self.installed = installed
-        self.manifest = manifest(self.name + '.manifest', installed, features=features)
+        self.manifest = Manifest(self.name + '.manifest', installed, features=features)
         alias(self, self.manifest)
 
     def __call__(self, features):
-        clone = artefact.__call__(self, features)
+        clone = Artefact.__call__(self, features)
         clone.installed = [i(features) for i in self.installed]
-        clone.manifest = manifest(self.name + '.manifest', clone.installed, features=features)
+        clone.manifest = Manifest(self.name + '.manifest', clone.installed, features=features)
         alias(clone, clone.manifest)
         return clone

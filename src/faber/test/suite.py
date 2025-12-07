@@ -7,21 +7,21 @@
 # (Consult LICENSE or http://www.boost.org/LICENSE_1_0.txt)
 
 from .test import *
-from ..artefact import artefact, notfile
+from ..artefact import Artefact, notfile
 
 
-class suite(artefact):
+class Suite(Artefact):
     """A test suite provides an alias to a set of tests."""
 
     def __init__(self, name, tests, attrs=notfile, module=None):
         """tests consists of either test objects or other suites."""
-        super(suite, self).__init__(name, attrs=attrs|notfile, module=module)
+        super(Suite, self).__init__(name, attrs=attrs|notfile, module=module)
         self.tests = tests
         depend(self, self.tests)
 
     def __iter__(self):
         for t in self.tests:
-            if isinstance(t, suite):
+            if isinstance(t, Suite):
                 # Use `yield from` once we stop supporting Python 2.7
                 for i in t:
                     yield i
